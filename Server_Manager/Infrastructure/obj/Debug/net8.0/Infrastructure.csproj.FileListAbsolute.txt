@@ -15,3 +15,21 @@ E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Infrastructure\obj\Debug\net8.0\re
 E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Infrastructure\bin\Debug\net8.0\Domain.dll
 E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Infrastructure\bin\Debug\net8.0\Domain.pdb
 E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Infrastructure\obj\Debug\net8.0\Infrastr.15EFFBFE.Up2Date
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\bin\Debug\net8.0\Infrastructure.deps.json
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\bin\Debug\net8.0\Infrastructure.runtimeconfig.json
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\bin\Debug\net8.0\Infrastructure.dll
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\bin\Debug\net8.0\Infrastructure.pdb
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\bin\Debug\net8.0\Domain.dll
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\bin\Debug\net8.0\Domain.pdb
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\obj\Debug\net8.0\Infrastructure.csproj.AssemblyReference.cache
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\obj\Debug\net8.0\Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\obj\Debug\net8.0\Infrastructure.AssemblyInfoInputs.cache
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\obj\Debug\net8.0\Infrastructure.AssemblyInfo.cs
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\obj\Debug\net8.0\Infrastructure.csproj.CoreCompileInputs.cache
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\obj\Debug\net8.0\Infrastructure.sourcelink.json
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\obj\Debug\net8.0\Infrastr.15EFFBFE.Up2Date
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\obj\Debug\net8.0\Infrastructure.dll
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\obj\Debug\net8.0\refint\Infrastructure.dll
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\obj\Debug\net8.0\Infrastructure.pdb
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\obj\Debug\net8.0\Infrastructure.genruntimeconfig.cache
+L:\Manager Code\Learn Code\ASP.NET\SPIT-EduCheck\Server_Manager\Infrastructure\obj\Debug\net8.0\ref\Infrastructure.dll

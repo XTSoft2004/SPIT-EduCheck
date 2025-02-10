@@ -1,0 +1,40 @@
+# Build artifacts
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ASP.NET specific
+appsettings*.json
+secrets.json
+
+# Rider / VS Code / VS specific
+.vscode/
+.idea/
+*.csproj.user
+*.vs/
+*.cr/
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.assets.json
+
+# Logs & Database
+*.log
+logs/
+*.mdf
+*.ldf
+
+# Deployment
+publish/
+wwwroot/
+
+# Docker
+docker-compose.override.yml

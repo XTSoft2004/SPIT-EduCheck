@@ -1,24 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Server_Manager\\Server_Manager.csproj": {}
+    "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Server_Manager\\Server_Manager.csproj": {}
   },
   "projects": {
-    "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Server_Manager\\Server_Manager.csproj": {
+    "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Server_Manager\\Server_Manager.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Server_Manager\\Server_Manager.csproj",
+        "projectUniqueName": "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Server_Manager\\Server_Manager.csproj",
         "projectName": "Server_Manager",
-        "projectPath": "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Server_Manager\\Server_Manager.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Server_Manager\\obj\\",
+        "projectPath": "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Server_Manager\\Server_Manager.csproj",
+        "packagesPath": "C:\\Users\\tranx\\.nuget\\packages\\",
+        "outputPath": "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Server_Manager\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\DevExpress 24.2\\Components\\Offline Packages",
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tranx\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 24.2.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
@@ -47,7 +47,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -81,7 +82,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

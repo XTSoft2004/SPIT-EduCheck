@@ -4999,25 +4999,25 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Admin\\.nuget\\packages\\": {},
+    "C:\\Users\\tranx\\.nuget\\packages\\": {},
     "C:\\Program Files\\DevExpress 24.2\\Components\\Offline Packages": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Infrastructure\\Infrastructure.csproj",
+      "projectUniqueName": "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Infrastructure\\Infrastructure.csproj",
       "projectName": "Infrastructure",
-      "projectPath": "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Infrastructure\\Infrastructure.csproj",
-      "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Infrastructure\\obj\\",
+      "projectPath": "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Infrastructure\\Infrastructure.csproj",
+      "packagesPath": "C:\\Users\\tranx\\.nuget\\packages\\",
+      "outputPath": "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Infrastructure\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\DevExpress 24.2\\Components\\Offline Packages",
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\tranx\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 24.2.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
@@ -5035,8 +5035,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Domain\\Domain.csproj": {
-              "projectPath": "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Domain\\Domain.csproj"
+            "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Domain\\Domain.csproj": {
+              "projectPath": "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Domain\\Domain.csproj"
             }
           }
         }
@@ -5050,7 +5050,8 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      }
+      },
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -5093,7 +5094,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

@@ -1,13 +1,13 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\",
+  "WorkspaceRootPath": "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D1D6735C-CF6E-4622-8301-D6494920EF32}|Infrastructure\\Infrastructure.csproj|e:\\manager_code\\c#\\chamcongclb\\server_manager\\infrastructure\\contextdb\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{D1D6735C-CF6E-4622-8301-D6494920EF32}|Infrastructure\\Infrastructure.csproj|l:\\manager code\\learn code\\asp.net\\spit-educheck\\server_manager\\infrastructure\\contextdb\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D1D6735C-CF6E-4622-8301-D6494920EF32}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\contextdb\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{881FC014-D034-4412-A67A-69FE5DDCCAE5}|Domain\\Domain.csproj|e:\\manager_code\\c#\\chamcongclb\\server_manager\\domain\\entities\\teachingschedule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{881FC014-D034-4412-A67A-69FE5DDCCAE5}|Domain\\Domain.csproj|l:\\manager code\\learn code\\asp.net\\spit-educheck\\server_manager\\domain\\entities\\teachingschedule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{881FC014-D034-4412-A67A-69FE5DDCCAE5}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\teachingschedule.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -18,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 296,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -42,21 +42,17 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
-            },
-            {
-              "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "AppDbContext.cs",
-              "DocumentMoniker": "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Infrastructure\\ContextDB\\AppDbContext.cs",
+              "DocumentMoniker": "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Infrastructure\\ContextDB\\AppDbContext.cs",
               "RelativeDocumentMoniker": "Infrastructure\\ContextDB\\AppDbContext.cs",
-              "ToolTip": "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Infrastructure\\ContextDB\\AppDbContext.cs",
+              "ToolTip": "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Infrastructure\\ContextDB\\AppDbContext.cs",
               "RelativeToolTip": "Infrastructure\\ContextDB\\AppDbContext.cs",
-              "ViewState": "AgIAABoAAAAAAAAAAAAQwCwAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABoAAAAAAAAAAAAQwC0AAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-02-10T09:57:45.854Z",
               "EditorCaption": ""
@@ -65,14 +61,13 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "TeachingSchedule.cs",
-              "DocumentMoniker": "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Domain\\Entities\\TeachingSchedule.cs",
+              "DocumentMoniker": "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Domain\\Entities\\TeachingSchedule.cs",
               "RelativeDocumentMoniker": "Domain\\Entities\\TeachingSchedule.cs",
-              "ToolTip": "E:\\Manager_Code\\C#\\ChamCongCLB\\Server_Manager\\Domain\\Entities\\TeachingSchedule.cs",
+              "ToolTip": "L:\\Manager Code\\Learn Code\\ASP.NET\\SPIT-EduCheck\\Server_Manager\\Domain\\Entities\\TeachingSchedule.cs",
               "RelativeToolTip": "Domain\\Entities\\TeachingSchedule.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAIBJwBgAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-10T09:56:35.202Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-10T09:56:35.202Z"
             }
           ]
         }
