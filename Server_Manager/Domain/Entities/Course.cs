@@ -29,8 +29,8 @@ namespace Domain.Entities
         /// </summary>
         public int Credits { get; set; }
 
-        public long SemesterID { get; set; }
-        [ForeignKey(nameof(SemesterID))]
+        public long SemesterId { get; set; }
+        [ForeignKey(nameof(SemesterId))]
         public virtual Semester Semester { get; set; }
 
         public ICollection<Class_Courses> ClassCourses { get; set; } = new List<Class_Courses>();

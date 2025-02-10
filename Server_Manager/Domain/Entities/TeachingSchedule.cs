@@ -34,12 +34,12 @@ namespace Domain.Entities
         /// </summary>
         public DateTime CheckOut { get; set; }
 
-        public long StudentID { get; set; }
-        [ForeignKey(nameof(StudentID))]
+        public long StudentId { get; set; }
+        [ForeignKey(nameof(StudentId))]
         public virtual Student Students { get; set; }
 
-        public long Class_CoursesID { get; set; }
-        [ForeignKey(nameof(Class_CoursesID))]
+        public long Class_CoursesId { get; set; }
+        [ForeignKey(nameof(Class_CoursesId))]
         public virtual Class_Courses Class_Courses { get; set; }
 
     }

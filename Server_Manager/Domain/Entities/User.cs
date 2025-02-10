@@ -5,11 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Entities.Base;
 using Microsoft.AspNetCore.Identity;
 
 namespace Domain.Entities
 {
-    public class User
+    public class User : EntityBase
     {
         /// <summary>
         /// Tên tài khoản
@@ -34,8 +35,8 @@ namespace Domain.Entities
         /// </summary>
         public DateTime? Dob { get; set; }
 
-        public long RoleID { get; set; }
-        [ForeignKey(nameof(RoleID))]
+        public long RoleId { get; set; }
+        [ForeignKey(nameof(RoleId))]
         public virtual Role Role { get; set; }
     }
 }

@@ -29,11 +29,11 @@ namespace Domain.Entities
         /// </summary>
         public DateTime DateTime { get; set; }
 
-        public long CourseID { get; set; }
-        [ForeignKey(nameof(CourseID))]
+        public long CourseId { get; set; }
+        [ForeignKey(nameof(CourseId))]
         public virtual Course Courses { get; set; }
-        public long LecturerID { get; set; }
-        [ForeignKey(nameof(CourseID))]    
+        public long LecturerId { get; set; }
+        [ForeignKey(nameof(LecturerId))]    
         public virtual Lecturer Lecturers { get; set; }
 
         public ICollection<TeachingSchedule> TeachingSchedules { get; set; } = new List<TeachingSchedule>();
