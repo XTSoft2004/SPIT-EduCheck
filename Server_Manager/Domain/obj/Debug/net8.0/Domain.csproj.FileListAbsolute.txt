@@ -1,0 +1,12 @@
+E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Domain\bin\Debug\net8.0\Domain.deps.json
+E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Domain\bin\Debug\net8.0\Domain.dll
+E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Domain\bin\Debug\net8.0\Domain.pdb
+E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Domain\obj\Debug\net8.0\Domain.GeneratedMSBuildEditorConfig.editorconfig
+E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Domain\obj\Debug\net8.0\Domain.AssemblyInfoInputs.cache
+E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Domain\obj\Debug\net8.0\Domain.AssemblyInfo.cs
+E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Domain\obj\Debug\net8.0\Domain.csproj.CoreCompileInputs.cache
+E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Domain\obj\Debug\net8.0\Domain.dll
+E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Domain\obj\Debug\net8.0\refint\Domain.dll
+E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Domain\obj\Debug\net8.0\Domain.pdb
+E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Domain\obj\Debug\net8.0\ref\Domain.dll
+E:\Manager_Code\C#\ChamCongCLB\Server_Manager\Domain\obj\Debug\net8.0\Domain.csproj.AssemblyReference.cache
