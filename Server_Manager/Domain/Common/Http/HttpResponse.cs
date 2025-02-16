@@ -1,4 +1,5 @@
 ﻿using Domain.Interfaces.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json.Serialization;
 
@@ -8,7 +9,9 @@ namespace Domain.Common.Http
     {
         [JsonIgnore]
         public int StatusCode { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public object Data { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string Message { get; set; }
 
         public static HttpResponse OK(object data = null
@@ -31,6 +34,10 @@ namespace Domain.Common.Http
                 Message = message,
                 StatusCode = (int)statusCode
             };
+        }
+        public IActionResult ToActionResult()
+        {
+            return new ObjectResult(this) { StatusCode = this.StatusCode };
         }
     }
 

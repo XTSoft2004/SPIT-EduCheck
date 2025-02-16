@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -45,7 +46,21 @@ namespace Domain.Entities
         /// </summary>
         [StringLength(100)]
         public string Email { get; set; }
+        /// <summary>
+        /// Giới tính
+        /// </summary>
+        public bool? Gender { get; set; }
+        /// <summary>
+        /// Ngày sinh
+        /// </summary>
+        public DateTime? Dob { get; set; }
 
+        /// <summary>
+        /// Mối quan hệ 1-1 với User
+        /// </summary>
+        public long UserId { get; set; }
+        [ForeignKey(nameof(UserId))]
+        public virtual User User { get; set; }
         public ICollection<TeachingSchedule> TeachingSchedules { get; set; } = new List<TeachingSchedule>();    
     }
 }

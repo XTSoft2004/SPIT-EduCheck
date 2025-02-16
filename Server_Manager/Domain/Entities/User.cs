@@ -25,18 +25,19 @@ namespace Domain.Entities
         /// <summary>
         /// Tài khoản bị khóa
         /// </summary>
-        public bool IsLocked { get; set; }
+        public bool IsLocked { get; set; } = false;
         /// <summary>
-        /// Giới tính
+        /// Tài khoản xác minh
         /// </summary>
-        public bool? Gender { get; set; }
-        /// <summary>
-        /// Ngày sinh
-        /// </summary>
-        public DateTime? Dob { get; set; }
+        public bool IsVerify { get; set; } = false;
 
         public long RoleId { get; set; }
         [ForeignKey(nameof(RoleId))]
         public virtual Role Role { get; set; }
+
+        public long StudentId { get; set; }
+        [ForeignKey(nameof(StudentId))]
+        public virtual Student Student { get; set; }
+        public virtual RefreshToken RefreshToken { get; set; }
     }
 }
