@@ -4,6 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Domain.Interfaces.Database;
 using static Domain.Common.AppConstants;
 using Infrastructure.ContextDB;
+using Domain.Interfaces.Services;
+using Domain.Services;
+using Domain.Common.Extensions;
+using System.Reflection;
 
 namespace WebApp.Configures.DIConfig
 {
@@ -19,6 +23,10 @@ namespace WebApp.Configures.DIConfig
             //});
 
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            // Inject UnitOfWork
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            // Add Interfaces Automatic
+            services.AddServicesFromAssembly(typeof(IStudentServices).Assembly, "Domain.Interfaces.Services");
 
             //services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -26,8 +34,6 @@ namespace WebApp.Configures.DIConfig
             //    .AddDefaultUI()
             //    .AddDefaultTokenProviders();
 
-            // Inject UnitOfWork
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
     }
 }

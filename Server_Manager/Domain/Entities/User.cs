@@ -10,6 +10,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Domain.Entities
 {
+    /// <summary>
+    /// Người dùng
+    /// </summary>
     public class User : EntityBase
     {
         /// <summary>
@@ -31,13 +34,14 @@ namespace Domain.Entities
         /// </summary>
         public bool IsVerify { get; set; } = false;
 
-        public long RoleId { get; set; }
+        public long? RoleId { get; set; }
         [ForeignKey(nameof(RoleId))]
-        public virtual Role Role { get; set; }
+        public virtual Role? Role { get; set; }
 
-        public long StudentId { get; set; }
+        public long? StudentId { get; set; }
         [ForeignKey(nameof(StudentId))]
-        public virtual Student Student { get; set; }
-        public virtual RefreshToken RefreshToken { get; set; }
+        public virtual Student? Student { get; set; }
+
+        public virtual RefreshToken RefreshToken { get; set; } 
     }
 }

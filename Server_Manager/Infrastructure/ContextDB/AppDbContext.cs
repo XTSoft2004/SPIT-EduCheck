@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.ContextDB
 {
@@ -13,51 +11,72 @@ namespace Infrastructure.ContextDB
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<Class_Courses> ClassCourses { get; set; } = null!;
-        public DbSet<Course> Courses { get; set; } = null!;
-        public DbSet<Lecturer> Lecturers { get; set; } = null!;
-        public DbSet<Role> Roles { get; set; } = null!;
-        public DbSet<Semester> Semesters { get; set; } = null!;
-        public DbSet<Student> Students { get; set; } = null!;
-        public DbSet<TeachingSchedule> TeachingSchedules { get; set; } = null!;
-        public DbSet<User> Users { get; set; } = null!;
-        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+        // DbSet cho các thực thể
+        public DbSet<Student> Students { get; set; }
+        public DbSet<Lecturer> Lecturers { get; set; }
+        public DbSet<Class> Classes { get; set; }
+        public DbSet<Course> Courses { get; set; }
+        public DbSet<Semester> Semesters { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Timesheet> Timesheets { get; set; }
+
+        // DbSet cho các mối quan hệ
+        public DbSet<Class_Student> ClassStudents { get; set; }
+        public DbSet<Class_Course> ClassCourses { get; set; }
+        public DbSet<Class_Timesheet> ClassTimesheets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Mối quan hệ 1-N giữa User và Role
             modelBuilder.Entity<User>()
-                .HasOne(u => u.Role)
-                .WithMany(r => r.Users)
-                .HasForeignKey(u => u.RoleId);
+               .HasOne(u => u.Role)       // Một User có một Role
+               .WithMany(r => r.Users)     // Một Role có nhiều User
+               .HasForeignKey(u => u.RoleId)  // User có khóa ngoại trỏ đến Role
+               .OnDelete(DeleteBehavior.Restrict); // Khi Role bị xóa, User không bị xóa
 
-            // Mối quan hệ 1-1 giữa User và Student
+            #region Mối quan hệ giữa User và Student
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Student)
                 .WithOne(s => s.User)
-                .HasForeignKey<Student>(s => s.UserId)
-                .IsRequired();
+                .HasForeignKey<Student>(s => s.UserId) // Đặt khóa ngoại ở Student
+                .OnDelete(DeleteBehavior.SetNull); // Khi User bị xóa, UserId trong Student thành NULL
 
-            // Thiết lập quan hệ giữa Class_Courses và Lecturer
-            modelBuilder.Entity<Class_Courses>()
-                .HasOne(c => c.Lecturers)
-                .WithMany(l => l.Class_Courses)
-                .HasForeignKey(c => c.LecturerId);
+            modelBuilder.Entity<Student>()
+                .HasOne(s => s.User)
+                .WithOne(u => u.Student)
+                .HasForeignKey<User>(u => u.StudentId) // Đặt khóa ngoại ở User
+                .OnDelete(DeleteBehavior.SetNull); // Khi Student bị xóa, StudentId trong User thành NULL
+            #endregion
 
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.RefreshToken)
-                .WithOne(rt => rt.User)
-                .HasForeignKey<RefreshToken>(rt => rt.UserId)
-                .IsRequired();
+            modelBuilder.Entity<Course>()
+                .HasOne(c => c.Semester)   // Một Semester có nhiều Course
+                .WithMany(s => s.Courses)   // Một Course chỉ thuộc về một Semester
+                .HasForeignKey(u => u.SemesterId) // Course có khóa ngoại trỏ đến Semester
+                .OnDelete(DeleteBehavior.SetNull); // Khi Semester bị xóa, Course cũng bị xóa (tuỳ chọn)
 
+            modelBuilder.Entity<Class>()
+                .HasOne(c => c.Lecturer)
+                .WithMany(l => l.Class)
+                .HasForeignKey(c => c.LecturerId)
+                .OnDelete(DeleteBehavior.SetNull); // Khi Lecturer bị xóa, Class sẽ trở về null
+
+            modelBuilder.Entity<Class_Student>()
+                .HasKey(cs => new { cs.ClassId, cs.StudentId }); // Khóa chính kết hợp  
+
+            modelBuilder.Entity<Class_Timesheet>()
+                .HasKey(cs => new { cs.ClassId, cs.TimesheetId }); // Khóa chính kết hợp
+
+            modelBuilder.Entity<Class_Course>()
+                .HasKey(cs => new { cs.ClassId, cs.CourseId }); // Khóa chính kết hợp
+
+            // Seed dữ liệu cho Role
             var roleValues = Enum.GetValues(typeof(Role_Enum)).Cast<Role_Enum>().ToArray();
-
             var roles = roleValues
                 .Select((role, index) => new Role
                 {
-                    Id = -(index + 1), // Lấy index, bắt đầu từ 1
+                    Id = -(index + 1), // Sử dụng ID âm cho dữ liệu seed
                     DisplayName = role.GetEnumDisplayName(),
                     CreatedBy = "System"
                 })
@@ -65,19 +84,18 @@ namespace Infrastructure.ContextDB
 
             modelBuilder.Entity<Role>().HasData(roles);
 
-
+            // Seed dữ liệu cho User
             modelBuilder.Entity<User>().HasData(
-                new User()
+                new User
                 {
                     Id = -1,
                     Username = "admin",
-                    Password = "admin",
+                    Password = "admin", // Cần mã hóa mật khẩu trong môi trường sản xuất
                     RoleId = -1, // Phải khớp với Role.Id = -1
                     CreatedBy = "System",
-                    //CreatedDate = DateTime.UtcNow
+                    // CreatedDate = DateTime.UtcNow // Bỏ chú thích nếu cần
                 }
             );
         }
     }
-
 }

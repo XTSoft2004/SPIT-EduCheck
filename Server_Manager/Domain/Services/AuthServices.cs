@@ -42,7 +42,8 @@ namespace Domain.Services
             {
                 Username = registerRequest.Username,
                 Password = registerRequest.Password,
-                RoleId = -2
+                RoleId = -2,
+                CreatedDate = DateTime.Now,
             };
             _User.Insert(user);
             await UnitOfWork.CommitAsync();
@@ -69,18 +70,26 @@ namespace Domain.Services
                     IsLocked = _user.IsLocked,
                     IsVerify = _user.IsVerify,
                     RoleName = _Role.Find(_Role => _Role.Id == _user.RoleId).DisplayName,
+                    //RoleName = _user.Role?.DisplayName
                 };
                 user.AccessToken = _tokenServices.GenerateToken(user);
                 user.RefreshToken = _tokenServices.GenerateRefreshToken(user);
-               
+
+                await _tokenServices.UpdateRefreshToken(new RefreshToken()
+                {
+                    UserId = user.Id,
+                    Token = user.RefreshToken,
+                    ExpiryDate = TokenServices.GetDateTimeFormToken(user.RefreshToken)
+                });
+
                 return HttpResponse.OK(user, "Đăng nhập thành công.");
             }
         }
 
-        public async Task<HttpResponse> RefreshToken(string refreshToken)
+        public async Task<HttpResponse> RefreshToken(string token)
         {
-            var InfoToken = _tokenServices.GetInfoFromToken(refreshToken);
-            if(InfoToken != null && InfoToken.refreshToken != null && InfoToken.refreshToken.ExpiryDate > DateTime.UtcNow)
+            var InfoToken = _tokenServices.GetInfoFromToken(token);
+            if(InfoToken != null && (InfoToken.ExpiryDate > DateTime.Now))
             {
                 var user = _User.Find(x => x.Id == InfoToken.Id);
                 if (user != null)

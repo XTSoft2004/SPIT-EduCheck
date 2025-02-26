@@ -1,6 +1,7 @@
 ﻿using Domain.Entities.Base;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,12 +16,16 @@ namespace Domain.Entities
         /// <summary>
         /// Học kỳ
         /// </summary>
+        [Required]
         public int Semesters_Number { get; set; }
         /// <summary>
-        /// Năm học
+        /// Năm học kỳ
         /// </summary>
+        [Required]
         public int Year { get; set; }
-
-        public ICollection<Course> Courses { get; set; } = new List<Course>();
+        /// <summary>
+        /// Danh sách các học phần trong học kỳ
+        /// </summary>
+        public virtual ICollection<Course> Courses { get; set; }
     }
 }

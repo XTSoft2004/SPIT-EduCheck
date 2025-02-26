@@ -9,32 +9,21 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    /// <summary>
-    /// Học phần
-    /// </summary>
-    public class Course : EntityBase
+    public class Class : EntityBase
     {
-        /// <summary>
-        /// Mã học phần
-        /// </summary>
         [StringLength(100), Required]
         public string Code { get; set; }
-        /// <summary>
-        /// Tên học phần
-        /// </summary>
-
         [StringLength(255), Required]
         public string Name { get; set; }
-        /// <summary>
-        /// Số tỉn chỉ
-        /// </summary>
         [Required]
-        public int Credits { get; set; }
+        public DateTime DateTime { get; set; }
 
-        public long? SemesterId { get; set; }
-        [ForeignKey(nameof(SemesterId))]
-        public virtual Semester? Semester { get; set; }
+        public long? LecturerId { get; set; }
+        [ForeignKey(nameof(LecturerId))]
+        public Lecturer? Lecturer { get; set; }
 
         public ICollection<Class_Course> ClassCourses { get; set; }
+        public ICollection<Class_Student> ClassStudents { get; set; } = new List<Class_Student>();
+        public ICollection<Class_Timesheet> ClassTimesheets { get; set; } = new List<Class_Timesheet>();
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Domain.Entities.Base;
-using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -9,14 +8,18 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
+    /// <summary>
+    /// Chức danh
+    /// </summary>
     public class Role : EntityBase
     {
         /// <summary>
-        /// Tên hiển thị
+        /// Tên chức danh
         /// </summary>
-        [Required, StringLength(200)]
+        [StringLength(255), Required]
         public string? DisplayName { get; set; }
 
-        public ICollection<User> Users { get; set; } = new List<User>();    
+        public ICollection<User> Users { get; set; }
     }
 }
+    

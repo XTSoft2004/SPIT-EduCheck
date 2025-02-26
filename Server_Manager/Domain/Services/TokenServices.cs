@@ -41,7 +41,7 @@ namespace Domain.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(Convert.ToInt32(_config["JwtSettings:ExpireToken"])),
+                Expires = DateTime.Now.AddDays(Convert.ToInt32(_config["JwtSettings:ExpireToken"])),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };
 
@@ -63,7 +63,7 @@ namespace Domain.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(Convert.ToInt32(_config["JwtSettings:ExpireRefreshToken"])),
+                Expires = DateTime.Now.AddDays(Convert.ToInt32(_config["JwtSettings:ExpireRefreshToken"])),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };
 
@@ -80,27 +80,49 @@ namespace Domain.Services
             var claim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
             return claim != null ? int.Parse(claim.Value) : null;
         }
+        public UserResponse GetUserFromToken(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var claims = jwtToken.Claims;
+            var IdValue = claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
+            long id = long.Parse(IdValue);
+            var username = claims.FirstOrDefault(c => c.Type == "unique_name")?.Value; // hoặc "unique_name"
+            var role = claims.FirstOrDefault(c => c.Type == "role")?.Value;
+            return new UserResponse() { 
+                Id = id,
+                Username = username,
+                RoleName = role,
+            };
+        }
         public AuthToken GetInfoFromToken(string token)
         {
             if (String.IsNullOrEmpty(token))
                 return null;
 
             var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
+            JwtSecurityToken jwtToken = null;
+            try
+            {
+                jwtToken = handler.ReadJwtToken(token);
+            }
+            catch { return null; }
+
             var claims = jwtToken.Claims;
 
-            long id = long.Parse(claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
-            var username = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value; // hoặc "unique_name"
-            var role = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
-            var refreshToken = _refreshToken.Find(x => x.UserId == id);
+            var IdValue = claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
+            long id = long.Parse(IdValue);
+            var username = claims.FirstOrDefault(c => c.Type == "unique_name")?.Value; // hoặc "unique_name"
+            var role = claims.FirstOrDefault(c => c.Type == "role")?.Value;
+            var expiryDateUnix = claims.FirstOrDefault(c => c.Type == "exp")?.Value;
+            var expiryDate = expiryDateUnix != null ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiryDateUnix)).DateTime : DateTime.MinValue;
 
             return new AuthToken()
             {
                 Id = id,
                 Username = username,
                 RoleName = role,
-                refreshToken = refreshToken
+                ExpiryDate = expiryDate
             };
         }
         public ClaimsPrincipal? ValidateToken(string token)
@@ -132,6 +154,14 @@ namespace Domain.Services
             var jwtToken = handler.ReadJwtToken(token);
             var claim = jwtToken.Claims.FirstOrDefault(c => c.Type == "exp");
             return claim != null ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(claim.Value)).DateTime : DateTime.MinValue;
+        }
+        public string GetRefreshToken(long userId)
+        {
+            var _token = _refreshToken.Find(f => f.UserId == userId);
+            if (_token == null)
+                return string.Empty;
+            else
+                return _token.Token;
         }
         public async Task<HttpResponse> UpdateRefreshToken(RefreshToken info)
         {

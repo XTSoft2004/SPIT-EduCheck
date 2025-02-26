@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,6 @@ namespace Domain.Model.Response.Auth
         public long Id { get; set; }
         public string? Username { get; set; }
         public string? RoleName { get; set; }
-        public RefreshToken? refreshToken { get; set; }
+        public DateTime ExpiryDate { get; set; }
     }
 }

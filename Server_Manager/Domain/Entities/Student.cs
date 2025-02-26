@@ -17,50 +17,47 @@ namespace Domain.Entities
         /// <summary>
         /// Mã sinh viên
         /// </summary>
-        [StringLength(10), Required]
+        [Required, StringLength(10)]
         public string MaSinhVien { get; set; }
         /// <summary>
-        /// Họ
+        /// Họ sinh viên
         /// </summary>
-        [StringLength(250), Required]
+        [Required, StringLength(100)]
         public string FirstName { get; set; }
         /// <summary>
-        /// Tên
+        /// Tên sinh viên
         /// </summary>
-        [StringLength(250), Required]
+        [Required, StringLength(100)]
         public string LastName { get; set; }
         /// <summary>
-        /// Lớp
+        /// Lớp sinh viên
         /// </summary>
-        [StringLength(10), Required]
+        [Required, StringLength(10)]
         public string Class { get; set; }
-
         /// <summary>
-        /// Số điện thoại sinh viên
+        /// Số điện thoại
         /// </summary>
-        [StringLength(10)]
+        [Required, StringLength(10)]
         public string PhoneNumber { get; set; }
-
         /// <summary>
         /// Email sinh viên
         /// </summary>
-        [StringLength(100)]
+        [Required, StringLength(100)]
         public string Email { get; set; }
         /// <summary>
         /// Giới tính
         /// </summary>
+        [Required]
         public bool? Gender { get; set; }
         /// <summary>
-        /// Ngày sinh
+        /// Ngày sinh nhật
         /// </summary>
+        [Required]
         public DateTime? Dob { get; set; }
 
-        /// <summary>
-        /// Mối quan hệ 1-1 với User
-        /// </summary>
-        public long UserId { get; set; }
+        public long? UserId { get; set; }
         [ForeignKey(nameof(UserId))]
-        public virtual User User { get; set; }
-        public ICollection<TeachingSchedule> TeachingSchedules { get; set; } = new List<TeachingSchedule>();    
+        public virtual User? User { get; set; }
+        public ICollection<Class_Student>? ClassStudents { get; set; } = new List<Class_Student>();
     }
 }

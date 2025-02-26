@@ -1,51 +1,56 @@
-﻿using Azure;
-using Domain.Interfaces.Services;
-using Domain.Model.DTOs;
+﻿using Domain.Interfaces.Services;
 using Domain.Model.Request.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using static Domain.Common.AppConstants;
 
 namespace Server_Manager.Controllers
 {
+    [Route("user")]
+    [ApiController]
     public class UserController : Controller
     {
-        private readonly IAuthServices? _services;
+        private readonly IUserServices _services;
 
-        public UserController(IAuthServices? services)
+        public UserController(IUserServices services)
         {
             _services = services;
         }
-
-        public IActionResult Index()
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMe()
         {
-            return View();
+            var userResponse = _services.GetMe();
+            if(userResponse == null)
+                return BadRequest(new { Message = "Thông tin không tồn tại, vui lòng kiểm tra lại !!!" });
+            else
+                return Ok(userResponse);
         }
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateAsync([FromBody] RegisterRequest registerRequest)
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var userResponse = _services.GetAllUsers();
+            if (userResponse == null)
+                return BadRequest(new { Message = "Danh sách người dùng trống !!!" });
+            else
+                return Ok(userResponse);
+        }
+        [HttpGet("{Id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUserById(long Id)
+        {
+            var userResponse = _services.GetUserById(Id);
+            if (userResponse == null)
+                return BadRequest(new { Message = "Người dùng không tồn tại !!!" });
+            else
+                return Ok(userResponse);
+        }
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePwRequest changePwRequest)
         {
             if (!ModelState.IsValid)
-                return BadRequest(DefaultString.INVALID_MODEL);
+                return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
 
-            var response = await _services.CreateAsync(registerRequest);
-            return response.ToActionResult();
-        }
-        [HttpPost("login")]
-        public async Task<IActionResult> LoginAsync([FromBody] LoginDTO loginDTO)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(DefaultString.INVALID_MODEL);
-
-            var response = await _services.LoginAsync(loginDTO);
-            return response.ToActionResult();
-        }
-        [HttpPost("refresh-token")]
-        public async Task<IActionResult> Refresh_Token(string refreshToken)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(DefaultString.INVALID_MODEL);
-
-            var response = await _services.RefreshToken(refreshToken);
+            var response = await _services.ChangePassword(changePwRequest);
             return response.ToActionResult();
         }
     }

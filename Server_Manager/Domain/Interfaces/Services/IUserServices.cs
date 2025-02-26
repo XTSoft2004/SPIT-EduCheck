@@ -12,31 +12,33 @@ namespace Domain.Interfaces.Services
 {
     public interface IUserServices
     {
+        /// <summary>
+        /// Lấy thông tin của cá nhân
+        /// </summary>
+        /// <returns></returns>
         UserResponse GetMe();
         /// <summary>
-        /// Lấy tất cả user
+        /// Lấy tất cả người dùng
         /// </summary>
         /// <returns></returns>
         List<UserResponse> GetAllUsers();
         /// <summary>
-        /// Lấy user theo Id
+        /// Lấy người dùng theo Id
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
         UserResponse GetUserById(long Id);
         /// <summary>
-        /// Tạo tài khoản
+        /// Thay đổi mật khẩu của người dùng
         /// </summary>
-        /// <param name="registerRequest"></param>
+        /// <param name="changePwRequest"></param>
         /// <returns></returns>
         Task<HttpResponse> ChangePassword(ChangePwRequest changePwRequest);
         /// <summary>
-        /// Xóa tài khoản
+        /// Xóa người dùng
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
         Task<HttpResponse> DeleteAsync(long Id);
-
-        Task<HttpResponse> RefreshToken(string refreshToken);
     }
 }

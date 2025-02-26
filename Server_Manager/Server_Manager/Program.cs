@@ -1,4 +1,5 @@
 ﻿using Domain.Common.Http;
+using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Services;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Server_Manager.Middleware;
+using System.Security.Claims;
 using System.Text;
 using WebApp.Configures.DIConfig;
 
@@ -95,7 +97,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = issuer,
             ValidAudience = audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-            ClockSkew = TimeSpan.Zero // Tránh thời gian trễ khi kiểm tra token hết hạn
+            ClockSkew = TimeSpan.Zero, // Tránh thời gian trễ khi kiểm tra token hết hạn
+            RoleClaimType = ClaimTypes.Role
         };
     });
 
@@ -105,11 +108,15 @@ builder.Services.AddControllers(); // Thêm Controller
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<TokenServices>();
+
+//builder.Services.AddScoped<ITokenServices, TokenServices>();
+//builder.Services.AddSingleton<IConfiguration>(builder.Configuration); 
+//builder.Services.AddScoped<IUserServices, UserServices>();
+//builder.Services.AddScoped<AppDbContext>();
+//builder.Services.AddScoped<IRepositoryBase<RefreshToken>, RepositoryBase<RefreshToken>>();
 
 
 
-builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddScoped(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
 
 builder.Services.AddHttpContextAccessor();
@@ -134,7 +141,16 @@ HttpAppContext.Configure(app.Services.GetRequiredService<IHttpContextAccessor>()
 
 app.UseHttpsRedirection();
 
-app.UseMiddleware<JwtMiddleware>();
+app.Use(async (context, next) =>
+{
+    using (var scope = context.RequestServices.CreateScope())
+    {
+        var middleware = new JwtMiddleware(next, context.RequestServices.GetRequiredService<IConfiguration>(), scope.ServiceProvider.GetRequiredService<ITokenServices>());
+        await middleware.Invoke(context);
+    }
+});
+//app.UseMiddleware<JwtMiddleware>();
+
 
 // Sử dụng Middleware
 app.UseRouting();
