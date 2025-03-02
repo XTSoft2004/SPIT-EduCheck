@@ -12,9 +12,9 @@ namespace Domain.Entities
     {
         [StringLength(255), Required]
         public string FullName { get; set; }
-        [StringLength(100), Required]
+        [StringLength(100)]
         public string Email { get; set; }
-        [StringLength(10), Required]
+        [StringLength(10)]
         public string PhoneNumber { get; set; }
 
         public ICollection<Class> Class { get; set; }

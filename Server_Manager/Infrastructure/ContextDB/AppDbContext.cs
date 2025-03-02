@@ -20,11 +20,9 @@ namespace Infrastructure.ContextDB
         public DbSet<Role> Roles { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Timesheet> Timesheets { get; set; }
-
+        public DbSet<Time> Times { get; set; }
         // DbSet cho các mối quan hệ
         public DbSet<Class_Student> ClassStudents { get; set; }
-        public DbSet<Class_Course> ClassCourses { get; set; }
-        public DbSet<Class_Timesheet> ClassTimesheets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,12 +63,6 @@ namespace Infrastructure.ContextDB
             modelBuilder.Entity<Class_Student>()
                 .HasKey(cs => new { cs.ClassId, cs.StudentId }); // Khóa chính kết hợp  
 
-            modelBuilder.Entity<Class_Timesheet>()
-                .HasKey(cs => new { cs.ClassId, cs.TimesheetId }); // Khóa chính kết hợp
-
-            modelBuilder.Entity<Class_Course>()
-                .HasKey(cs => new { cs.ClassId, cs.CourseId }); // Khóa chính kết hợp
-
             // Seed dữ liệu cho Role
             var roleValues = Enum.GetValues(typeof(Role_Enum)).Cast<Role_Enum>().ToArray();
             var roles = roleValues
@@ -96,6 +88,17 @@ namespace Infrastructure.ContextDB
                     // CreatedDate = DateTime.UtcNow // Bỏ chú thích nếu cần
                 }
             );
+
+            var timeValues = Enum.GetValues(typeof(Time_Enum)).Cast<Time_Enum>().ToArray();
+            var times = timeValues
+                .Select((time, index) => new Time
+                {
+                    Id = (index + 1), // Sử dụng ID âm cho dữ liệu seed
+                    Name = time.GetEnumDisplayName(),
+                    CreatedBy = "System"
+                })
+                .ToArray();
+            modelBuilder.Entity<Time>().HasData(times);
         }
     }
 }

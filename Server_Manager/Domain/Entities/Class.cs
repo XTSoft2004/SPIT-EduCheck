@@ -16,14 +16,19 @@ namespace Domain.Entities
         [StringLength(255), Required]
         public string Name { get; set; }
         [Required]
-        public DateTime DateTime { get; set; }
+        public int Day { get; set; }
+        [Required]
+        public TimeOnly TimeStart { get; set; }
+        [Required]
+        public TimeOnly TimeEnd { get; set; }
 
         public long? LecturerId { get; set; }
         [ForeignKey(nameof(LecturerId))]
-        public Lecturer? Lecturer { get; set; }
-
-        public ICollection<Class_Course> ClassCourses { get; set; }
+        public virtual Lecturer? Lecturer { get; set; }
+        public long? CourseId { get; set; }
+        [ForeignKey(nameof(CourseId))]
+        public virtual Course? Course { get; set; }
         public ICollection<Class_Student> ClassStudents { get; set; } = new List<Class_Student>();
-        public ICollection<Class_Timesheet> ClassTimesheets { get; set; } = new List<Class_Timesheet>();
+        public virtual ICollection<Timesheet> Timesheets { get; set; }
     }
 }

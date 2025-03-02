@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces.Services;
+﻿using Domain.Common.Http;
+using Domain.Interfaces.Services;
 using Domain.Model.Request.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,17 +26,19 @@ namespace Server_Manager.Controllers
                 return Ok(userResponse);
         }
         [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllUsers()
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllUsers(int pageNumber = 1, int pageSize = 10)
         {
-            var userResponse = _services.GetAllUsers();
-            if (userResponse == null)
+            var users = _services.GetAllUsers(pageNumber, pageSize, out int totalRecords);
+
+            if (users == null || !users.Any())
                 return BadRequest(new { Message = "Danh sách người dùng trống !!!" });
-            else
-                return Ok(userResponse);
+
+            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+            return Ok(ResponseArray.ResponseList(users, totalRecords, totalPages, pageNumber, pageSize));
         }
         [HttpGet("{Id}")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUserById(long Id)
         {
             var userResponse = _services.GetUserById(Id);

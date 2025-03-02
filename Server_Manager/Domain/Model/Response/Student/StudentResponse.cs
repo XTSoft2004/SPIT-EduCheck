@@ -18,7 +18,7 @@ namespace Domain.Model.Response.Student
         public string PhoneNumber { get; set; }
         public string? Email { get; set; }
         public bool? Gender { get; set; }
-        public DateTime? Dob { get; set; }
+        public DateOnly? Dob { get; set; }
         public string? UserName { get; set; }
     }
 }

@@ -75,9 +75,15 @@ namespace Domain.Services
                 return HttpResponse.OK(message: "Xóa tài khoản thành công.");
         }
 
-        public List<UserResponse> GetAllUsers()
+        public List<UserResponse> GetAllUsers(int pageNumber, int pageSize, out int totalRecords)
         {
-            var users = _User.All()
+            var query = _User.All();
+            totalRecords = query.Count(); // Đếm tổng số bản ghi
+
+            var users = query
+                .OrderBy(u => u.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(s => new UserResponse()
                 {
                     Id = s.Id,

@@ -35,14 +35,17 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<long?>("CourseId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("Day")
+                        .HasColumnType("int");
 
                     b.Property<long?>("LecturerId")
                         .HasColumnType("bigint");
@@ -58,44 +61,19 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<TimeOnly>("TimeEnd")
+                        .HasColumnType("time");
+
+                    b.Property<TimeOnly>("TimeStart")
+                        .HasColumnType("time");
+
                     b.HasKey("Id");
-
-                    b.HasIndex("LecturerId");
-
-                    b.ToTable("Classes");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Class_Course", b =>
-                {
-                    b.Property<long>("ClassId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CourseId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ClassId", "CourseId");
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("ClassCourses");
+                    b.HasIndex("LecturerId");
+
+                    b.ToTable("Classes", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Class_Student", b =>
@@ -128,40 +106,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("ClassStudents");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Class_Timesheet", b =>
-                {
-                    b.Property<long>("ClassId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("TimesheetId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ClassId", "TimesheetId");
-
-                    b.HasIndex("TimesheetId");
-
-                    b.ToTable("ClassTimesheets");
+                    b.ToTable("ClassStudents", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Course", b =>
@@ -204,7 +149,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("SemesterId");
 
-                    b.ToTable("Courses");
+                    b.ToTable("Courses", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Lecturer", b =>
@@ -244,7 +189,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Lecturers");
+                    b.ToTable("Lecturers", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
@@ -282,7 +227,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("RefreshToken");
+                    b.ToTable("RefreshToken", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Role", b =>
@@ -312,7 +257,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
 
                     b.HasData(
                         new
@@ -359,7 +304,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Semesters");
+                    b.ToTable("Semesters", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Student", b =>
@@ -381,8 +326,8 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("Dob")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("Dob")
+                        .HasColumnType("date");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -423,7 +368,59 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Students");
+                    b.ToTable("Students", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.Time", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Times", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            CreatedBy = "System",
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Sáng"
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            CreatedBy = "System",
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Chiều"
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            CreatedBy = "System",
+                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Tối"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Timesheet", b =>
@@ -434,17 +431,17 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<DateTime>("CheckIn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CheckOut")
-                        .HasColumnType("datetime2");
+                    b.Property<long>("ClassId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
 
                     b.Property<string>("Image_Check")
                         .IsRequired()
@@ -456,13 +453,30 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("StudentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TimeId")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Timesheets");
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("TimeId");
+
+                    b.ToTable("Timesheets", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -515,7 +529,7 @@ namespace Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[StudentId] IS NOT NULL");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new
@@ -533,31 +547,18 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Class", b =>
                 {
+                    b.HasOne("Domain.Entities.Course", "Course")
+                        .WithMany("Class")
+                        .HasForeignKey("CourseId");
+
                     b.HasOne("Domain.Entities.Lecturer", "Lecturer")
                         .WithMany("Class")
                         .HasForeignKey("LecturerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.Navigation("Lecturer");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Class_Course", b =>
-                {
-                    b.HasOne("Domain.Entities.Class", "Class")
-                        .WithMany("ClassCourses")
-                        .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Course", "Course")
-                        .WithMany("ClassCourses")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Class");
-
                     b.Navigation("Course");
+
+                    b.Navigation("Lecturer");
                 });
 
             modelBuilder.Entity("Domain.Entities.Class_Student", b =>
@@ -577,25 +578,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Class");
 
                     b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Class_Timesheet", b =>
-                {
-                    b.HasOne("Domain.Entities.Class", "Class")
-                        .WithMany("ClassTimesheets")
-                        .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Timesheet", "Timesheet")
-                        .WithMany("ClassTimesheets")
-                        .HasForeignKey("TimesheetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Class");
-
-                    b.Navigation("Timesheet");
                 });
 
             modelBuilder.Entity("Domain.Entities.Course", b =>
@@ -619,6 +601,33 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Timesheet", b =>
+                {
+                    b.HasOne("Domain.Entities.Class", "Class")
+                        .WithMany("Timesheets")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Student", "Student")
+                        .WithMany("Timesheets")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Time", "Time")
+                        .WithMany("Timesheets")
+                        .HasForeignKey("TimeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+
+                    b.Navigation("Student");
+
+                    b.Navigation("Time");
+                });
+
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
                     b.HasOne("Domain.Entities.Role", "Role")
@@ -638,16 +647,14 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Class", b =>
                 {
-                    b.Navigation("ClassCourses");
-
                     b.Navigation("ClassStudents");
 
-                    b.Navigation("ClassTimesheets");
+                    b.Navigation("Timesheets");
                 });
 
             modelBuilder.Entity("Domain.Entities.Course", b =>
                 {
-                    b.Navigation("ClassCourses");
+                    b.Navigation("Class");
                 });
 
             modelBuilder.Entity("Domain.Entities.Lecturer", b =>
@@ -669,12 +676,14 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("ClassStudents");
 
+                    b.Navigation("Timesheets");
+
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Timesheet", b =>
+            modelBuilder.Entity("Domain.Entities.Time", b =>
                 {
-                    b.Navigation("ClassTimesheets");
+                    b.Navigation("Timesheets");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>

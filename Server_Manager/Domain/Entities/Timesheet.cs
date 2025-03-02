@@ -1,6 +1,8 @@
 ﻿using Domain.Entities.Base;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,10 +11,21 @@ namespace Domain.Entities
 {
     public class Timesheet : EntityBase
     {
+        public long StudentId { get; set; }
+        [ForeignKey(nameof(StudentId))]
+        public virtual Student Student { get; set; }
+
+        public long ClassId { get; set; }
+        [ForeignKey(nameof(ClassId))]
+        public virtual Class Class { get; set; }
+
+        public long TimeId { get; set; }
+        [ForeignKey(nameof(TimeId))]
+        public virtual Time Time { get; set; }
+        public DateOnly Date { get; set; }
         public string Image_Check { get; set; }
         public string Status { get; set; }
-        public DateTime CheckIn { get; set; }
-        public DateTime CheckOut { get; set; }
-        public ICollection<Class_Timesheet> ClassTimesheets { get; set; } = new List<Class_Timesheet>();
+        [StringLength(500)]
+        public string Note { get; set; }
     }
 }

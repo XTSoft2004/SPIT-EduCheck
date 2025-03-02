@@ -59,6 +59,7 @@ namespace Server_Manager.Middleware
                 {
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     await context.Response.WriteAsJsonAsync(new { Message = "Refresh Token đã hết hạn" });
+                    return;
                 }
                     
                 if (AuthInfo.ExpiryDate < dateTimeNow)

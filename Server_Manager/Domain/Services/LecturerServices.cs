@@ -4,8 +4,10 @@ using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Lecturer;
+using Domain.Model.Response.Class;
 using Domain.Model.Response.Lecturer;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -70,15 +72,29 @@ namespace Domain.Services
             }
         }
 
-        public List<LecturerResponse> GetAll()
+        public List<LecturerResponse> GetAll(int pageNumber, int pageSize, out int totalRecords)
         {
-            var lecturers = _repository.All()
+            var query = _repository.All();
+            totalRecords = query.Count(); // Đếm tổng số bản ghi
+
+            var lecturers = query
+                .OrderBy(u => u.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(s => new LecturerResponse()
                 {
                     Id = s.Id,
                     FullName = s.FullName,
                     Email = s.Email,
-                    PhoneNumber = s.PhoneNumber
+                    PhoneNumber = s.PhoneNumber,
+                    ClassResponse = s.Class.Select(s => new ClassResponse()
+                    {
+                        Id = s.Id,
+                        Code = s.Code,
+                        Name = s.Name,
+                        TimeStart = s.TimeStart,
+                        TimeEnd = s.TimeEnd,
+                    }).ToList()
                 }).ToList();
 
             return lecturers;

@@ -53,11 +53,12 @@ namespace Domain.Entities
         /// Ngày sinh nhật
         /// </summary>
         [Required]
-        public DateTime? Dob { get; set; }
+        public DateOnly? Dob { get; set; }
 
         public long? UserId { get; set; }
         [ForeignKey(nameof(UserId))]
         public virtual User? User { get; set; }
         public ICollection<Class_Student>? ClassStudents { get; set; } = new List<Class_Student>();
+        public virtual ICollection<Timesheet> Timesheets { get; set; }
     }
 }

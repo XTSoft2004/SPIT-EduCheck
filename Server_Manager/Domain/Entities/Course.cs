@@ -34,7 +34,6 @@ namespace Domain.Entities
         public long? SemesterId { get; set; }
         [ForeignKey(nameof(SemesterId))]
         public virtual Semester? Semester { get; set; }
-
-        public ICollection<Class_Course> ClassCourses { get; set; }
+        public ICollection<Class> Class { get; set; }
     }
 }

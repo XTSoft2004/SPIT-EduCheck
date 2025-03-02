@@ -15,7 +15,7 @@ namespace Domain.Interfaces.Services
         /// Lấy tất cả các sinh viên
         /// </summary>
         /// <returns></returns>
-        List<StudentResponse> GetAll();
+        List<StudentResponse> GetAll(int pageNumber, int pageSize, out int totalRecords);
         /// <summary>
         /// Tạo sinh viên
         /// </summary>

@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces.Services;
+﻿using Domain.Common.Http;
+using Domain.Interfaces.Services;
 using Domain.Model.Request.Lecturer;
 using Microsoft.AspNetCore.Mvc;
 
@@ -40,13 +41,16 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllLecturer()
+        public async Task<IActionResult> GetAllLecturer(int pageNumber = 1, int pageSize = 10)
         {
-            var userResponse = _services.GetAll();
-            if (userResponse == null)
+            var users = _services.GetAll(pageNumber, pageSize, out int totalRecords);
+
+            if (users == null || !users.Any())
                 return BadRequest(new { Message = "Danh sách giảng viên trống !!!" });
-            else
-                return Ok(userResponse);
+
+            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+            return Ok(ResponseArray.ResponseList(users, totalRecords, totalPages, pageNumber, pageSize));
         }
     }
 }

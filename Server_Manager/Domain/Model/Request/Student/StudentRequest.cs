@@ -25,6 +25,6 @@ namespace Domain.Model.Request.Student
         [Required]
         public bool? Gender { get; set; }
         [Required]
-        public DateTime? Dob { get; set; }
+        public DateOnly? Dob { get; set; }
     }
 }

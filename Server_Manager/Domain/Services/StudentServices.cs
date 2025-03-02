@@ -33,7 +33,7 @@ namespace Domain.Services
             if (_student != null)
                 return HttpResponse.Error("Mã sinh viên đã tồn tại.", System.Net.HttpStatusCode.BadRequest);
 
-            var student = new Student()
+            var student = new Student() 
             {
                 MaSinhVien = studentRequest.MaSinhVien,
                 FirstName = studentRequest.FirstName,
@@ -91,9 +91,15 @@ namespace Domain.Services
             }
         }
 
-        public List<StudentResponse> GetAll()
+        public List<StudentResponse> GetAll(int pageNumber, int pageSize, out int totalRecords)
         {
-            var student = _Student.All()
+            var query = _Student.All();
+            totalRecords = query.Count(); // Đếm tổng số bản ghi
+
+            var students = query
+                .OrderBy(u => u.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Select(s => new StudentResponse()
                 {
                     Id = s.Id,
@@ -108,7 +114,7 @@ namespace Domain.Services
                     UserName = s.User.Username
                 }).ToList();
 
-            return student;
+            return students;
         }
         public async Task<HttpResponse> AddStudentInUser(long IdUser, long IdStudent)
         {
