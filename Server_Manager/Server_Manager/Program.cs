@@ -139,7 +139,7 @@ if (app.Environment.IsDevelopment())
 //rescueContext.Database.Migrate();
 HttpAppContext.Configure(app.Services.GetRequiredService<IHttpContextAccessor>());
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.Use(async (context, next) =>
 {
