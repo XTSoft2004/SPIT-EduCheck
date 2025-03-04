@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 80 --turbo",
+    "dev": "next dev -p 2222 --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -13,9 +13,12 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.4.6",
     "@mui/material": "^6.4.6",
+    "@mui/x-data-grid": "^7.27.2",
+    "axios": "^1.8.1",
     "next": "14.2.24",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-hook-form": "^7.54.2"
   },
   "devDependencies": {
     "@types/node": "^20",
