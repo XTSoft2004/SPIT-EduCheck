@@ -1,6 +1,6 @@
 import globalConfig from './app.config';
 
-import { IProfile } from './types/auth';
+import { IProfile } from '../types/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 const baseUrl = globalConfig.baseUrl;
