@@ -1,7 +1,7 @@
 'use server'
 import globalConfig from "../app.config";
 
-import { ILecturer, ILecturerCreate, ILecturerFilter, ILecturerUpdate } from "../types/lecturer";
+import { ILecturer, ILecturerCreate, ILecturerFilter, ILecturerUpdate } from "@/types/lecturer";
 
 /**
  * Get all lecturers

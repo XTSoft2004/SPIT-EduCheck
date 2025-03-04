@@ -6,7 +6,7 @@ export interface LoginBody {
 }
 
 /**
- * The login API call
+ * The loginAPI call
  * @param user - The user object containing the username and password
  * @returns The response from the API
  */
@@ -18,3 +18,10 @@ export const loginAPI = async (user : LoginBody) => {
     });
 }
 
+/**
+ * The meAPI call
+ * @returns - The response from the API
+ */
+export const meAPI = async () => {
+    return api.get('/user/me');
+}

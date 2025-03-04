@@ -1,16 +1,16 @@
 import globalConfig from './app.config';
 
-import { IProfile } from '../types/auth';
+import { IProfile } from '@/types/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 const baseUrl = globalConfig.baseUrl;
 
 const checkConnect = async () => {
     try {
-        const response = await fetch(`${baseUrl}`, {
+        const response = await fetch(`${baseUrl}/`, {
             method: 'GET',
         })
-        return response.ok;
+        return response.status;
     } catch (error) {
         return false;
     }
@@ -23,7 +23,7 @@ const checkConnect = async () => {
  * @throws Error if the request fails
  */
 const getProfile = async (accessToken: string): Promise<IProfile> => {
-    const response = await fetch(`${baseUrl}user/me`, {
+    const response = await fetch(`${baseUrl}/user/me`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -58,27 +58,32 @@ const redirectLogin = (request: NextRequest) => {
 }
 
 export async function middleware(request: NextRequest) {
-    if (!(await checkConnect()))
-        return NextResponse.redirect(new URL('/500', request.url))
+    // console.log('server >> middleware', request.nextUrl.pathname);
 
-    const globalREsponse = request.nextUrl.pathname === '/login' ? NextResponse.redirect(new URL('/', request.url)) : NextResponse.next();
+    // if ((await checkConnect()) === 500)
+    //     return NextResponse.redirect(new URL('/500', request.url))
 
-    try {
-        const accessToken = request.cookies.get('accessToken')?.value ?? ' ';
+    // const globalResponse =
+    //     request.nextUrl.pathname === '/login'
+    //         ? NextResponse.redirect(new URL('/', request.url))
+    //         : NextResponse.next();
 
-        await getProfile(accessToken);
-    } catch (error) {
-        const response = error as Response;
+    // try {
+    //     const accessToken = request.cookies.get('accessToken')?.value ?? ' ';
 
-        if (response.status === 500)
-            return NextResponse.redirect(new URL('/500', request.url));
+    //     await getProfile(accessToken);
+    // } catch (error) {
+    //     const response = error as Response;
 
-        if (response.status === 401) {
-            const refreshToken = request.cookies.get('refreshToken')?.value ?? ' ';
+    //     if (response.status === 500)
+    //         return NextResponse.redirect(new URL('/500', request.url));
 
-            if (!refreshToken)
-                return redirectLogin(request);
-        }
-    }
-    return globalREsponse;
+    //     if (response.status === 401) {
+    //         const refreshToken = request.cookies.get('refreshToken')?.value ?? ' ';
+
+    //         if (!refreshToken)
+    //             return redirectLogin(request);
+    //     }
+    // }
+    // return globalResponse;
 }
