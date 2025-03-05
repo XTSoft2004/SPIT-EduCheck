@@ -3,7 +3,8 @@ import globalConfig from "@/app.config";
 import { IProfile, ILoginForm } from "@/types/auth";
 import { cookies, headers } from 'next/headers';
 
-import { IIndexResponse } from '@/types/global';
+import { IIndexResponse, IResponse, IShowResponse } from '@/types/global';
+import { revalidateTag } from "next/cache";
 
 /**
  * Get profile
@@ -26,31 +27,43 @@ export const getProfile = async () => {
         ok: response.ok,
         status: response.status,
         ...data,
-    } as IIndexResponse<IProfile>;
+    } as IShowResponse<IProfile>;
 }
 
 /**
  * Create account
- * @param body - Body to create account
+ * @param formData - Body to create account
  * @returns Account
  */
-export const createAccount = async (body: ILoginForm) => {
+export const createAccount = async (formData: ILoginForm) => {
+    const profile = await getProfile();
+    if (!profile.ok || !profile.data) {
+        return {
+            ok: profile.ok,
+            message: profile.message,
+        } as IResponse;
+    }
+
+    const user: ILoginForm = {
+        username: formData.username,
+        password: formData.password,
+    };
+
     const response = await fetch(`${globalConfig.baseUrl}/auth/sign-up`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(body),
-        next: {
-            tags: ['auth.register'],
-        }
+        body: JSON.stringify(user)
     });
+
+    revalidateTag('user.index');
+    revalidateTag('user.show')
 
     const data = await response.json();
     
     return {
         ok: response.ok,
-        status: response.status,
         ...data,
-    } as IIndexResponse<IProfile>;
+    } as IResponse;
 }

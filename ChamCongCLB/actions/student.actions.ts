@@ -3,7 +3,8 @@ import { cookies, headers } from 'next/headers';
 import globalConfig from '@/app.config';
 
 import { IStudent, IStudentCreate, IStudentUpdate, IStudentAdd, IStudentRemove } from '@/types/student.d';
-import { IIndexResponse } from '@/types/global';
+import { IIndexResponse, IResponse } from '@/types/global';
+import { revalidateTag } from 'next/cache';
 
 const baseUrl = globalConfig.baseUrl;
 
@@ -35,58 +36,52 @@ export const getStudents = async () => {
 
 /**
  * Create student
- * @param student Student data
+ * @param formData Student data
  * @returns Created student
  */
-export const createStudent = async (student: IStudentCreate) => {
+export const createStudent = async (formData: IStudentCreate) => {
     const response = await fetch(`${baseUrl}/student/create`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
         },
-        body: JSON.stringify(student),
-        next:
-        {
-            tags: ['student.create']
-        }
+        body: JSON.stringify(formData)
     });
+    revalidateTag('student.index');
+    revalidateTag('student.show');
 
     const data = await response.json();
 
     return {
         ok: response.ok,
-        status: response.status,
         ...data,
-    } as IStudent;
+    } as IResponse;
 }
 
 /**
  * Update student
- * @param student Student data
+ * @param formData Student data
  * @returns Updated student
  */
-export const updateStudent = async (student: IStudentUpdate) => {
-    const response = await fetch(`${baseUrl}/student/${student.id}`, {
+export const updateStudent = async (formData: IStudentUpdate) => {
+    const response = await fetch(`${baseUrl}/student/${formData.id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
         },
-        body: JSON.stringify(student),
-        next:
-        {
-            tags: ['student.update']
-        }
+        body: JSON.stringify(formData)
     });
+    revalidateTag('student.index');
+    revalidateTag('student.show');
 
     const data = await response.json();
 
     return {
         ok: response.ok,
-        status: response.status,
         ...data,
-    } as IStudent;
+    } as IResponse;
 }
 
 /**
@@ -100,48 +95,41 @@ export const deleteStudent = async (id: number) => {
         headers: {
             'Content-Type': 'application/json',
             Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-        },
-        next:
-        {
-            tags: ['student.delete']
         }
     });
+    revalidateTag('student.index');
+    revalidateTag('student.show');
 
     const data = await response.json();
 
     return {
         ok: response.ok,
-        status: response.status,
         ...data,
-    } as IStudent;
+    } as IResponse;
 }
 
 /**
  * Add student to user
- * @param student Student data
+ * @param formData Student data
  * @returns Added student
  */
-export const addStudent = async (student: IStudentAdd) => {
-    const response = await fetch(`${baseUrl}/student/add-user?IdUser=${student.idUser}&IdStudent=${student.idStudent}`, {
+export const addStudent = async (formData: IStudentAdd) => {
+    const response = await fetch(`${baseUrl}/student/add-user?IdUser=${formData.idUser}&IdStudent=${formData.idStudent}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
         },
-        body: JSON.stringify(student),
-        next:
-        {
-            tags: ['student.add']
-        }
+        body: JSON.stringify(formData)
     });
+    revalidateTag('user.student.index');
 
     const data = await response.json();
 
     return {
         ok: response.ok,
-        status: response.status,
         ...data,
-    } as IStudent;
+    } as IResponse;
 }
 
 /**

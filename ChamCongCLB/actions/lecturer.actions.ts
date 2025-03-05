@@ -3,7 +3,8 @@ import globalConfig from "@/app.config";
 import { cookies, headers } from 'next/headers';
 
 import { ILecturer, ILecturerCreate, ILecturerUpdate } from "@/types/lecturer";
-import { IIndexResponse } from "@/types/global";
+import { IIndexResponse, IResponse } from "@/types/global";
+import { revalidateTag } from "next/cache";
 /**
  * Get all lecturers
  * @returns List of lecturers
@@ -31,44 +32,52 @@ export const getLecturers = async () => {
 
 /**
  * Create a new lecturer
- * @param lecturer - The lecturer to create
+ * @param formData - The lecturer to create
  * @returns The created lecturer
  */
-export const createLecturer = async (lecturer: ILecturerCreate) => {
+export const createLecturer = async (formData: ILecturerCreate) => {
     const response = await fetch(`${globalConfig.baseUrl}/lecturer/create`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
         },
-        body: JSON.stringify(lecturer),
-        next: {
-            tags: ['lecturer.create'],
-        }
+        body: JSON.stringify(formData)
     });
+    revalidateTag('lecturer.index');
+    revalidateTag('lecturer.show');
 
-    return await response.json();
+    const data = await response.json();
+
+    return {
+        ok: response.ok,
+        ...data,
+    } as IResponse;
 }
 
 /**
  * Update a lecturer
- * @param lecturer - The lecturer to update
+ * @param formData - The lecturer to update
  * @returns The updated lecturer
  */
-export const updateLecturer = async (lecturer: ILecturerUpdate) => {
-    const response = await fetch(`${globalConfig.baseUrl}/lecturer/${lecturer.id}`, {
+export const updateLecturer = async (formData: ILecturerUpdate) => {
+    const response = await fetch(`${globalConfig.baseUrl}/lecturer/${formData.id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
         },
-        body: JSON.stringify(lecturer),
-        next: {
-            tags: ['lecturer.update'],
-        }
+        body: JSON.stringify(formData)
     });
+    revalidateTag('lecturer.index');
+    revalidateTag('lecturer.show');
 
-    return await response.json();
+    const data = await response.json();
+
+    return {
+        ok: response.ok,
+        ...data,
+    } as IResponse;
 }
 
 /**
@@ -87,6 +96,13 @@ export const deleteLecturer = async (id: number) => {
             tags: ['lecturer.delete'],
         }
     });
+    revalidateTag('lecturer.index');
+    revalidateTag('lecturer.show');
 
-    return await response.json();
+    const data = await response.json();
+
+    return {
+        ok: response.ok,
+        ...data,
+    } as IResponse;
 }
