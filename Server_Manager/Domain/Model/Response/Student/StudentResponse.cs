@@ -12,7 +12,7 @@ namespace Domain.Model.Response.Student
         //[JsonIgnore]
         public long Id { get; set; }
         public string MaSinhVien { get; set; }
-        public string FristName { get; set; }
+        public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Class { get; set; }
         public string PhoneNumber { get; set; }

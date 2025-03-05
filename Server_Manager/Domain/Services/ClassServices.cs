@@ -139,10 +139,20 @@ namespace Domain.Services
         {
             var query = _Class.All();
             totalRecords = query.Count(); // Đếm tổng số bản ghi
+
+            if (pageNumber != -1 && pageSize != -1)
+            {
+                // Sắp xếp phân trang
+                query = query.OrderBy(u => u.Id)
+                             .Skip((pageNumber - 1) * pageSize)
+                             .Take(pageSize);
+            }
+            else
+            {
+                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
+            }
+
             var classes = query
-                .OrderBy(u => u.Id)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
                 .Select(s => new ClassResponse()
                 {
                     Id = s.Id,

@@ -80,20 +80,27 @@ namespace Domain.Services
             var query = _User.All();
             totalRecords = query.Count(); // Đếm tổng số bản ghi
 
-            var users = query
-                .OrderBy(u => u.Id)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Select(s => new UserResponse()
-                {
-                    Id = s.Id,
-                    Username = s.Username,
-                    IsLocked = s.IsLocked,
-                    IsVerify = s.IsVerify,
-                    RoleName = s.Role.DisplayName,
-                    StudentName = s.Student != null ? (s.Student.FirstName + " " + s.Student.LastName) : null
-                })
-                .ToList();
+            if (pageNumber != -1 && pageSize != -1)
+            {
+                // Sắp xếp phân trang
+                query = query.OrderBy(u => u.Id)
+                             .Skip((pageNumber - 1) * pageSize)
+                             .Take(pageSize);
+            }
+            else
+            {
+                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
+            }
+
+            var users = query.Select(s => new UserResponse()
+            {
+                Id = s.Id,
+                Username = s.Username,
+                IsLocked = s.IsLocked,
+                IsVerify = s.IsVerify,
+                RoleName = s.Role.DisplayName,
+                StudentName = s.Student != null ? (s.Student.FirstName + " " + s.Student.LastName) : null
+            }).ToList();
 
             return users;
         }

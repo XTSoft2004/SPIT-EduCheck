@@ -100,10 +100,19 @@ namespace Domain.Services
             var query = _Course.All();
             totalRecords = query.Count(); // Đếm tổng số bản ghi
 
+            if (pageNumber != -1 && pageSize != -1)
+            {
+                // Sắp xếp phân trang
+                query = query.OrderBy(u => u.Id)
+                             .Skip((pageNumber - 1) * pageSize)
+                             .Take(pageSize);
+            }
+            else
+            {
+                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
+            }
+
             var courses = query
-                .OrderBy(u => u.Id)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
                 .Select(f => new CourseResponse()
                 {
                     Id = f.Id,

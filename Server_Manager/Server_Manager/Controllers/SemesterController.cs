@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Server_Manager.Controllers
 {
-    [Route("semestrers")]
+    [Route("semester")]
     [ApiController]
-    public class SemestersController : Controller
+    public class SemesterController : Controller
     {
         private readonly ISemesterServices _services;
 
-        public SemestersController(ISemesterServices services)
+        public SemesterController(ISemesterServices services)
         {
             _services = services;
         }
@@ -43,7 +43,7 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllSemester(int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> GetAllSemester(int pageNumber = -1, int pageSize = -1)
         {
             var semesters = _services.GetAll(pageNumber, pageSize, out int totalRecords);
 

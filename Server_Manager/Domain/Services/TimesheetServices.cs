@@ -133,10 +133,19 @@ namespace Domain.Services
             var query = _Timesheet.All();
             totalRecords = query.Count(); // Đếm tổng số bản ghi
 
+            if (pageNumber != -1 && pageSize != -1)
+            {
+                // Sắp xếp phân trang
+                query = query.OrderBy(u => u.Id)
+                             .Skip((pageNumber - 1) * pageSize)
+                             .Take(pageSize);
+            }
+            else
+            {
+                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
+            }
+
             var timesheets = query
-                .OrderBy(u => u.Id)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
                 .Select(f => new TimesheetResponse
                 {
                     Id = f.Id,

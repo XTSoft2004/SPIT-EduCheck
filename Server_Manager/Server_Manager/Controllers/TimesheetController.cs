@@ -40,7 +40,7 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllTimesheet(int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> GetAllTimesheet(int pageNumber = -1, int pageSize = -1)
         {
             var timesheets = _services.GetAll(pageNumber, pageSize, out int totalRecords);
 

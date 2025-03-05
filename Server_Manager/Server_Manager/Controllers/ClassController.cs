@@ -42,7 +42,7 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllClass(int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> GetAllClass(int pageNumber = -1, int pageSize = -1)
         {
             var classResponses = _services.GetAll(pageNumber, pageSize, out int totalRecords);
 

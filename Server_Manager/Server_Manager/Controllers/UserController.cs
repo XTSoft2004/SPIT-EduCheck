@@ -27,7 +27,7 @@ namespace Server_Manager.Controllers
         }
         [HttpGet]
         //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllUsers(int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> GetAllUsers(int pageNumber = -1, int pageSize = -1)
         {
             var users = _services.GetAllUsers(pageNumber, pageSize, out int totalRecords);
 
