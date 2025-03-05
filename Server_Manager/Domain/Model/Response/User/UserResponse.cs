@@ -9,7 +9,7 @@ namespace Domain.Model.Response.User
 {
     public class UserResponse
     {
-        [JsonIgnore]
+        //[JsonIgnore]
         public long Id { get; set; }
         public string? Username { get; set; }
         public bool IsLocked { get; set; }
