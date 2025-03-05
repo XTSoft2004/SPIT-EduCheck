@@ -1,9 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
-import { getUsers, getUserById } from '@/actions/user.actions';
-import { IUser, IUserCreate } from '@/types/user';
+import { Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { getUsers } from '@/actions/user.actions';
+import { IUser } from '@/types/user';
 
 export default function UserPage() {
     const [users, setUsers] = useState<IUser[]>([]);
@@ -11,7 +11,7 @@ export default function UserPage() {
     const [open, setOpen] = useState(false);
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(5);
-    
+
     useEffect(() => {
         fetchUsers();
     }, [page, pageSize]);
@@ -19,63 +19,20 @@ export default function UserPage() {
     const fetchUsers = async () => {
         const response = await getUsers();
         if (response.ok) {
-            setUsers(response.data || []);
-        }
-    };
-
-    const handleAdd = () => {
-        setSelectedUser({ id: '', username: '', email: '', role: '' });
-        setOpen(true);
-    };
-
-    const handleEdit = (user: IUser) => {
-        setSelectedUser(user);
-        setOpen(true);
-    };
-
-    const handleDelete = async (id: string) => {
-        console.log(`Delete user ${id}`);
-        fetchUsers();
-    };
-
-    const handleSave = async () => {
-        if (selectedUser) {
-            if (selectedUser.id === '') {
-                const newUser: IUserCreate = {
-                    username: selectedUser.username,
-                    email: selectedUser.email,
-                    role: selectedUser.role,
-                };
-                console.log('Create user:', newUser);
-            } else {
-                console.log('Update user:', selectedUser);
-            }
-            fetchUsers();
-            setOpen(false);
+            setUsers(response.data);
         }
     };
 
     const columns: GridColDef[] = [
         { field: 'id', headerName: 'ID', width: 90 },
-        { field: 'username', headerName: 'Username', width: 200, editable: true },
-        { field: 'email', headerName: 'Email', width: 200, editable: true },
-        { field: 'role', headerName: 'Role', width: 150, editable: true },
-        {
-            field: 'actions',
-            headerName: 'Actions',
-            width: 200,
-            renderCell: (params) => (
-                <>
-                    <Button onClick={() => handleEdit(params.row)}>Edit</Button>
-                    <Button onClick={() => handleDelete(params.row.id)}>Delete</Button>
-                </>
-            ),
-        },
+        { field: 'username', headerName: 'Username', width: 200 },
+        { field: 'isLocked', headerName: 'Is Locked', width: 120 },
+        { field: 'isVerify', headerName: 'Is Verify', width: 120 },
+        { field: 'roleName', headerName: 'Role Name', width: 120 },
     ];
 
     return (
         <div style={{ height: 700, width: '100%' }}>
-            <Button onClick={handleAdd}>Add User</Button>
             <DataGrid
                 rows={users}
                 columns={columns}
@@ -93,7 +50,7 @@ export default function UserPage() {
                 }}
             />
             <Dialog open={open} onClose={() => setOpen(false)}>
-                <DialogTitle>{selectedUser?.id === '' ? 'Add User' : 'Edit User'}</DialogTitle>
+                <DialogTitle>Add User</DialogTitle>
                 <DialogContent>
                     <TextField
                         margin="dense"
@@ -104,24 +61,28 @@ export default function UserPage() {
                     />
                     <TextField
                         margin="dense"
-                        label="Email"
+                        label="Is Locked"
                         fullWidth
-                        value={selectedUser?.email || ''}
-                        onChange={(e) => setSelectedUser({ ...selectedUser!, email: e.target.value })}
+                        value={selectedUser?.isLocked || ''}
+                        onChange={(e) => setSelectedUser({ ...selectedUser!, isLocked: e.target.value === 'true' })}
                     />
                     <TextField
                         margin="dense"
-                        label="Role"
+                        label="Is Verify"
                         fullWidth
-                        value={selectedUser?.role || ''}
-                        onChange={(e) => setSelectedUser({ ...selectedUser!, role: e.target.value })}
+                        value={selectedUser?.isVerify || ''}
+                        onChange={(e) => setSelectedUser({ ...selectedUser!, isVerify: e.target.value === 'true' })}
                     />
+                    <TextField
+                        margin="dense"
+                        label="Role Name"
+                        fullWidth
+                        value={selectedUser?.roleName || ''}
+                        onChange={(e) => setSelectedUser({ ...selectedUser!, roleName: e.target.value })}
+                    />
+
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={handleSave}>Save</Button>
-                </DialogActions>
             </Dialog>
         </div>
     );
-};
+}

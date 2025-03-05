@@ -2,7 +2,7 @@
 import { cookies, headers } from 'next/headers';
 import globalConfig from '@/app.config';
 
-import { IUser, IUserSearch, IUserCreate } from '@/types/user.d';
+import { IUser, IUserSearch } from '@/types/user.d';
 import { IIndexResponse } from '@/types/global';
 
 const baseUrl = globalConfig.baseUrl;

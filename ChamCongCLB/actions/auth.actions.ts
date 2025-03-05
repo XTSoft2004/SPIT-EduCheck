@@ -47,7 +47,7 @@ export const createAccount = async (body: ILoginForm) => {
     });
 
     const data = await response.json();
-
+    
     return {
         ok: response.ok,
         status: response.status,
