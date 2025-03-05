@@ -1,21 +1,23 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
-import { getLecturersPagination, createLecturer, updateLecturer, deleteLecturer } from '@/actions/lecturer.actions';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Select, MenuItem } from '@mui/material';
+import { getLecturers, createLecturer, updateLecturer, deleteLecturer } from '@/actions/lecturer.actions';
 import { ILecturer, ILecturerCreate, ILecturerUpdate } from '@/types/lecturer';
 
 export default function LecturerPage() {
     const [lecturers, setLecturers] = useState<ILecturer[]>([]);
     const [selectedLecturer, setSelectedLecturer] = useState<ILecturer | null>(null);
     const [open, setOpen] = useState(false);
-
+    const [page, setPage] = useState(0);
+    const [pageSize, setPageSize] = useState(5);
+    
     useEffect(() => {
         fetchLecturers();
-    }, []);
+    }, [page, pageSize]);
 
     const fetchLecturers = async () => {
-        const response = await getLecturersPagination({ pageNumber: 1, pageSize: 10 });
+        const response = await getLecturers();
         if (response.ok) {
             setLecturers(response.data || []);
         }
@@ -61,13 +63,13 @@ export default function LecturerPage() {
 
     const columns: GridColDef[] = [
         { field: 'id', headerName: 'ID', width: 90 },
-        { field: 'fullName', headerName: 'Full Name', width: 150, editable: true },
-        { field: 'email', headerName: 'Email', width: 150, editable: true },
-        { field: 'phoneNumber', headerName: 'Phone Number', width: 150, editable: true },
+        { field: 'fullName', headerName: 'Full Name', width: 200, editable: true },
+        { field: 'email', headerName: 'Email', width: 200, editable: true },
+        { field: 'phoneNumber', headerName: 'Phone Number', width: 200, editable: true },
         {
             field: 'actions',
             headerName: 'Actions',
-            width: 150,
+            width: 200,
             renderCell: (params) => (
                 <>
                     <Button onClick={() => handleEdit(params.row)}>Edit</Button>
@@ -78,13 +80,18 @@ export default function LecturerPage() {
     ];
 
     return (
-        <div style={{ height: 400, width: '100%' }}>
+        <div style={{ height: 700, width: '100%' }}>
             <Button onClick={handleAdd}>Add Lecturer</Button>
             <DataGrid
                 rows={lecturers}
                 columns={columns}
-                paginationModel={{ pageSize: 5, page: 0 }}
-                pageSizeOptions={[5]}
+                pageSizeOptions={[5, 10, 20]}
+                pagination
+                paginationModel={{ page, pageSize }}
+                onPaginationModelChange={(newModel) => {
+                    setPage(newModel.page ?? 0);
+                    setPageSize(newModel.pageSize ?? pageSize);
+                }}
                 checkboxSelection
                 disableRowSelectionOnClick
                 slots={{

@@ -2,15 +2,14 @@
 import globalConfig from "@/app.config";
 import { cookies, headers } from 'next/headers';
 
-import { ILecturer, ILecturerCreate, ILecturerFilter, ILecturerUpdate } from "@/types/lecturer";
+import { ILecturer, ILecturerCreate, ILecturerUpdate } from "@/types/lecturer";
 import { IIndexResponse } from "@/types/global";
 /**
  * Get all lecturers
- * @param filter - Filter to search for lecturers
  * @returns List of lecturers
  */
-export const getLecturersPagination = async (filter: ILecturerFilter) => {
-    const response = await fetch(`${globalConfig.baseUrl}/lecturer?${new URLSearchParams(filter as any)}`,
+export const getLecturers = async () => {
+    const response = await fetch(`${globalConfig.baseUrl}/lecturer`,
         {
             method: 'GET',
             headers: {

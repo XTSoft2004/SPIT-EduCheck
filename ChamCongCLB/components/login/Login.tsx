@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 
 import { ILoginForm } from "@/types/auth";
 import { login } from '@/actions/login.actions';
-import { getProfile } from '@/actions/auth.actions';
 
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
