@@ -144,18 +144,14 @@ export const removeStudent = async (student: IStudentRemove) => {
             'Content-Type': 'application/json',
             Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
         },
-        body: JSON.stringify(student),
-        next:
-        {
-            tags: ['student.remove']
-        }
+        body: JSON.stringify(student)
     });
+    revalidateTag('user.student.index');
 
     const data = await response.json();
 
     return {
         ok: response.ok,
-        status: response.status,
         ...data,
-    } as IStudent;
+    } as IResponse;
 }

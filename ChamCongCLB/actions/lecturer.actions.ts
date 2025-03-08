@@ -91,9 +91,6 @@ export const deleteLecturer = async (id: number) => {
         headers: {
             'Content-Type': 'application/json',
             Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-        },
-        next: {
-            tags: ['lecturer.delete'],
         }
     });
     revalidateTag('lecturer.index');

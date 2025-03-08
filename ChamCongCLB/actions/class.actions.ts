@@ -3,7 +3,8 @@ import globalConfig from "@/app.config";
 import { cookies, headers } from 'next/headers';
 
 import { IClass, IClassCreate, IClassDeleteLecturer, IClassUpdate } from "@/types/class";
-import { IIndexResponse } from "@/types/global";
+import { IIndexResponse, IResponse } from "@/types/global";
+import { revalidateTag } from "next/cache";
 
 /**
  * Get all classes
@@ -43,13 +44,17 @@ export const createClass = async (classObj: IClassCreate) => {
             'Content-Type': 'application/json',
             Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
         },
-        body: JSON.stringify(classObj),
-        next: {
-            tags: ['class.create'],
-        }
+        body: JSON.stringify(classObj)
     });
+    revalidateTag('class.index');
+    revalidateTag('class.show');
 
-    return await response.json();
+    const data = await response.json();
+
+    return {
+        ok: response.ok,
+        ...data,
+    } as IResponse;
 }
 
 /**
@@ -58,17 +63,68 @@ export const createClass = async (classObj: IClassCreate) => {
  * @returns The updated class
  */
 export const updateClass = async (classObj: IClassUpdate) => {
-    const response = await fetch(`${globalConfig.baseUrl}/class/update`, {
+    const response = await fetch(`${globalConfig.baseUrl}/class/${classObj.id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
         },
-        body: JSON.stringify(classObj),
-        next: {
-            tags: ['class.update'],
+        body: JSON.stringify(classObj)
+    });
+    revalidateTag('class.index');
+    revalidateTag('class.show');
+
+    const data = await response.json();
+
+    return {
+        ok: response.ok,
+        ...data,
+    } as IResponse;
+}
+
+/**
+ * Delete a class
+ * @param id - The class id to delete
+ * @returns The deleted class
+ */
+export const deleteClass = async (id: number) => {
+    const response = await fetch(`${globalConfig.baseUrl}/class/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
         }
     });
+    revalidateTag('class.index');
 
-    return await response.json();
+    const data = await response.json();
+
+    return {
+        ok: response.ok,
+        ...data,
+    } as IResponse;
+};
+
+/**
+ * Delete a lecturer from a class
+ * @param classId - The class id
+ * @returns The deleted lecturer
+ */
+export const deleteLecturer = async (classObj: IClassDeleteLecturer) => {
+    const response = await fetch(`${globalConfig.baseUrl}/class/remove-lecturer?ClassId=${classObj.classId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+        },
+        body: JSON.stringify({ classObj })
+    });
+    revalidateTag('class.index');
+
+    const data = await response.json();
+
+    return {
+        ok: response.ok,
+        ...data,
+    } as IResponse;
 }

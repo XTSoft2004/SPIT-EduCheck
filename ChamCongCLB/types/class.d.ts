@@ -3,8 +3,8 @@ export interface IClass {
     code: string;
     name: string;
     day: number;
-    timeStart: Date;
-    timeEnd: Date;
+    timeStart: string;
+    timeEnd: string;
     lecturerId: string;
     courseId: string;
 }
@@ -18,8 +18,8 @@ export interface IClassCreate {
     code: string;
     name: string;
     day: number;
-    timeStart: Date;
-    timeEnd: Date;
+    timeStart: string;
+    timeEnd: string;
     lecturerId: string;
     courseId: string;
     studentId: string[];
@@ -30,8 +30,8 @@ export interface IClassUpdate {
     code?: string;
     name?: string;
     day?: number;
-    timeStart?: Date;
-    timeEnd?: Date;
+    timeStart?: string;
+    timeEnd?: string;
     lecturerId?: string;
     courseId?: string;
     studentId?: string[];
