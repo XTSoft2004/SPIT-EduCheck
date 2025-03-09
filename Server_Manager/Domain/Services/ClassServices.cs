@@ -17,15 +17,15 @@ namespace Domain.Services
     public class ClassServices : BaseService, IClassServices
     {
         private readonly IRepositoryBase<Class> _Class;
-        private readonly IRepositoryBase<Lecturer> _Leturer;
+        private readonly IRepositoryBase<Lecturer> _Lecturer;
         private readonly IRepositoryBase<Course> _Course;
         private readonly IRepositoryBase<Class_Student> _Class_Student;
         private readonly IRepositoryBase<Student> _Student;
 
-        public ClassServices(IRepositoryBase<Class> @class, IRepositoryBase<Lecturer> leturer, IRepositoryBase<Course> course, IRepositoryBase<Class_Student> class_Student, IRepositoryBase<Student> student)
+        public ClassServices(IRepositoryBase<Class> @class, IRepositoryBase<Lecturer> lecturer, IRepositoryBase<Course> course, IRepositoryBase<Class_Student> class_Student, IRepositoryBase<Student> student)
         {
             _Class = @class;
-            _Leturer = leturer;
+            _Lecturer = lecturer;
             _Course = course;
             _Class_Student = class_Student;
             _Student = student;
@@ -40,14 +40,14 @@ namespace Domain.Services
             if (_course == null)
                 return HttpResponse.Error("Không tìm thấy môn học.", System.Net.HttpStatusCode.NotFound);
 
-            var _leturer = _Leturer.Find(f => f.Id == request.LecturerId);
-            if (_leturer == null)
+            var _lecturer = _Lecturer.Find(f => f.Id == request.LecturerId);
+            if (_lecturer == null)
                 return HttpResponse.Error("Không tìm thấy giảng viên.", System.Net.HttpStatusCode.NotFound);
 
             var _class = _Class.Find(_Class => _Class.Code == request.Code);
             if (_class != null)
                 return HttpResponse.Error("Mã lớp đã tồn tại.", System.Net.HttpStatusCode.BadRequest);
-     
+
             var Class = new Class()
             {
                 Code = request.Code,
@@ -64,7 +64,7 @@ namespace Domain.Services
             await UnitOfWork.CommitAsync();
 
             var Class_New = _Class.Find(f => f.Code == request.Code);
-            foreach(var studentid in request.StudentsId)
+            foreach (var studentid in request.StudentsId)
             {
                 var student = _Student.Find(f => f.Id == studentid);
                 if (student != null)
@@ -81,6 +81,7 @@ namespace Domain.Services
 
             return HttpResponse.OK(message: "Tạo lớp học thành công.");
         }
+
         public async Task<HttpResponse> UpdateAsync(ClassRequest request)
         {
             if (request == null)
@@ -91,9 +92,9 @@ namespace Domain.Services
                 return HttpResponse.Error("Không tìm thấy lớp học.", System.Net.HttpStatusCode.NotFound);
             else if (_Class.Find(f => f.Code == request.Code && f.Id != request.Id) != null)
                 return HttpResponse.Error("Mã lớp học đã được đặt, vui lòng kiểm tra lại", System.Net.HttpStatusCode.BadRequest);
-            else if (_Leturer.Find(f => f.Id == request.LecturerId) == null)
-                return HttpResponse.Error("Không tìm thấy giảng viên.", System.Net.HttpStatusCode.NotFound);    
-            else if(_Course.Find(f => f.Id == request.CourseId) == null)
+            else if (_Lecturer.Find(f => f.Id == request.LecturerId) == null)
+                return HttpResponse.Error("Không tìm thấy giảng viên.", System.Net.HttpStatusCode.NotFound);
+            else if (_Course.Find(f => f.Id == request.CourseId) == null)
                 return HttpResponse.Error("Không tìm thấy môn học.", System.Net.HttpStatusCode.NotFound);
             else
             {
@@ -123,6 +124,7 @@ namespace Domain.Services
                 return HttpResponse.OK(message: "Cập nhật lớp học thành công.");
             }
         }
+
         public async Task<HttpResponse> DeleteAsync(long Id)
         {
             var _class = _Class.Find(f => f.Id == Id);
@@ -135,6 +137,7 @@ namespace Domain.Services
                 return HttpResponse.OK(message: "Xóa lớp học thành công.");
             }
         }
+
         public List<ClassResponse> GetAll(int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _Class.All();
@@ -153,6 +156,7 @@ namespace Domain.Services
             }
 
             var classes = query
+                .AsEnumerable() // Chuyển sang truy vấn trên bộ nhớ
                 .Select(s => new ClassResponse()
                 {
                     Id = s.Id,
@@ -162,10 +166,15 @@ namespace Domain.Services
                     TimeEnd = s.TimeEnd,
                     LecturerId = s.LecturerId,
                     CourseId = s.CourseId,
+                    StudentsId = _Class_Student.ListBy(f => f.ClassId == s.Id)
+                                               .Select(s => s.StudentId)
+                                               .ToList() // Thực hiện trên bộ nhớ thay vì trong SQL
                 }).ToList();
+
 
             return classes;
         }
+
         public async Task<HttpResponse> Remove_Lecturer_To_Class(long ClassId)
         {
             var _class = _Class.Find(f => f.Id == ClassId);
