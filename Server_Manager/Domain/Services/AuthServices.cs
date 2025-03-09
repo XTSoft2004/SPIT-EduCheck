@@ -86,6 +86,22 @@ namespace Domain.Services
             }
         }
 
+        public async Task<HttpResponse> LogoutAsync(long Id)
+        {
+            var user = _User.Find(x => x.Id == Id);
+            if(user != null)
+            {
+                var refreshToken = _RefreshToken.Find(x => x.UserId == Id);
+                if (refreshToken != null)
+                {
+                    _RefreshToken.Delete(refreshToken);
+                    await UnitOfWork.CommitAsync();
+                    return HttpResponse.OK(message: "Đăng xuất thành công.");
+                }
+            }
+            return HttpResponse.Error("Đăng xuất thất bại, vui lòng thử lại.", System.Net.HttpStatusCode.BadRequest);
+        }
+
         public async Task<HttpResponse> RefreshToken(string token)
         {
             var InfoToken = _tokenServices.GetInfoFromToken(token);
