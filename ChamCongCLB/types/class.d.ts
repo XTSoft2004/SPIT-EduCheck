@@ -7,6 +7,7 @@ export interface IClass {
     timeEnd: string;
     lecturerId: string;
     courseId: string;
+    studentsId: number[];
 }
 
 export interface IClassFilter {
@@ -22,7 +23,7 @@ export interface IClassCreate {
     timeEnd: string;
     lecturerId: string;
     courseId: string;
-    studentId: string[];
+    studentsId: number[];
 }
 
 export interface IClassUpdate {
@@ -34,7 +35,7 @@ export interface IClassUpdate {
     timeEnd?: string;
     lecturerId?: string;
     courseId?: string;
-    studentId?: string[];
+    studentsId?: number[];
 }
 
 export interface IClassDeleteLecturer {

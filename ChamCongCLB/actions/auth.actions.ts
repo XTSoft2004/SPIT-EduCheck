@@ -61,7 +61,31 @@ export const createAccount = async (formData: ILoginForm) => {
     revalidateTag('user.show')
 
     const data = await response.json();
+
+    return {
+        ok: response.ok,
+        ...data,
+    } as IResponse;
+}
+
+/**
+ * Logout
+ */
+export const logout = async () => {
+    const response = await fetch(`${globalConfig.baseUrl}/auth/logout`, {
+        method: 'GET',
+        headers: {
+            Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+        }
+    });
     
+    if (response.ok) {
+        cookies().delete('accessToken');
+        cookies().delete('refreshToken');
+    }
+
+    const data = await response.json();
+
     return {
         ok: response.ok,
         ...data,
