@@ -3,6 +3,7 @@ export interface ICourse {
     code: string;
     name: string;
     credits: number;
+    semesterId: number;
 }
 
 export interface ICourseFilter {
