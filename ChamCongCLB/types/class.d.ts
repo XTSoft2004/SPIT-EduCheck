@@ -3,10 +3,11 @@ export interface IClass {
     code: string;
     name: string;
     day: number;
-    timeStart: Date;
-    timeEnd: Date;
+    timeStart: string;
+    timeEnd: string;
     lecturerId: string;
     courseId: string;
+    studentsId: number[];
 }
 
 export interface IClassFilter {
@@ -18,11 +19,11 @@ export interface IClassCreate {
     code: string;
     name: string;
     day: number;
-    timeStart: Date;
-    timeEnd: Date;
+    timeStart: string;
+    timeEnd: string;
     lecturerId: string;
     courseId: string;
-    studentId: string[];
+    studentsId: number[];
 }
 
 export interface IClassUpdate {
@@ -30,11 +31,11 @@ export interface IClassUpdate {
     code?: string;
     name?: string;
     day?: number;
-    timeStart?: Date;
-    timeEnd?: Date;
+    timeStart?: string;
+    timeEnd?: string;
     lecturerId?: string;
     courseId?: string;
-    studentId?: string[];
+    studentsId?: number[];
 }
 
 export interface IClassDeleteLecturer {

@@ -1,4 +1,5 @@
-export interface IUSer {
+export interface IUser {
+    id: number;
     username: string;
     isLocked: boolean;
     isVerify: boolean;

@@ -1,6 +1,6 @@
 export interface ISemester {
     id: number;
-    semesterse_Number: number;
+    semesters_Number: number;
     year: number;
 }
 
@@ -10,12 +10,12 @@ export interface ISemesterFilter {
 }
 
 export interface ISemesterCreate {
-    semesterse_Number: number;
+    semesters_Number: number;
     year: number;
 }
 
 export interface ISemesterUpdate {
     id: number;
-    semesterse_Number?: number;
+    semesters_Number?: number;
     year?: number;
 }

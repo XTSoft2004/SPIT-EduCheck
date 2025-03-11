@@ -14,8 +14,8 @@ interface IBaseResponse {
 export interface IResponse extends IBaseResponse {}
 
 export interface IIndexResponse<T> extends IBaseResponse {
+    IMeta;
     data: T[];
-    meta: IMeta;
 }
 
 export interface IShowResponse<T> extends IBaseResponse {
