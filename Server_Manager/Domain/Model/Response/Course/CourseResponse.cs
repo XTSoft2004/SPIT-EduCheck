@@ -20,7 +20,9 @@ namespace Domain.Model.Response.Course
         [Required]
         public int Credits { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public SemesterResponse Semester { get; set; }
+        //public SemesterResponse Semester { get; set; }
+        public long? SemesterId { get; set; }
+
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<ClassResponse> Class { get; set; }
     }

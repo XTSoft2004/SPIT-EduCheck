@@ -119,6 +119,7 @@ namespace Domain.Services
                     Code = f.Code,
                     Name = f.Name,
                     Credits = f.Credits,
+                    SemesterId = f.SemesterId
                     //Semester = f.SemesterId != null ? new SemesterResponse()
                     //{
                     //    Id = f.Semester.Id,

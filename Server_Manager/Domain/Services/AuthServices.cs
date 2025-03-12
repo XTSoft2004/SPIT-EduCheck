@@ -7,10 +7,12 @@ using Domain.Model.DTOs;
 using Domain.Model.Request.User;
 using Domain.Model.Response.Auth;
 using Domain.Model.Response.User;
+using Microsoft.AspNetCore.Http.Headers;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
+using ResponseHeader = Microsoft.AspNetCore.Http;
 
 namespace Domain.Services
 {
@@ -20,13 +22,16 @@ namespace Domain.Services
         private readonly IRepositoryBase<User> _User;
         private readonly IRepositoryBase<Role> _Role;
         private readonly ITokenServices _tokenServices;
-
-        public AuthServices(IRepositoryBase<RefreshToken> refreshToken, IRepositoryBase<User> user, IRepositoryBase<Role> role, ITokenServices tokenServices)
+        private readonly ResponseHeader.HttpContext _httpContext;
+        private long UserId { set; get; }
+        public AuthServices(IRepositoryBase<RefreshToken> refreshToken, IRepositoryBase<User> user, IRepositoryBase<Role> role, ITokenServices tokenServices, ResponseHeader.IHttpContextAccessor httpContextAccessor)
         {
             _RefreshToken = refreshToken;
             _User = user;
             _Role = role;
             _tokenServices = tokenServices;
+            _httpContext = httpContextAccessor.HttpContext; // ✅ Lấy HttpContext từ HttpContextAccessor
+            UserId = _httpContext.Items["UserId"] == null ? -100 : Convert.ToInt64(_httpContext.Items["UserId"]);
         }
 
         public async Task<HttpResponse> CreateAsync(RegisterRequest registerRequest)
@@ -86,12 +91,12 @@ namespace Domain.Services
             }
         }
 
-        public async Task<HttpResponse> LogoutAsync(long Id)
+        public async Task<HttpResponse> LogoutAsync()
         {
-            var user = _User.Find(x => x.Id == Id);
+            var user = _User.Find(x => x.Id == UserId);
             if(user != null)
             {
-                var refreshToken = _RefreshToken.Find(x => x.UserId == Id);
+                var refreshToken = _RefreshToken.Find(x => x.UserId == UserId);
                 if (refreshToken != null)
                 {
                     _RefreshToken.Delete(refreshToken);

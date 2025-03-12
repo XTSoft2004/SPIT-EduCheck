@@ -43,12 +43,12 @@ namespace Server_Manager.Controllers
             var response = await _services.RefreshToken(refreshToken);
             return response.ToActionResult();
         }
-        [HttpDelete("logout")]
-        public async Task<IActionResult> LogoutAsync(long Id)
+        [HttpGet("logout")]
+        public async Task<IActionResult> LogoutAsync()
         {
             if (!ModelState.IsValid)
                 return BadRequest(DefaultString.INVALID_MODEL);
-            var response = await _services.LogoutAsync(Id);
+            var response = await _services.LogoutAsync();
             return response.ToActionResult();
         }
     }

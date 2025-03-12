@@ -14,6 +14,6 @@ namespace Domain.Interfaces.Services
         Task<HttpResponse> LoginAsync(LoginDTO loginDTO);
         Task<HttpResponse> CreateAsync(RegisterRequest register);
         Task<HttpResponse> RefreshToken(string refreshToken);
-        Task<HttpResponse> LogoutAsync(long Id);
+        Task<HttpResponse> LogoutAsync();
     }
 }

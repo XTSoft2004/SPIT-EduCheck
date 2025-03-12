@@ -13,7 +13,7 @@ namespace Infrastructure.ContextDB
         public AppDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseSqlServer("Data Source=118.71.236.93;Initial Catalog=SPIT_EduCheck;User ID=sa;Password=Xuantruong23*;TrustServerCertificate=True;MultipleActiveResultSets=True");
+            optionsBuilder.UseSqlServer("Data Source=xtcoder2004.io.vn;Initial Catalog=SPIT_EduCheck;User ID=sa;Password=Xuantruong23*;TrustServerCertificate=True;MultipleActiveResultSets=True");
             return new AppDbContext(optionsBuilder.Options);
         }
     }
