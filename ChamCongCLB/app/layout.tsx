@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { SidebarProvider } from '@/components/context/SidebarContext'
+import { ThemeProvider } from '@/components/context/ThemeContext'
 import '@/styles/globals.css'
 
 export const metadata: Metadata = {
@@ -13,7 +15,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className={`dark:bg-gray-900`}>
+        <ThemeProvider>
+          <SidebarProvider>{children}</SidebarProvider>
+        </ThemeProvider>
+      </body>
     </html>
   )
 }
