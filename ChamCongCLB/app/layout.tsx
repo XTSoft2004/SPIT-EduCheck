@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import { SidebarProvider } from '@/components/context/SidebarContext'
-import { ThemeProvider } from '@/components/context/ThemeContext'
+import { SidebarProvider } from '@/context/SidebarContext'
+import { ThemeProvider } from '@/context/ThemeContext'
 import '@/styles/globals.css'
 
 export const metadata: Metadata = {
