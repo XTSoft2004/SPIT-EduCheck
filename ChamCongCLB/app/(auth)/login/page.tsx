@@ -1,13 +1,50 @@
 'use client'
-import Checkbox from '@/components/form/input/Checkbox'
-import Input from '@/components/form/input/InputField'
+import Checkbox from '@mui/material/Checkbox'
 import Label from '@/components/form/Label'
 import { Button } from '@/components/UI/Button/Button'
 import { ChevronLeft, EyeClosed, Eye } from 'lucide-react'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import Image from 'next/image'
+import Input from '@mui/material/Input'
+import InputLabel from '@mui/material/InputLabel'
+import InputAdornment from '@mui/material/InputAdornment'
+import TextField from '@mui/material/TextField'
+import AccountCircle from '@mui/icons-material/AccountCircle'
 
+import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
+import { ILoginForm } from '@/types/auth'
+import { login } from '@/actions/login.actions'
 export default function SignInForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ILoginForm>()
+  const router = useRouter()
+  const [loading, setLoading] = useState<boolean>(false)
+  const [openSuccess, setOpenSuccess] = useState<boolean>(false)
+  const [openError, setOpenError] = useState<boolean>(false)
+  const onSubmit = async (formData: ILoginForm) => {
+    setLoading(true)
+
+    const response = await login(formData)
+
+    if (response.ok) {
+      setOpenSuccess(true)
+      router.push('/')
+    } else {
+      setOpenError(true)
+    }
+
+    setLoading(false)
+  }
+  const handleClose = () => {
+    setOpenSuccess(false)
+    setOpenError(false)
+  }
+
   const [showPassword, setShowPassword] = useState(false)
   const [isChecked, setIsChecked] = useState(false)
   return (
@@ -24,7 +61,7 @@ export default function SignInForm() {
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8">
-            <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
+            <h1 className="mb-2 font-semibold text-gray-800 text-lg dark:text-white/90 sm:text-2xl">
               Sign In
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -61,17 +98,14 @@ export default function SignInForm() {
                 Sign in with Google
               </button>
               <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
-                <svg
-                  width="21"
-                  className="fill-current"
-                  height="20"
-                  viewBox="0 0 21 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M15.6705 1.875H18.4272L12.4047 8.75833L19.4897 18.125H13.9422L9.59717 12.4442L4.62554 18.125H1.86721L8.30887 10.7625L1.51221 1.875H7.20054L11.128 7.0675L15.6705 1.875ZM14.703 16.475H16.2305L6.37054 3.43833H4.73137L14.703 16.475Z" />
-                </svg>
-                Sign in with X
+                <Image
+                  width={20}
+                  height={20}
+                  src="/logo/logo_HUSC.png"
+                  alt="Husc Logo"
+                  className="w-5 h-5"
+                />
+                Sign in with Husc
               </button>
             </div>
             <div className="relative py-3 sm:py-5">
@@ -84,38 +118,70 @@ export default function SignInForm() {
                 </span>
               </div>
             </div>
-            <form>
-              <div className="space-y-6">
-                <div>
-                  <Label>
-                    Username <span className="text-error-500">*</span>{' '}
-                  </Label>
-                  <Input placeholder="info@gmail.com" type="text" />
-                </div>
-                <div>
-                  <Label>
-                    Password <span className="text-error-500">*</span>{' '}
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
-                    />
-                    <span
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                    >
-                      {showPassword ? (
-                        <Eye className="fill-gray-500 dark:fill-gray-400" />
-                      ) : (
-                        <EyeClosed className="fill-gray-500 dark:fill-gray-400" />
-                      )}
-                    </span>
-                  </div>
-                </div>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div>
+                <Label className="text-sm">
+                  Username <span className="text-red-600">*</span>{' '}
+                </Label>
+                <TextField
+                  placeholder="Username"
+                  variant="outlined"
+                  fullWidth
+                  {...register('username', {
+                    required: 'Username is required',
+                  })}
+                  error={!!errors.username}
+                  helperText={errors.username?.message}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '16px',
+                    },
+                  }}
+                  style={{ marginBottom: '16px' }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <AccountCircle />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+              <div>
+                <Label className="text-sm">
+                  Password <span className="text-red-600">*</span>{' '}
+                </Label>
+                <TextField
+                  placeholder="Password"
+                  variant="outlined"
+                  fullWidth
+                  {...register('password', {
+                    required: 'Password is required',
+                  })}
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                  style={{ marginBottom: '16px' }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '16px',
+                    },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <AccountCircle />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Checkbox checked={isChecked} onChange={setIsChecked} />
+                  <div className="flex items-center">
+                    <Checkbox
+                      checked={isChecked}
+                      onChange={(event, checked) => setIsChecked(checked)}
+                    />
                     <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
                       Keep me logged in
                     </span>
