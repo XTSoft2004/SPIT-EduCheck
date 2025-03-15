@@ -12,9 +12,8 @@ export const config = {
          * - _next/static (static files)
          * - _next/image (image optimization files)
          * - favicon.ico, sitemap.xml, robots.txt, logo.png (metadata files)
-         * - All files inside public (including subfolders and images)
          */
-        '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|logo.png|500|[^/]+\.[a-zA-Z]+).*)',
+        '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|logo.png|500[^/]+\.[a-zA-Z]+).*)',
     ],
 };
 
