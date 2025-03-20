@@ -2,3 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+.css-jjhd74-MuiStack-root {
+  display: none !important;
+}
+
+.css-m69qwo-MuiStack-root {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
