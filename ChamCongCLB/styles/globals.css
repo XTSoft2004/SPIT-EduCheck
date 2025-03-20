@@ -11,3 +11,29 @@
   display: flex;
   justify-content: space-between;
 }
+
+.dark {
+  --mui-palette-background-paper: oklch(0.21 0.034 264.665) !important;
+}
+
+.dark input::placeholder {
+  color: #fff !important;
+}
+
+/* Định dạng viền trong dark mode */
+.dark .custom-textfield .MuiOutlinedInput-root {
+  border-radius: 16px;
+}
+
+.dark .css-1ll44ll-MuiOutlinedInput-notchedOutline {
+  border-color: white !important; /* Viền trắng trong dark mode */
+}
+
+.dark .css-1ll44ll-MuiOutlinedInput-notchedOutline:hovev {
+  border-color: white !important; /* Viền trắng khi hover */
+}
+
+[aria-label='Collapse menu'] {
+  display: flex;
+  align-items: center;
+}

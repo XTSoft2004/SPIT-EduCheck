@@ -10,13 +10,13 @@ import InputLabel from '@mui/material/InputLabel'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import AccountCircle from '@mui/icons-material/AccountCircle'
-
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { ILoginForm } from '@/types/auth'
 import { login } from '@/actions/login.actions'
 import { Button } from '@/components/ui/Button/Button'
+import { CustomTextField } from '@/components/ui/Input/CustomTextField'
 // import Button from '@mui/material/Button'
 export default function SignInForm() {
   const {
@@ -24,6 +24,7 @@ export default function SignInForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<ILoginForm>()
+
   const router = useRouter()
   const [loading, setLoading] = useState<boolean>(false)
   const [openSuccess, setOpenSuccess] = useState<boolean>(false)
@@ -51,7 +52,7 @@ export default function SignInForm() {
   const [isChecked, setIsChecked] = useState(false)
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
-      <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
+      {/* <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
         <Link
           href="/"
           className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
@@ -59,15 +60,15 @@ export default function SignInForm() {
           <ChevronLeft />
           Back to dashboard
         </Link>
-      </div>
+      </div> */}
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8">
-            <h1 className="mb-2 font-semibold text-gray-800 text-lg dark:text-white/90 sm:text-2xl">
+            <h1 className="mb-2 font-bold text-gray-800 text-2xl sm:text-3xl lg:text-4xl dark:text-white/90">
               Sign In
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign in!
+              Enter your username and password to sign in!
             </p>
           </div>
           <div>
@@ -122,59 +123,25 @@ export default function SignInForm() {
             </div>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div>
-                <Label className="text-sm">
+                <Label className="text-sm dark:text-white">
                   Username <span className="text-red-600">*</span>{' '}
                 </Label>
-                <TextField
+                <CustomTextField
+                  register={register}
+                  errors={errors}
+                  name="Username"
                   placeholder="Username"
-                  variant="outlined"
-                  fullWidth
-                  {...register('username', {
-                    required: 'Username is required',
-                  })}
-                  error={!!errors.username}
-                  helperText={errors.username?.message}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '16px',
-                    },
-                  }}
-                  style={{ marginBottom: '16px' }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <AccountCircle />
-                      </InputAdornment>
-                    ),
-                  }}
                 />
               </div>
               <div>
-                <Label className="text-sm">
+                <Label className="text-sm dark:text-white">
                   Password <span className="text-red-600">*</span>{' '}
                 </Label>
-                <TextField
+                <CustomTextField
+                  register={register}
+                  errors={errors}
+                  name="Password"
                   placeholder="Password"
-                  variant="outlined"
-                  fullWidth
-                  {...register('password', {
-                    required: 'Password is required',
-                  })}
-                  error={!!errors.password}
-                  helperText={errors.password?.message}
-                  style={{ marginBottom: '16px' }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '16px',
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <AccountCircle />
-                      </InputAdornment>
-                    ),
-                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -190,7 +157,7 @@ export default function SignInForm() {
                   </div>
                   <Link
                     href="/reset-password"
-                    className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                    className="text-sm hover:text-dark dark:text-white !important"
                   >
                     Forgot password?
                   </Link>
@@ -203,7 +170,7 @@ export default function SignInForm() {
               </div>
             </form>
 
-            <div className="mt-5">
+            {/* <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                 Don&apos;t have an account? {''}
                 <Link
@@ -213,7 +180,7 @@ export default function SignInForm() {
                   Sign Up
                 </Link>
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { Branding } from '@toolpad/core/AppProvider'
 import { logout } from '@/actions/auth.actions'
 import { ThemeToggleButton } from '@/components/common/ThemeToggleButton'
 import { Button } from '@/components/ui/Button/Button'
+
 const handleLogout = async () => {
   await logout()
   window.location.href = '/login'
