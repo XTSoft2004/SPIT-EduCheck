@@ -16,8 +16,9 @@
   --mui-palette-background-paper: oklch(0.21 0.034 264.665) !important;
 }
 
+.dark input,
 .dark input::placeholder {
-  color: #fff !important;
+  color: gray !important;
 }
 
 /* Định dạng viền trong dark mode */

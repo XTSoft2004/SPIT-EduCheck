@@ -1,11 +1,14 @@
-import { TextField, InputAdornment } from '@mui/material'
-import { AccountCircle } from '@mui/icons-material'
+import { useState, ReactNode } from 'react'
+import { TextField, InputAdornment, IconButton } from '@mui/material'
+import { Visibility, VisibilityOff } from '@mui/icons-material'
 
 interface CustomTextFieldProps {
   register: any
   errors: { [key: string]: any }
   name: string
   placeholder: string
+  type?: string
+  icon?: ReactNode
 }
 
 export function CustomTextField({
@@ -13,12 +16,21 @@ export function CustomTextField({
   errors,
   name,
   placeholder,
+  type = 'text',
+  icon,
 }: CustomTextFieldProps) {
+  const [showPassword, setShowPassword] = useState(false)
+
+  const handleTogglePassword = () => {
+    setShowPassword((prev) => !prev)
+  }
+
   return (
     <TextField
       placeholder={placeholder}
       variant="outlined"
       fullWidth
+      type={type === 'password' && !showPassword ? 'password' : 'text'}
       {...register(name, {
         required: `${placeholder} không được bỏ trống`,
       })}
@@ -28,24 +40,25 @@ export function CustomTextField({
       sx={{
         '& .MuiOutlinedInput-root': {
           borderRadius: '16px',
-          //   '& fieldset': {
-          //     borderColor: 'white !important',
-          //   },
-          //   '&:hover fieldset': {
-          //     borderColor: 'white !important',
-          //   },
-          //   '&.Mui-focused fieldset': {
-          //     borderColor: 'white !important',
-          //   },
         },
       }}
       style={{ marginBottom: '16px' }}
       InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <AccountCircle className="dark:text-white" />
-          </InputAdornment>
-        ),
+        startAdornment: icon ? (
+          <InputAdornment position="start">{icon}</InputAdornment>
+        ) : null,
+        endAdornment:
+          type === 'password' ? (
+            <InputAdornment position="end">
+              <IconButton onClick={handleTogglePassword} edge="end">
+                {showPassword ? (
+                  <VisibilityOff className="dark:text-white" />
+                ) : (
+                  <Visibility className="dark:text-white" />
+                )}
+              </IconButton>
+            </InputAdornment>
+          ) : null,
       }}
     />
   )

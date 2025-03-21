@@ -17,6 +17,10 @@ import { ILoginForm } from '@/types/auth'
 import { login } from '@/actions/login.actions'
 import { Button } from '@/components/ui/Button/Button'
 import { CustomTextField } from '@/components/ui/Input/CustomTextField'
+import KeyIcon from '@mui/icons-material/Key'
+import Snackbar from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
+import SnackbarAlert from '@/components/ui/Alert/SnackbarAlertProps'
 // import Button from '@mui/material/Button'
 export default function SignInForm() {
   const {
@@ -48,7 +52,6 @@ export default function SignInForm() {
     setOpenError(false)
   }
 
-  const [showPassword, setShowPassword] = useState(false)
   const [isChecked, setIsChecked] = useState(false)
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
@@ -131,6 +134,7 @@ export default function SignInForm() {
                   errors={errors}
                   name="Username"
                   placeholder="Username"
+                  icon={<AccountCircle className="dark:text-white" />}
                 />
               </div>
               <div>
@@ -140,8 +144,10 @@ export default function SignInForm() {
                 <CustomTextField
                   register={register}
                   errors={errors}
-                  name="Password"
+                  name="password"
                   placeholder="Password"
+                  type="password"
+                  icon={<KeyIcon className="dark:text-white" />}
                 />
               </div>
               <div className="space-y-2">
@@ -155,20 +161,44 @@ export default function SignInForm() {
                       Keep me logged in
                     </span>
                   </div>
-                  <Link
+                  <a
                     href="/reset-password"
-                    className="text-sm hover:text-dark dark:text-white !important"
+                    className="text-sm hover:text-dark dark:text-white !important border-none !import"
+                    onClick={() => (
+                      <SnackbarAlert
+                        open={true}
+                        onClose={handleClose}
+                        severity="error"
+                        message="Bạn vui lòng liên hệ với quản trị viên để được hỗ trợ!"
+                      />
+                    )}
                   >
                     Forgot password?
-                  </Link>
+                  </a>
                 </div>
                 <div>
-                  <Button className="w-full" onClick={() => console.log('a')}>
+                  <Button
+                    disabled={loading}
+                    className="w-full"
+                    onClick={() => console.log('a')}
+                  >
                     Sign in
                   </Button>
                 </div>
               </div>
             </form>
+            <SnackbarAlert
+              open={openSuccess}
+              onClose={handleClose}
+              severity="success"
+              message="Đăng nhập thành công !!!"
+            />
+            <SnackbarAlert
+              open={openError}
+              onClose={handleClose}
+              severity="error"
+              message="Đăng nhập thất bại !!!"
+            />
 
             {/* <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
