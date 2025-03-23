@@ -7,7 +7,7 @@ const baseUrl = globalConfig.baseUrl;
 
 export const config = {
     matcher: [
-        '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|logo.png|500|public(?:$|/.*)).*)',
+        '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|logo.png|500|public(?:/.*)?).*)',
     ],
 };
 

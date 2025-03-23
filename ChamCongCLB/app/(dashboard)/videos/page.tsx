@@ -1,7 +1,7 @@
 export default function Page() {
     return (
         <>
-            <p>Hello Admin</p>
+            <p>Hello Video</p>
         </>
     )
 }

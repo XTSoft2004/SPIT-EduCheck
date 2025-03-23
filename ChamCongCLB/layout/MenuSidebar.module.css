@@ -1,0 +1,26 @@
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+
+.dark {
+  background: #1e1e2f;
+  color: white;
+}
+
+.light {
+  background: #f8f9fa;
+  color: black;
+}
+
+.toggleTheme {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: inherit;
+  color: inherit;
+}

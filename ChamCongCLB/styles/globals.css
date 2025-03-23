@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-dark-mode: #111827;
+}
+
 .css-jjhd74-MuiStack-root {
   display: none !important;
 }
