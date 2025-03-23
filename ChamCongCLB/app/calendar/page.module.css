@@ -1,0 +1,30 @@
+.events {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.events li {
+    margin-bottom: 4px;
+}
+
+.ant-modal {
+    top: 20%;
+}
+
+.events .ant-badge-status {
+    width: 100%;
+    overflow: hidden;
+    font-size: 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.notesMonth {
+    font-size: 28px;
+    text-align: center;
+}
+
+.notesMonth section {
+    font-size: 28px;
+}
