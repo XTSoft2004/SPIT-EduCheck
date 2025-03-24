@@ -43,8 +43,7 @@ export default function Dashboard({
                         flex: 1,
                         overflow: 'auto'
                     }}
-                >
-                    {children}
+                > {children}
                 </div>
             </Layout>
         </Layout >

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useState, useContext, useEffect } from 'react'
+import { ConfigProvider, theme as antTheme } from 'antd'
 
 type Theme = 'light' | 'dark'
 
@@ -19,11 +20,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Chỉ chạy trên client
       const savedTheme = localStorage.getItem('theme') as Theme | null
-      setTheme(savedTheme || 'light') // Nếu chưa có, mặc định là 'light'
+      setTheme(savedTheme || 'light')
     }
-    setMounted(true) // Đánh dấu đã mounted để tránh lỗi hydration
+    setMounted(true)
   }, [])
 
   useEffect(() => {
@@ -38,7 +38,24 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
+      <ConfigProvider
+        theme={{
+          algorithm: theme === 'dark' ? antTheme.darkAlgorithm : antTheme.defaultAlgorithm,
+          token: {
+            colorBgBase: theme === 'dark' ? 'var(--bg-dark-mode)' : '#ffffff', // Nền chính
+            colorText: theme === 'dark' ? '#EEEEEE' : '#333333', // Màu chữ chính
+            colorPrimary: theme === 'dark' ? '#00ADB5' : '#1677FF', // Màu chủ đạo
+            colorBgContainer: theme === 'dark' ? 'var(--bg-dark-mode)' : '#ffffff', // Nền ô ngày
+            colorTextLabel: theme === 'dark' ? '#FFFFFF' : '#000000', // Màu chữ của label
+            colorBorder: theme === 'dark' ? '#555555' : '#DDDDDD', // Màu viền
+            colorTextSecondary: theme === 'dark' ? '#BBBBBB' : '#666666', // Màu chữ phụ
+            colorFillContent: theme === 'dark' ? '#393E46' : '#F5F5F5', // Màu nền nội dung
+          },
+        }}
+      >
+
+        {children}
+      </ConfigProvider>
     </ThemeContext.Provider>
   )
 }

@@ -4,7 +4,7 @@ import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext'
-import { CircleUserRound, School, CalendarDays, AlignVerticalDistributeEnd, Book, Computer, LayoutGrid, SquareChartGantt } from 'lucide-react'
+import { CalendarRange, CircleUserRound, School, CalendarDays, AlignVerticalDistributeEnd, Book, Computer, LayoutGrid, SquareChartGantt } from 'lucide-react'
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -22,6 +22,11 @@ const items: MenuItem[] = [
             { key: '/course', label: 'Học phần', icon: <Computer size={20} /> },
             { key: '/timesheet', label: 'Chấm công', icon: <CalendarDays size={20} /> },
         ],
+    }
+    , {
+        key: '/calendar',
+        icon: <CalendarRange />,
+        label: 'Lịch chấm công'
     }
 ];
 
