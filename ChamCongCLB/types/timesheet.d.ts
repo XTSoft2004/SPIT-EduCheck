@@ -3,7 +3,7 @@ export interface ITimesheet {
     studentId: number;
     classId: number;
     timeId: number;
-    date: Date;
+    date: string;
     image_Check: string;
     status: string;
     note: string;
@@ -18,10 +18,10 @@ export interface ITimesheetCreate {
     studentId: number;
     classId: number;
     timeId: number;
-    date: Date;
+    date: string;
     image_Check: string;
     status: string;
-    note: string;
+    note?: string;
 }
 
 export interface ITimesheetUpdate {
@@ -29,7 +29,7 @@ export interface ITimesheetUpdate {
     studentId?: number;
     classId?: number;
     timeId?: number;
-    date?: Date;
+    date?: string;
     image_Check?: string;
     status?: string;
     note?: string;

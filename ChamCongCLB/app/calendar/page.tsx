@@ -118,7 +118,7 @@ const CalendarPage: React.FC = () => {
                                     setIsModalOpen(true);
                                 }
                             }}
-                            className={`${styles.eventButton} dark:text-white`}
+                            className={styles.eventButton}
                             style={{ borderLeftColor: item.type === "success" ? "#52c41a" : item.type === "warning" ? "#faad14" : "#ff4d4f" }}
                         >
                             {item.content}
@@ -254,7 +254,7 @@ const CalendarPage: React.FC = () => {
     };
 
     return (
-        <>
+        <div>
             {viewMode === "calendar" ? (
                 <>
                     <div className={styles.calendarContainer}>
@@ -266,7 +266,7 @@ const CalendarPage: React.FC = () => {
                 </>
             ) : (
                 <>
-                    <div className={`${styles.dayViewContainer}`}>
+                    <div className={styles.dayViewContainer}>
                         <div className={styles.dayViewHeader}>
                             <Button onClick={handlePrevDay}>← Ngày trước</Button>
 
@@ -319,7 +319,7 @@ const CalendarPage: React.FC = () => {
                                             }
                                         }}
                                         className={styles.eventButton}
-                                        style={{ borderLeftColor: item.type === "success" ? "#52c41a" : item.type === "warning" ? "#faad14" : "#ff4d4f", width: '50%' }}
+                                        style={{ borderLeftColor: item.type === "success" ? "#52c41a" : item.type === "warning" ? "#faad14" : "#ff4d4f", width: '50%'}}
                                     >
                                         {item.content}
                                     </Button>
@@ -392,7 +392,7 @@ const CalendarPage: React.FC = () => {
                     </Form.Item>
                 </Form>
             </Modal>
-        </>
+        </div>
     );
 };
 
