@@ -266,7 +266,7 @@ const CalendarPage: React.FC = () => {
                 </>
             ) : (
                 <>
-                    <div className={`${styles.dayViewContainer}`}>
+                    <div className={`${styles.dayViewContainer} dark:bg-[var(--bg-dark-mode)]`}>
                         <div className={styles.dayViewHeader}>
                             <Button onClick={handlePrevDay}>← Ngày trước</Button>
 
@@ -318,7 +318,7 @@ const CalendarPage: React.FC = () => {
                                                 setIsModalOpen(true);
                                             }
                                         }}
-                                        className={styles.eventButton}
+                                        className={`${styles.eventButton} dark:text-white pb-3 dark:border-[gray-900]`}
                                         style={{ borderLeftColor: item.type === "success" ? "#52c41a" : item.type === "warning" ? "#faad14" : "#ff4d4f", width: '50%' }}
                                     >
                                         {item.content}
