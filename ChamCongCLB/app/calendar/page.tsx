@@ -7,7 +7,7 @@ import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import styles from "./page.module.css";
 
-import { getTimesheets, createTimesheet, updateTimesheet } from "@/actions/timesheet.actions";
+import { getTimesheets, createTimesheet, updateTimesheet, deleteTimesheet } from "@/actions/timesheet.actions";
 import { getStudents } from "@/actions/student.actions";
 import { getClasses } from "@/actions/class.actions";
 import { ITimesheet, ITimesheetCreate, ITimesheetUpdate } from "@/types/timesheet";
@@ -93,7 +93,7 @@ const CalendarPage: React.FC = () => {
     const dateCellRender = (value: Dayjs) => {
         const listData = getListData(value);
         return (
-            <div className={styles.events} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            <div className={styles.events}>
                 {listData.map((item, index) => {
                     const event = timesheets.find((t) => {
                         const student = students.find(s => s.id === t.studentId);
@@ -102,43 +102,27 @@ const CalendarPage: React.FC = () => {
                     });
 
                     return (
-                        <Badge
+                        <Button
                             key={index}
-                            color={item.type === "success" ? "#52c41a" : item.type === "warning" ? "#faad14" : "#ff4d4f"}
-                            text={
-                                <Button
-                                    type="primary"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (event) {
-                                            setSelectedEvent(event);
-                                            form.setFieldsValue({
-                                                studentId: event.studentId,
-                                                classId: event.classId,
-                                                timeId: event.timeId,
-                                                image_Check: event.image_Check,
-                                                note: event.note,
-                                            });
-                                            setIsModalOpen(true);
-                                        }
-                                    }}
-                                    style={{
-                                        fontSize: "12px",
-                                        padding: "4px",
-                                        backgroundColor: "transparent",
-                                        borderColor: "transparent",
-                                        width: "100%",
-                                        textAlign: "center",
-                                        whiteSpace: "nowrap",
-                                        overflow: "hidden",
-                                        textOverflow: "ellipsis",
-                                        color: "black",
-                                    }}
-                                >
-                                    {item.content}
-                                </Button>
-                            }
-                        />
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (event) {
+                                    setSelectedEvent(event);
+                                    form.setFieldsValue({
+                                        studentId: event.studentId,
+                                        classId: event.classId,
+                                        timeId: event.timeId,
+                                        image_Check: event.image_Check,
+                                        note: event.note,
+                                    });
+                                    setIsModalOpen(true);
+                                }
+                            }}
+                            className={styles.eventButton}
+                            style={{ borderLeftColor: item.type === "success" ? "#52c41a" : item.type === "warning" ? "#faad14" : "#ff4d4f" }}
+                        >
+                            {item.content}
+                        </Button>
                     );
                 })}
             </div>
@@ -223,6 +207,26 @@ const CalendarPage: React.FC = () => {
         }
     };
 
+    const handleDeleteEvent = async (timesheet: ITimesheet) => {
+        if (!timesheet.id) return;
+
+        if (!confirm("Bạn có chắc chắn muốn xóa buổi điểm danh này không?")) return;
+
+        try {
+            const response = await deleteTimesheet(timesheet);
+            if (response.ok) {
+                const responseTimesheets = await getTimesheets();
+                if (responseTimesheets.ok) setTimesheets(responseTimesheets.data);
+            }
+            setIsModalOpen(false);
+            form.resetFields();
+            setSelectedEvent(null);
+        }
+        catch (error) {
+            console.error("Error deleting event:", error);
+        }
+    }
+
     const handlePrevDay = () => {
         if (selectedDate) {
             setSelectedDate(selectedDate.subtract(1, "day"));
@@ -253,13 +257,7 @@ const CalendarPage: React.FC = () => {
         <div>
             {viewMode === "calendar" ? (
                 <>
-                    <div
-                        style={{
-                            backgroundColor: "white",
-                            padding: "10px",
-                            borderRadius: "8px",
-                        }}
-                    >
+                    <div className={styles.calendarContainer}>
                         <Calendar cellRender={dateCellRender} onSelect={(date, { source }) => {
                             if (source === "date") handleDateSelect(date);
                         }} />
@@ -268,103 +266,65 @@ const CalendarPage: React.FC = () => {
                 </>
             ) : (
                 <>
-                    <div style={{ marginTop: '20px' }}>
-                        <div
-                            style={{
-                                backgroundColor: "white",
-                                padding: "10px",
-                                borderRadius: "8px",
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                textAlign: "center",
-                                width: "100%",
-                                height: '100%',
-                            }}
-                        >
-                            <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-                                <Button onClick={handlePrevDay}>← Ngày trước</Button>
+                    <div className={styles.dayViewContainer}>
+                        <div className={styles.dayViewHeader}>
+                            <Button onClick={handlePrevDay}>← Ngày trước</Button>
 
-                                <Dropdown
-                                    open={isCalendarOpen}
-                                    onOpenChange={setIsCalendarOpen}
-                                    overlay={
-                                        <div
-                                            style={{
-                                                width: 300,
-                                                background: "white",
-                                                padding: 10,
-                                                borderRadius: 8,
-                                                boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                                                position: "absolute",
-                                                left: "50%",
-                                                transform: "translateX(-50%)",
-                                            }}
-                                        >
-                                            <Calendar fullscreen={false} onSelect={handleDateChange} />
-                                        </div>
-                                    }
-                                    trigger={["click"]}
-                                    placement="bottomCenter"
-                                >
-                                    <h2 style={{ cursor: "pointer", margin: 0 }} onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
-                                        {selectedDate ? selectedDate.format("DD/MM/YYYY") : "Chưa chọn ngày"}
-                                    </h2>
-                                </Dropdown>
+                            <Dropdown
+                                open={isCalendarOpen}
+                                onOpenChange={setIsCalendarOpen}
+                                overlay={
+                                    <div className={styles.dropdownCalendar}>
+                                        <Calendar fullscreen={false} onSelect={handleDateChange} />
+                                    </div>
+                                }
+                                trigger={["click"]}
+                                placement="bottomCenter"
+                            >
+                                <h2 className={styles.selectedDate} onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
+                                    {selectedDate ? selectedDate.format("DD/MM/YYYY") : "Chưa chọn ngày"}
+                                </h2>
+                            </Dropdown>
 
-                                <Button onClick={handleNextDay}>Ngày sau →</Button>
-                            </div>
+                            <Button onClick={handleNextDay}>Ngày sau →</Button>
+                        </div>
 
-                            <Button onClick={() => setIsModalOpen(true)} style={{ marginTop: 10, marginBottom: 10 }}>
-                                Thêm sự kiện
-                            </Button>
+                        <Button onClick={() => setIsModalOpen(true)} className={styles.addEventButton}>
+                            Thêm sự kiện
+                        </Button>
 
-                            <div style={{ width: "100%", marginTop: "20px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                                {selectedDate && getListData(selectedDate).map((item, index) => {
-                                    const event = timesheets.find((t) => {
-                                        const student = students.find(s => s.id === t.studentId);
-                                        const studentName = student ? `${student.firstName} ${student.lastName}` : "Unknown Student";
-                                        return `${studentName}: ${t.note || "No details"}` === item.content;
-                                    });
+                        <div className={styles.eventsList}>
+                            {selectedDate && getListData(selectedDate).map((item, index) => {
+                                const event = timesheets.find((t) => {
+                                    const student = students.find(s => s.id === t.studentId);
+                                    const studentName = student ? `${student.firstName} ${student.lastName}` : "Unknown Student";
+                                    return `${studentName}: ${t.note || "No details"}` === item.content;
+                                });
 
-                                    return (
-                                        <Badge
-                                            key={index}
-                                            color={item.type === "success" ? "#52c41a" : item.type === "warning" ? "#faad14" : "#ff4d4f"}
-                                            text={
-                                                <Button
-                                                    key={index}
-                                                    type="primary"
-                                                    onClick={() => {
-                                                        if (event) {
-                                                            setSelectedEvent(event);
-                                                            form.setFieldsValue({
-                                                                studentId: event.studentId,
-                                                                classId: event.classId,
-                                                                timeId: event.timeId,
-                                                                image_Check: event.image_Check,
-                                                                note: event.note,
-                                                            });
-                                                            setIsModalOpen(true);
-                                                        }
-                                                    }}
-                                                    style={{
-                                                        whiteSpace: "nowrap",
-                                                        overflow: "hidden",
-                                                        textOverflow: "ellipsis",
-                                                        backgroundColor: item.type === "success" ? "#52c41a" :
-                                                            item.type === "warning" ? "#faad14" : "#ff4d4f",
-                                                        borderColor: "transparent",
-                                                    }}
-                                                >
-                                                    {item.content}
-                                                </Button>
+                                return (
+                                    <Button
+                                        key={index}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (event) {
+                                                setSelectedEvent(event);
+                                                form.setFieldsValue({
+                                                    studentId: event.studentId,
+                                                    classId: event.classId,
+                                                    timeId: event.timeId,
+                                                    image_Check: event.image_Check,
+                                                    note: event.note,
+                                                });
+                                                setIsModalOpen(true);
                                             }
-                                        />
-                                    );
-                                })}
-                            </div>
+                                        }}
+                                        className={styles.eventButton}
+                                        style={{ borderLeftColor: item.type === "success" ? "#52c41a" : item.type === "warning" ? "#faad14" : "#ff4d4f", width: '50%'}}
+                                    >
+                                        {item.content}
+                                    </Button>
+                                );
+                            })}
                         </div>
                     </div>
                 </>
@@ -385,6 +345,9 @@ const CalendarPage: React.FC = () => {
                         form.resetFields();
                     }}>
                         Hủy
+                    </Button>,
+                    <Button key="delete" danger onClick={() => selectedEvent && handleDeleteEvent(selectedEvent)}>
+                        Xóa
                     </Button>,
                     <Button key="submit" type="primary" onClick={selectedEvent ? handleSaveEvent : handleAddEvent}>
                         {selectedEvent ? "Cập nhật" : "Thêm mới"}
