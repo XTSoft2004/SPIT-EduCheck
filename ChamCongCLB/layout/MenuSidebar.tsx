@@ -4,167 +4,25 @@ import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext'
+import { CircleUserRound, School, CalendarDays, AlignVerticalDistributeEnd, Book, Computer, LayoutGrid, SquareChartGantt } from 'lucide-react'
 
 type MenuItem = Required<MenuProps>['items'][number];
 
 const items: MenuItem[] = [
     {
         key: '1',
-        icon: <MailOutlined />,
-        label: 'Navigation One',
+        icon: <SquareChartGantt />,
+        label: 'Quản lý',
         children: [
-            { key: '/videos', label: 'Option 1' },
-            { key: '/uploads', label: 'Option 2' },
-            { key: '13', label: 'Option 3' },
-            { key: '14', label: 'Option 4' },
+            { key: '/user', label: 'Tài khoản', icon: <CircleUserRound size={20} /> },
+            { key: '/student', label: 'Sinh viên', icon: <School size={20} /> },
+            { key: '/class', label: 'Lớp', icon: <AlignVerticalDistributeEnd size={20} /> },
+            { key: '/lecture', label: 'Giảng viên', icon: <Book size={20} /> },
+            { key: '/semeter', label: 'Học kỳ', icon: <LayoutGrid size={20} /> },
+            { key: '/course', label: 'Học phần', icon: <Computer size={20} /> },
+            { key: '/timesheet', label: 'Chấm công', icon: <CalendarDays size={20} /> },
         ],
-    },
-    {
-        key: '2',
-        icon: <AppstoreOutlined />,
-        label: 'Navigation Two',
-        children: [
-            { key: '21', label: 'Option 1' },
-            { key: '22', label: 'Option 2' },
-            {
-                key: '23',
-                label: 'Submenu',
-                children: [
-                    { key: '231', label: 'Option 1' },
-                    { key: '232', label: 'Option 2' },
-                    { key: '233', label: 'Option 3' },
-                ],
-            },
-            {
-                key: '24',
-                label: 'Submenu 2',
-                children: [
-                    { key: '241', label: 'Option 1' },
-                    { key: '242', label: 'Option 2' },
-                    { key: '243', label: 'Option 3' },
-                ],
-            },
-        ],
-    },
-    {
-        key: '2',
-        icon: <AppstoreOutlined />,
-        label: 'Navigation Two',
-        children: [
-            { key: '21', label: 'Option 1' },
-            { key: '22', label: 'Option 2' },
-            {
-                key: '23',
-                label: 'Submenu',
-                children: [
-                    { key: '231', label: 'Option 1' },
-                    { key: '232', label: 'Option 2' },
-                    { key: '233', label: 'Option 3' },
-                ],
-            },
-            {
-                key: '24',
-                label: 'Submenu 2',
-                children: [
-                    { key: '241', label: 'Option 1' },
-                    { key: '242', label: 'Option 2' },
-                    { key: '243', label: 'Option 3' },
-                ],
-            },
-        ],
-    },
-    {
-        key: '2',
-        icon: <AppstoreOutlined />,
-        label: 'Navigation Two',
-        children: [
-            { key: '21', label: 'Option 1' },
-            { key: '22', label: 'Option 2' },
-            {
-                key: '23',
-                label: 'Submenu',
-                children: [
-                    { key: '231', label: 'Option 1' },
-                    { key: '232', label: 'Option 2' },
-                    { key: '233', label: 'Option 3' },
-                ],
-            },
-            {
-                key: '24',
-                label: 'Submenu 2',
-                children: [
-                    { key: '241', label: 'Option 1' },
-                    { key: '242', label: 'Option 2' },
-                    { key: '243', label: 'Option 3' },
-                ],
-            },
-        ],
-    },
-    {
-        key: '2',
-        icon: <AppstoreOutlined />,
-        label: 'Navigation Two',
-        children: [
-            { key: '21', label: 'Option 1' },
-            { key: '22', label: 'Option 2' },
-            {
-                key: '23',
-                label: 'Submenu',
-                children: [
-                    { key: '231', label: 'Option 1' },
-                    { key: '232', label: 'Option 2' },
-                    { key: '233', label: 'Option 3' },
-                ],
-            },
-            {
-                key: '24',
-                label: 'Submenu 2',
-                children: [
-                    { key: '241', label: 'Option 1' },
-                    { key: '242', label: 'Option 2' },
-                    { key: '243', label: 'Option 3' },
-                ],
-            },
-        ],
-    },
-    {
-        key: '2',
-        icon: <AppstoreOutlined />,
-        label: 'Navigation Two',
-        children: [
-            { key: '21', label: 'Option 1' },
-            { key: '22', label: 'Option 2' },
-            {
-                key: '23',
-                label: 'Submenu',
-                children: [
-                    { key: '231', label: 'Option 1' },
-                    { key: '232', label: 'Option 2' },
-                    { key: '233', label: 'Option 3' },
-                ],
-            },
-            {
-                key: '24',
-                label: 'Submenu 2',
-                children: [
-                    { key: '241', label: 'Option 1' },
-                    { key: '242', label: 'Option 2' },
-                    { key: '243', label: 'Option 3' },
-                ],
-            },
-        ],
-    },
-    {
-        key: '3',
-        icon: <SettingOutlined />,
-        label: 'Navigation Three',
-        children: [
-            { key: '31', label: 'Option 1' },
-            { key: '32', label: 'Option 2' },
-            { key: '33', label: 'Option 3' },
-            { key: '34', label: 'Option 4' },
-        ],
-    },
+    }
 ];
 
 interface LevelKeysProps {

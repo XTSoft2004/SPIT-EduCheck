@@ -22,7 +22,7 @@ const AppSider: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapsed
     const [isMobile, setIsMobile] = useState(false);
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth <= 767);
+            setIsMobile(window.innerWidth <= 1022);
         };
 
         // Gọi một lần khi component mount
@@ -38,7 +38,8 @@ const AppSider: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapsed
 
     return isMobile ? (
         <Drawer
-            title="SPIT TEAM"
+            className='dark:bg-[var(--bg-dark-mode)] dark:text-white'
+            // title="SPIT TEAM"
             placement="left"
             closable
             onClose={() => setCollapsed(false)}
