@@ -42,18 +42,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
         theme={{
           algorithm: theme === 'dark' ? antTheme.darkAlgorithm : antTheme.defaultAlgorithm,
           token: {
-            colorBgBase: theme === 'dark' ? 'var(--bg-dark-mode)' : '#ffffff', // Nền chính
-            colorText: theme === 'dark' ? '#EEEEEE' : '#333333', // Màu chữ chính
-            colorPrimary: theme === 'dark' ? '#00ADB5' : '#1677FF', // Màu chủ đạo
-            colorBgContainer: theme === 'dark' ? 'var(--bg-dark-mode)' : '#ffffff', // Nền ô ngày
-            colorTextLabel: theme === 'dark' ? '#FFFFFF' : '#000000', // Màu chữ của label
-            colorBorder: theme === 'dark' ? '#555555' : '#DDDDDD', // Màu viền
-            colorTextSecondary: theme === 'dark' ? '#BBBBBB' : '#666666', // Màu chữ phụ
-            colorFillContent: theme === 'dark' ? '#393E46' : '#F5F5F5', // Màu nền nội dung
+            colorBgBase: theme === 'dark' ? '#1E2636' : '#ffffff',
+            colorText: theme === 'dark' ? '#EEEEEE' : '#333333',
+            colorPrimary: theme === 'dark' ? '#00ADB5' : '#1677FF',
+            colorBgContainer: theme === 'dark' ? '#1E2636' : '#ffffff',
+            colorTextLabel: theme === 'dark' ? '#FFFFFF' : '#000000',
+            colorBorder: theme === 'dark' ? '#555555' : '#DDDDDD',
+            colorTextSecondary: theme === 'dark' ? '#BBBBBB' : '#666666',
+            colorFillContent: theme === 'dark' ? '#393E46' : '#F5F5F5',
           },
         }}
       >
-
         {children}
       </ConfigProvider>
     </ThemeContext.Provider>

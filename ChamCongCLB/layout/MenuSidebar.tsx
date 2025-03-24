@@ -80,7 +80,6 @@ const MenuSidebar: React.FC = () => {
 
     return (
         <>
-            {console.log('Theme: ', theme)}
             <Menu
                 theme={theme}
                 mode="inline"

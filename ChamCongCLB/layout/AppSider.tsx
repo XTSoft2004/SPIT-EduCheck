@@ -50,6 +50,7 @@ const AppSider: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapsed
         </Drawer>
     ) : (
         <Sider
+            className='border-r-[1px] dark:border-gray-800'
             theme={theme}
             trigger={null}
             collapsible
