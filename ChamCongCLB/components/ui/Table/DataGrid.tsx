@@ -74,7 +74,6 @@ const DataGrid = <T extends object>({ data, columns, rowKey }: DataGridProps<T>)
         }
     });
 
-
     const enhancedColumns = columns.map((col) => ({
         ...col,
         ...('dataIndex' in col
@@ -87,8 +86,14 @@ const DataGrid = <T extends object>({ data, columns, rowKey }: DataGridProps<T>)
             : {}),
     }));
 
-
-    return <Table<T> columns={enhancedColumns} dataSource={data} rowKey={rowKey as string} />;
+    return (
+        <Table<T>
+            columns={enhancedColumns}
+            dataSource={data}
+            rowKey={rowKey as string}
+            scroll={{ x: 'max-content' }} // Cho phép cuộn ngang trên mobile
+        />
+    );
 };
 
 export default DataGrid;
