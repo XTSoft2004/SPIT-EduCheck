@@ -19,7 +19,34 @@ const baseUrl = globalConfig.baseUrl
  * Get all students
  * @returns List of students
  */
-export const getStudents = async () => {
+export const getStudents = async (page: number, pageSize: number) => {
+  const response = await fetch(
+    `${baseUrl}/student?pageNumber=${page}&pageSize=${pageSize}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:
+          headers().get('Authorization') ||
+          `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+      },
+      next: {
+        tags: ['student.index'],
+      },
+    },
+  )
+
+  const data = await response.json()
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    data: data.data, // Cập nhật để lấy danh sách sinh viên
+    total: data.totalRecords, // Tổng số sinh viên (dùng cho phân trang)
+  }
+}
+
+export const getAllStudents = async () => {
   const response = await fetch(`${baseUrl}/student`, {
     method: 'GET',
     headers: {

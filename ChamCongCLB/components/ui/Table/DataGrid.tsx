@@ -74,24 +74,34 @@ const DataGrid = <T extends object>({ data, columns, rowKey }: DataGridProps<T>)
         }
     });
 
-    const enhancedColumns = columns.map((col) => ({
-        ...col,
-        ...('dataIndex' in col
-            ? {
-                ...getColumnSearchProps(col.dataIndex as keyof T),
-                render: col.render
-                    ? (text: any, record: T, index: number) => col.render!(text, record, index)
-                    : getColumnSearchProps(col.dataIndex as keyof T).render,
-            }
-            : {}),
-    }));
+    const enhancedColumns = [
+        {
+            title: 'STT',
+            dataIndex: 'stt',
+            key: 'stt',
+            render: (_: unknown, __: T, index: number) => index + 1,
+        },
+        ...columns.map((col) => ({
+            ...col,
+            ...('dataIndex' in col
+                ? {
+                    ...getColumnSearchProps(col.dataIndex as keyof T),
+                    render: col.render
+                        ? (text: any, record: T, index: number) => col.render!(text, record, index)
+                        : getColumnSearchProps(col.dataIndex as keyof T).render,
+                }
+                : {}),
+        })),
+    ];
+
 
     return (
         <Table<T>
             columns={enhancedColumns}
             dataSource={data}
             rowKey={rowKey as string}
-            scroll={{ x: 'max-content' }} // Cho phép cuộn ngang trên mobile
+            scroll={{ x: 'max-content' }}
+            pagination={false}
         />
     );
 };

@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 import styles from "./page.module.css";
 
 import { getTimesheets, createTimesheet, updateTimesheet, deleteTimesheet } from "@/actions/timesheet.actions";
-import { getStudents } from "@/actions/student.actions";
+import { getAllStudents } from "@/actions/student.actions";
 import { getClasses } from "@/actions/class.actions";
 import { ITimesheet, ITimesheetCreate, ITimesheetUpdate } from "@/types/timesheet";
 import { IStudent } from "@/types/student";
@@ -48,7 +48,7 @@ const CalendarPage: React.FC = () => {
 
     useEffect(() => {
         const fetchStudents = async () => {
-            const response = await getStudents();
+            const response = await getAllStudents();
             if (response.ok)
                 setStudents(response.data);
         };
