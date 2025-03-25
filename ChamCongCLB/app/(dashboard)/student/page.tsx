@@ -14,11 +14,11 @@ import SpinLoading from '@/components/ui/Loading/SpinLoading';
 export default function UserPage() {
     // Cột của bảng
     const columns = [
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     key: 'id',
+        // },
         {
             title: 'Mã sinh viên',
             dataIndex: 'maSinhVien',
@@ -174,7 +174,6 @@ export default function UserPage() {
         setIsModalCreate(false);;
         form.resetFields();
     };
-
 
     return (
         <>
