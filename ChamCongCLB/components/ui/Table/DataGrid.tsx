@@ -2,16 +2,20 @@
 import React, { useState, useRef } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import type { InputRef, TableColumnsType } from 'antd';
-import { Button, Input, Space, Table } from 'antd';
+import { Button, Input, Pagination, Space, Table } from 'antd';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 
 type DataGridProps<T> = {
     data: T[];
     columns: TableColumnsType<T>;
     rowKey: keyof T;
+    pageIndex: number;
+    pageSize: number;
+    totalPage: number;
+    setPageIndex: (page: number) => void;
 };
 
-const DataGrid = <T extends object>({ data, columns, rowKey }: DataGridProps<T>) => {
+const DataGrid = <T extends object>({ data, columns, rowKey, pageIndex, pageSize, totalPage, setPageIndex }: DataGridProps<T>) => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef<InputRef>(null);
@@ -96,13 +100,22 @@ const DataGrid = <T extends object>({ data, columns, rowKey }: DataGridProps<T>)
 
 
     return (
-        <Table<T>
-            columns={enhancedColumns}
-            dataSource={data}
-            rowKey={rowKey as string}
-            scroll={{ x: 'max-content' }}
-            pagination={false}
-        />
+        <>
+            <Table<T>
+                columns={enhancedColumns}
+                dataSource={data}
+                rowKey={rowKey as string}
+                scroll={{ x: 'max-content' }}
+                pagination={false}
+            />
+            <Pagination
+                className='flex flex-row justify-end mt-5'
+                current={pageIndex}
+                pageSize={pageSize}
+                total={totalPage}
+                onChange={(page) => setPageIndex(page)}
+            />
+        </>
     );
 };
 
