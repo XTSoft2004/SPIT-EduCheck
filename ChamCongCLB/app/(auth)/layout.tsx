@@ -1,5 +1,6 @@
 import GridShape from '@/components/common/GridShape'
 import ThemeTogglerTwo from '@/components/common/ThemeTogglerTwo'
+import BackgroundLogin from '@/components/login/BackgroundLogin'
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -15,21 +16,7 @@ export default function AuthLayout({
       <div className="relative flex lg:flex-row w-full h-screen justify-center flex-col dark:bg-[var(--bg-dark-mode)] sm:p-0">
         <div className="lg:w-1/2 w-full h-full bg-blue-950 dark:bg-white/5 lg:grid items-center hidden">
           <div className="relative items-center justify-center flex z-1">
-            {/* <!-- ===== Common Grid Shape Start ===== --> */}
-            {/* <GridShape /> */}
-            <div className="flex flex-col items-center">
-              <p className="text-center text-xl sm:text-3xl font-bold text-gray-400 dark:text-white/60 pb-5">
-                SPIT HERE TO FIX
-              </p>
-              <Image
-                src="/auth/banner.jpg"
-                alt="Logo"
-                width={1400}
-                height={1400}
-                className="w-full h-auto"
-                loading="lazy"
-              />
-            </div>
+            <BackgroundLogin />
           </div>
         </div>
         {children}
