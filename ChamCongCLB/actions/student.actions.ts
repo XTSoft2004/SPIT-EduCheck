@@ -19,9 +19,13 @@ const baseUrl = globalConfig.baseUrl
  * Get all students
  * @returns List of students
  */
-export const getStudents = async (page: number, pageSize: number) => {
+export const getStudents = async (
+  search: string,
+  page: number,
+  pageSize: number,
+) => {
   const response = await fetch(
-    `${baseUrl}/student?pageNumber=${page}&pageSize=${pageSize}`,
+    `${baseUrl}/student?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,
     {
       method: 'GET',
       headers: {

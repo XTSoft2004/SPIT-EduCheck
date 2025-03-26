@@ -1,6 +1,5 @@
 'use client'
-import { Button, Space, Form, Input, DatePicker, Select, Pagination } from 'antd';
-const { Option } = Select;
+import { Button, Space, Form, Pagination, Input } from 'antd';
 import React, { useEffect, useState } from 'react';
 import useSWR, { mutate } from 'swr';
 import DataGrid from '@/components/ui/Table/DataGrid';
@@ -10,15 +9,11 @@ import CustomModal from '@/components/Modal/CustomModal';
 import dayjs from 'dayjs';
 import FormStudent from './FormStudent';
 import SpinLoading from '@/components/ui/Loading/SpinLoading';
+import { FLIGHT_PARAMETERS } from 'next/dist/client/components/app-router-headers';
+import Searchbar from '@/components/ui/Table/Searchbar';
 
 export default function UserPage() {
-    // Cột của bảng
     const columns = [
-        // {
-        //     title: 'ID',
-        //     dataIndex: 'id',
-        //     key: 'id',
-        // },
         {
             title: 'Mã sinh viên',
             dataIndex: 'maSinhVien',
@@ -79,19 +74,53 @@ export default function UserPage() {
         }
     ];
 
-    // Xử lý phân trang
+    // Sử dụng state cho phân trang
     const [pageIndex, setPageIndex] = useState(1);
-    const pageSize = 15;
+    const [pageSize, setPageSize] = useState(6);
     const [selectedStudent, setSelectedStudent] = useState<IStudent | null>(null);
 
+    const [searchText, setSearchText] = useState('');
+
+    const handleSearch = (value: string) => {
+        setSearchText(value);
+        setPageIndex(1)
+    };
+
     // Gọi API sử dụng SWR
-    const { data, error, isLoading } = useSWR(
-        ['students', pageIndex, pageSize],
-        ([, page, limit]) => getStudents(page, limit)
+    const { data, isLoading } = useSWR(
+        ['students', searchText, pageIndex, pageSize],
+        ([, search, page, limit]) => getStudents(search, page, limit),
+        { revalidateOnFocus: false }
     );
+
 
     const students = data?.data || [];
     const totalStudents = data?.total || 0;
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalCreate, setIsModalCreate] = useState(false);
+    const [form] = Form.useForm();
+
+    const handleEdit = (student: IStudent) => {
+        form.setFieldsValue({
+            maSinhVien: student.maSinhVien,
+            lastName: student.lastName,
+            firstName: student.firstName,
+            class: student.class,
+            phoneNumber: student.phoneNumber,
+            email: student.email,
+            dob: student.dob ? dayjs(student.dob) : null,
+            gender: student.gender,
+        });
+        setIsModalOpen(true);
+        setSelectedStudent(student);
+    };
+
+    const handleClose = () => {
+        setIsModalOpen(false);
+        setIsModalCreate(false);
+        form.resetFields();
+    };
 
     const handleUpdate = async (student: IStudent) => {
         try {
@@ -149,49 +178,29 @@ export default function UserPage() {
         }
     };
 
-    // Xử lý mở modal
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isModalCreate, setIsModalCreate] = useState(false);
-    const [form] = Form.useForm();
-
-    const handleEdit = (student: IStudent) => {
-        form.setFieldsValue({
-            maSinhVien: student.maSinhVien,
-            lastName: student.lastName,
-            firstName: student.firstName,
-            class: student.class,
-            phoneNumber: student.phoneNumber,
-            email: student.email,
-            dob: student.dob ? dayjs(student.dob) : null,
-            gender: student.gender,
-        });
-        setIsModalOpen(true);
-        setSelectedStudent(student);
-    };
-
-    const handleClose = () => {
-        setIsModalOpen(false);
-        setIsModalCreate(false);;
-        form.resetFields();
-    };
-
     return (
         <>
+            <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">
+                <Button className="w-full md:w-auto" onClick={() => setIsModalCreate(true)}>
+                    Thêm sinh viên
+                </Button>
+                <Searchbar setSearchText={handleSearch} />
+            </div>
+
             {isLoading ? <SpinLoading /> : (
                 <>
-                    <div className='flex flex-row justify-end mb-4'>
-                        <Button onClick={() => setIsModalCreate(true)}>Thêm sinh viên</Button>
-                    </div>
                     <DataGrid<IStudent>
                         rowKey="id"
                         data={students}
                         columns={columns}
                         pageIndex={pageIndex}
                         pageSize={pageSize}
-                        totalPage={totalStudents}
-                        setPageIndex={setPageIndex} />
+                        totalRecords={totalStudents}
+                        setPageIndex={setPageIndex}
+                        setPageSize={setPageSize} />
                 </>
-            )}
+            )
+            }
 
             <CustomModal
                 isOpen={isModalCreate}
@@ -203,9 +212,8 @@ export default function UserPage() {
                         <Button type="default" onClick={handleClose}>Đóng</Button>
                     </Space>
                 }>
-                {/* Form chứa thông tin của sinh viên */}
                 <FormStudent form={form} />
-            </CustomModal >
+            </CustomModal>
 
             <CustomModal
                 isOpen={isModalOpen}
@@ -217,9 +225,8 @@ export default function UserPage() {
                         <Button type="default" onClick={handleClose}>Đóng</Button>
                     </Space>
                 }>
-                {/* Form chứa thông tin của sinh viên */}
                 <FormStudent form={form} />
-            </CustomModal >
+            </CustomModal>
         </>
     );
 }
