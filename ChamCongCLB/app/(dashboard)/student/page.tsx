@@ -11,6 +11,8 @@ import FormStudent from './FormStudent';
 import SpinLoading from '@/components/ui/Loading/SpinLoading';
 import { FLIGHT_PARAMETERS } from 'next/dist/client/components/app-router-headers';
 import Searchbar from '@/components/ui/Table/Searchbar';
+import { CirclePlus, CircleX } from 'lucide-react'
+import { PoweroffOutlined, SyncOutlined } from '@ant-design/icons';
 
 export default function UserPage() {
     const columns = [
@@ -181,9 +183,15 @@ export default function UserPage() {
     return (
         <>
             <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">
-                <Button className="w-full md:w-auto" onClick={() => setIsModalCreate(true)}>
+                <Button
+                    className="w-full md:w-auto flex items-center gap-2"
+                    onClick={() => setIsModalCreate(true)}
+                >
+                    <CirclePlus size={20} />
                     Thêm sinh viên
                 </Button>
+
+
                 <Searchbar setSearchText={handleSearch} />
             </div>
 
@@ -208,8 +216,11 @@ export default function UserPage() {
                 title="Thêm thông tin sinh viên"
                 footer={
                     <Space>
-                        <Button type="primary" onClick={handleCreate}>Thêm sinh viên</Button>
-                        <Button type="default" onClick={handleClose}>Đóng</Button>
+                        <Button type="primary" onClick={handleCreate}>
+                            <CirclePlus size={20} />Thêm sinh viên
+                        </Button>
+                        <Button type="default" onClick={handleClose}>
+                            <CircleX size={20} />Đóng</Button>
                     </Space>
                 }>
                 <FormStudent form={form} />

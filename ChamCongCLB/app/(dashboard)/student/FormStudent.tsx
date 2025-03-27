@@ -15,42 +15,42 @@ export default function FormStudent({ form }: FormStudentProps) {
                 name="maSinhVien"
                 rules={[{ required: true, message: 'Vui lòng nhập mã sinh viên!' }]}
             >
-                <Input />
+                <Input placeholder="VD: 22T1020784" />
             </Form.Item>
             <Form.Item
                 label="Họ"
                 name="lastName"
                 rules={[{ required: true, message: 'Vui lòng nhập họ!' }]}
             >
-                <Input />
+                <Input placeholder="VD: Trần Xuân" />
             </Form.Item>
             <Form.Item
                 label="Tên"
                 name="firstName"
                 rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}
             >
-                <Input />
+                <Input placeholder="VD: Trường" />
             </Form.Item>
             <Form.Item
                 label="Lớp"
                 name="class"
                 rules={[{ required: true, message: 'Vui lòng nhập lớp!' }]}
             >
-                <Input />
+                <Input placeholder="VD: K46B" />
             </Form.Item>
             <Form.Item
                 label="Số điện thoại"
                 name="phoneNumber"
                 rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
             >
-                <Input />
+                <Input placeholder="VD: 096754978" />
             </Form.Item>
             <Form.Item
                 label="Email"
                 name="email"
                 rules={[{ required: true, message: 'Vui lòng nhập email!' }]}
             >
-                <Input />
+                <Input placeholder="VD: 22T1020784@gmail.com" />
             </Form.Item>
             <Form.Item
                 label="Giới tính"
@@ -67,7 +67,7 @@ export default function FormStudent({ form }: FormStudentProps) {
                 name="dob"
                 rules={[{ required: true, message: 'Vui lòng chọn ngày sinh!' }]}
             >
-                <DatePicker format="DD-MM-YYYY" />
+                <DatePicker format="DD-MM-YYYY" placeholder="Chọn ngày sinh" />
             </Form.Item>
         </Form>
     );

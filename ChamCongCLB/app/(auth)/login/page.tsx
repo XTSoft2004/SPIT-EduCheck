@@ -156,6 +156,7 @@ export default function SignInForm() {
                     <Checkbox
                       checked={isChecked}
                       onChange={(event, checked) => setIsChecked(checked)}
+                      className="text-gray-400 dark:text-white dark:checked:text-white"
                     />
                     <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
                       Keep me logged in
