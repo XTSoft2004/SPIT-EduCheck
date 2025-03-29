@@ -5,6 +5,7 @@ using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Student;
 using Domain.Model.Response.Student;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -91,9 +92,20 @@ namespace Domain.Services
             }
         }
 
-        public List<StudentResponse> GetAll(int pageNumber, int pageSize, out int totalRecords)
+        public List<StudentResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _Student.All();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(s =>
+                       s.MaSinhVien.ToLower().Contains(search) ||
+                       s.FirstName.ToLower().Contains(search) ||
+                       s.LastName.ToLower().Contains(search) ||
+                       s.Email.ToLower().Contains(search) ||
+                       s.Class.ToLower().Contains(search) ||
+                       s.PhoneNumber.ToLower().Contains(search));
+            }
             totalRecords = query.Count(); // Đếm tổng số bản ghi
 
             if (pageNumber != -1 && pageSize != -1)
@@ -103,10 +115,11 @@ namespace Domain.Services
                              .Skip((pageNumber - 1) * pageSize)
                              .Take(pageSize);
             }
-            else
-            {
-                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
-            }
+
+            query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
+
+            //if(totalRecords != query.Count())
+            //    totalRecords = query.Count();
 
             var students = query
                 .Select(s => new StudentResponse()

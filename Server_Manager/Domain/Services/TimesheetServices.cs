@@ -50,9 +50,9 @@ namespace Domain.Services
                 return HttpResponse.Error("Không tìm thấy thời gian học.", System.Net.HttpStatusCode.NotFound);
 
             var _timesheet = _Timesheet.Find(f => f.StudentId == timesheetRequest.StudentId
-                            && f.ClassId == timesheetRequest.ClassId
-                            && f.TimeId == timesheetRequest.TimeId
-                            && f.Date == timesheetRequest.Date);
+                          && f.ClassId == timesheetRequest.ClassId
+                          && f.TimeId == timesheetRequest.TimeId
+                          && f.Date == timesheetRequest.Date);
 
             if (_timesheet != null)
                 return HttpResponse.Error("Đã tồn tại điểm danh này trong hệ thống, vui lòng kiểm tra lại !!", System.Net.HttpStatusCode.BadRequest);
@@ -71,6 +71,7 @@ namespace Domain.Services
                 };
                 _Timesheet.Insert(Timesheet);
                 await UnitOfWork.CommitAsync();
+
                 return HttpResponse.OK(message: "Điểm danh thành công.");
             }
         }
@@ -97,11 +98,11 @@ namespace Domain.Services
             var _timesheet = _Timesheet.Find(f => f.Id == timesheetRequest.Id);
             if(_timesheet == null)
                 return HttpResponse.Error("Không tìm thấy điểm danh.", System.Net.HttpStatusCode.NotFound);
-            else if(_Timesheet.Find(f => f.StudentId == timesheetRequest.StudentId
-                            && f.ClassId == timesheetRequest.ClassId
-                            && f.TimeId == timesheetRequest.TimeId
-                            && f.Date == timesheetRequest.Date
-                            && f.Id != timesheetRequest.Id) != null)
+            else if (_Timesheet.Find(f => f.StudentId == timesheetRequest.StudentId
+                           && f.ClassId == timesheetRequest.ClassId
+                           && f.TimeId == timesheetRequest.TimeId
+                           && f.Date == timesheetRequest.Date
+                           && f.Id != timesheetRequest.Id) != null)
                 return HttpResponse.Error("Đã tồn tại điểm danh này trong hệ thống, vui lòng kiểm tra lại !!", System.Net.HttpStatusCode.BadRequest);
             else
             {
