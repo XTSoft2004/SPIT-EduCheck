@@ -5,7 +5,7 @@ import { cookies, headers } from 'next/headers';
 import { ICourse, ICourseCreate, ICourseUpdate } from "@/types/course";
 import { IIndexResponse, IResponse } from "@/types/global";
 
-export const getCourses = async () => {
+export const getAllCourses = async () => {
     const response = await fetch(`${globalConfig.baseUrl}/course`, {
         method: 'GET',
         headers: {

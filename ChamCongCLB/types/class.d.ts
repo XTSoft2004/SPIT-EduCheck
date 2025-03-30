@@ -16,6 +16,7 @@ export interface IClassFilter {
 }
 
 export interface IClassCreate {
+    id: number
     code: string;
     name: string;
     day: number;

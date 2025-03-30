@@ -1,188 +1,269 @@
-'use client';
+'use client'
 import React, { useState, useEffect } from 'react';
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Chip, Select, MenuItem } from '@mui/material';
-import { getClasses, createClass, updateClass, deleteClass } from '@/actions/class.actions';
-import { getStudents } from '@/actions/student.actions';
+import useSWR, { mutate } from 'swr';
+import { Button, Space, Form } from 'antd';
+import DataGrid from '@/components/ui/Table/DataGrid';
+
 import { IClass, IClassCreate, IClassUpdate } from '@/types/class';
+import { ICourse } from '@/types/course';
 import { IStudent } from '@/types/student';
+import { ILecturer } from '@/types/lecturer';
+
+import { createClass, getClasses, updateClass } from '@/actions/class.actions';
+import { getAllCourses } from '@/actions/course.actions';
+import { getAllStudents } from '@/actions/student.actions';
+import { getAllLecturers } from '@/actions/lecturer.actions';
+
+import CustomModal from '@/components/Modal/CustomModal';
+import FormClass from './FormClass';
+import SpinLoading from '@/components/ui/Loading/SpinLoading';
+import Searchbar from '@/components/ui/Table/Searchbar';
+import { CirclePlus, CircleX } from 'lucide-react'
+import { EditOutlined } from '@ant-design/icons';
 
 export default function ClassPage() {
-    const [classes, setClasses] = useState<IClass[]>([]);
+    const [courses, setCourses] = useState<ICourse[]>([]);
     const [students, setStudents] = useState<IStudent[]>([]);
-    const [selectedClass, setSelectedClass] = useState<IClass | null>(null);
-    const [open, setOpen] = useState(false);
-    const [page, setPage] = useState(0);
-    const [pageSize, setPageSize] = useState(5);
-    const [newStudent, setNewStudent] = useState<string>('');
-    const [selectedStudents, setSelectedStudents] = useState<IStudent[]>([]);
+    const [lecturers, setLecturers] = useState<ILecturer[]>([]);
 
     useEffect(() => {
-        fetchClasses();
-        fetchStudents();
-    }, [page, pageSize]);
+        const fetchData = async () => {
+            const [studentsRes, lecturersRes, coursesRes] = await Promise.all([
+                getAllStudents(),
+                getAllLecturers(),
+                getAllCourses(),
+            ]);
 
-    const fetchClasses = async () => {
-        const response = await getClasses();
-        if (response.ok) {
-            setClasses(response.data);
-        }
-    };
+            if (studentsRes.ok) setStudents(studentsRes.data);
+            if (lecturersRes.ok) setLecturers(lecturersRes.data);
+            if (coursesRes.ok) setCourses(coursesRes.data);
+        };
 
-    const fetchStudents = async () => {
-        const response = await getStudents();
-        if (response.ok) {
-            setStudents(response.data);
-        }
-    };
+        fetchData();
+    }, []);
 
-    const handleAdd = () => {
-        setSelectedClass({ id: 0, code: '', name: '', day: 0, timeStart: '', timeEnd: '', lecturerId: '', courseId: '', studentsId: [] });
-        setOpen(true);
-    };
-
-    const handleEdit = (classData: IClass) => {
-        setSelectedClass(classData);
-        setOpen(true);
-    };
-
-    const handleDelete = async (id: number) => {
-        await deleteClass(id);
-        fetchClasses();
-    };
-
-    const handleSave = async () => {
-        if (selectedClass) {
-            if (selectedClass.id === 0) {
-                const newClass: IClassCreate = { ...selectedClass, studentsId: selectedClass.studentsId || [] };
-                await createClass(newClass);
-            } else {
-                const updatedClass: IClassUpdate = { ...selectedClass };
-                updatedClass.timeStart = selectedClass.timeStart.slice(0, 5);
-                updatedClass.timeEnd = selectedClass.timeEnd.slice(0, 5);
-                await updateClass(updatedClass);
-            }
-            fetchClasses();
-            setOpen(false);
-        }
-    };
-
-    const handleAddStudent = () => {
-        if (newStudent) {
-            const student = students.find(s => s.id === Number(newStudent));
-            if (student) {
-                setSelectedClass({ ...selectedClass!, studentsId: [...selectedClass!.studentsId, student.id] });
-            }
-            setNewStudent('');
-        }
-    };
-
-    const handleDeleteStudent = (index: number) => {
-        setSelectedClass({ ...selectedClass!, studentsId: selectedClass!.studentsId.filter((_, i) => i !== index) });
-    };
-
-    const columns: GridColDef[] = [
-        { field: 'id', headerName: 'ID', width: 50 },
-        { field: 'code', headerName: 'Code', width: 150 },
-        { field: 'name', headerName: 'Name', width: 200 },
-        { field: 'day', headerName: 'Day', width: 50 },
-        { field: 'timeStart', headerName: 'Start Time', width: 90 },
-        { field: 'timeEnd', headerName: 'End Time', width: 90 },
-        { field: 'lecturerId', headerName: 'Lecturer ID', width: 90 },
-        { field: 'courseId', headerName: 'Course ID', width: 90 },
+    const columns = [
         {
-            field: 'studentsId',
-            headerName: 'Student Names',
-            width: 200,
-            renderCell: (params) => {
-                const studentList = params.value ?? [];
-                const studentNames = studentList.map((id: number) => {
-                    const student = students.find(s => s.id === (id as unknown as number));
-                    return student ? student.firstName + ' ' + student.lastName : id;
-                });
-                return (
-                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                        {studentNames.slice(0, 3).map((name: string, index: number) => (
-                            <Chip key={index} label={name} size="small" />
-                        ))}
-                        {studentNames.length > 3 && <span>+{studentNames.length - 3} more</span>}
-                    </div>
-                );
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
+            title: 'Mã lớp',
+            dataIndex: 'code',
+            key: 'code',
+        },
+        {
+            title: 'Tên lớp',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: 'Buổi',
+            dataIndex: 'day',
+            key: 'day',
+            render: (value: number) => {
+                return 'Thứ ' + value;
             },
         },
         {
-            field: 'actions',
-            headerName: 'Actions',
-            width: 200,
-            renderCell: (params) => (
-                <>
-                    <Button onClick={() => handleEdit(params.row)}>Edit</Button>
-                    <Button onClick={() => handleDelete(params.row.id)}>Delete</Button>
-                </>
-            ),
+            title: 'Thời gian bắt đầu',
+            dataIndex: 'timeStart',
+            key: 'timeStart',
         },
+        {
+            title: 'Thời gian kết thúc',
+            dataIndex: 'timeEnd',
+            key: 'timeEnd',
+        },
+        {
+            title: 'Giảng viên',
+            dataIndex: 'lecturerId',
+            key: 'lecturerId',
+            render: (value: number) => {
+                const lecturer = lecturers.find(lecturer => lecturer.id === value);
+                return lecturer ? `${lecturer.fullName}` : 'N/A';
+            }
+        },
+        {
+            title: 'Khóa học',
+            dataIndex: 'courseId',
+            key: 'courseId',
+            render: (value: number) => {
+                const course = courses.find(course => course.id === value);
+                return course ? `${course.name}` : 'N/A';
+            }
+        },
+        {
+            title: 'Thao tác',
+            key: 'action',
+            render: (_: unknown, record: IClass) => (
+                <Space>
+                    <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
+                </Space>
+            ),
+        }
     ];
 
-    return (
-        <div style={{ height: 700, width: '100%' }}>
-            <Button onClick={handleAdd}>Add Class</Button>
-            <DataGrid
-                rows={classes}
-                columns={columns}
-                pageSizeOptions={[5, 10, 20]}
-                pagination
-                paginationModel={{ page, pageSize }}
-                onPaginationModelChange={(newModel) => {
-                    setPage(newModel.page ?? 0);
-                    setPageSize(newModel.pageSize ?? pageSize);
-                }}
-                checkboxSelection
-                disableRowSelectionOnClick
-                slots={{
-                    toolbar: GridToolbar,
-                }}
-            />
-            <Dialog open={open} onClose={() => setOpen(false)}>
-                <DialogTitle>{selectedClass?.id === 0 ? 'Add Class' : 'Edit Class'}</DialogTitle>
-                <DialogContent>
-                    <TextField margin="dense" label="Code" fullWidth value={selectedClass?.code || ''} onChange={(e) => setSelectedClass({ ...selectedClass!, code: e.target.value })} />
-                    <TextField margin="dense" label="Name" fullWidth value={selectedClass?.name || ''} onChange={(e) => setSelectedClass({ ...selectedClass!, name: e.target.value })} />
-                    <TextField margin="dense" label="Day" type="number" fullWidth value={selectedClass?.day || ''} onChange={(e) => setSelectedClass({ ...selectedClass!, day: Number(e.target.value) })} />
-                    <TextField margin="dense" label="Start Time" type="time" fullWidth value={selectedClass?.timeStart || ''} onChange={(e) => setSelectedClass({ ...selectedClass!, timeStart: e.target.value })} />
-                    <TextField margin="dense" label="End Time" type="time" fullWidth value={selectedClass?.timeEnd || ''} onChange={(e) => setSelectedClass({ ...selectedClass!, timeEnd: e.target.value })} />
-                    <TextField margin="dense" label="Lecturer ID" fullWidth value={selectedClass?.lecturerId || ''} onChange={(e) => setSelectedClass({ ...selectedClass!, lecturerId: e.target.value })} />
-                    <TextField margin="dense" label="Course ID" fullWidth value={selectedClass?.courseId || ''} onChange={(e) => setSelectedClass({ ...selectedClass!, courseId: e.target.value })} />
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', marginTop: 10 }}>
-                        {(selectedClass?.studentsId ?? []).map((id, index) => {
-                            const student = students.find(s => s.id === (id as number));
-                            return (
-                                <Chip key={index} label={student ? student.firstName + ' ' + student.lastName : id} onDelete={() => handleDeleteStudent(index)} />
-                            );
-                        })}
-                        <Select
-                            fullWidth
-                            multiple
-                            value={selectedStudents}
-                            onChange={(e) => setSelectedStudents(e.target.value as IStudent[])}
-                            renderValue={(selected = []) => selected.map(id => {
-                                const student = students.find(s => s.id === (id as unknown as number));
-                                return student ? student.firstName + ' ' + student.lastName : id;
-                            }).join(', ')}
-                        >
-                            {students.map(student => (
-                                <MenuItem key={student.id} value={student.id}>
-                                    {student.firstName + ' ' + student.lastName} ({student.maSinhVien})
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <Button onClick={handleAddStudent}>Add Student</Button>
-                    </div>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={handleSave}>Save</Button>
-                </DialogActions>
-            </Dialog>
-        </div>
+    const [pageIndex, setPageIndex] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
+    const [selectedClass, setSelectedClass] = useState<IClass | null>(null);
+
+    const [searchText, setSearchText] = useState('');
+
+    const handleSearch = (value: string) => {
+        setSearchText(value);
+        setPageIndex(1)
+    };
+
+    const { data, isLoading } = useSWR(
+        ['classes', searchText, pageIndex, pageSize],
+        ([, search, page, limit]) => getClasses(search, page, limit),
+        { revalidateOnFocus: false }
     );
-};
+
+    const classes = data?.data || [];
+    const totalClasses = data?.total || 0;
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalCreate, setIsModalCreate] = useState(false);
+    const [form] = Form.useForm();
+
+    const handleEdit = (formData: IClass) => {
+        form.setFieldsValue({
+            code: formData.code,
+            name: formData.name,
+            day: formData.day,
+            timeStart: formData.timeStart,
+            timeEnd: formData.timeEnd,
+            lecturerId: formData.lecturerId,
+            courseId: formData.courseId,
+            studentsId: formData.studentsId,
+        });
+        setIsModalOpen(true);
+        setSelectedClass(formData);
+    };
+
+    const handleClose = () => {
+        setIsModalOpen(false);
+        setIsModalCreate(false);
+        form.resetFields();
+    }
+
+    const handleUpdate = async (formData: IClass) => {
+        try {
+            const values = await form.getFieldsValue();
+            const formUpdate: IClassUpdate = {
+                id: selectedClass?.id || 0,
+                code: values.code,
+                name: values.name,
+                day: values.day,
+                timeStart: values.timeStart,
+                timeEnd: values.timeEnd,
+                lecturerId: values.lecturerId,
+                courseId: values.courseId,
+                studentsId: selectedClass?.studentsId || [],
+            };
+
+            const response = await updateClass(formUpdate);
+            if (response.ok) {
+                setIsModalOpen
+                form.resetFields();
+                setSelectedClass(null);
+
+                mutate(['classes', pageIndex, pageSize]);
+            }
+        }
+        catch (error) {
+            console.error('Error updating class:', error);
+        }
+    }
+
+    const handleCreate = async () => {
+        try {
+            const values = await form.getFieldsValue();
+            const formCreate: IClassCreate = {
+                id: 0,
+                code: values.code,
+                name: values.name,
+                day: values.day,
+                timeStart: values.timeStart,
+                timeEnd: values.timeEnd,
+                lecturerId: values.lecturerId,
+                courseId: values.courseId,
+                studentsId: values.studentsId,
+            };
+
+            const response = await createClass(formCreate);
+            if (response.ok) {
+                setIsModalOpen(false);
+                form.resetFields();
+                setSelectedClass(null);
+
+                mutate(['classes', pageIndex, pageSize]);
+            }
+        }
+        catch (error) {
+            console.error('Error creating class:', error);
+        }
+    }
+
+    return (
+        <>
+            <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">
+                <Button
+                    className="w-full md:w-auto flex items-center gap-2"
+                    onClick={() => setIsModalCreate(true)}
+                >
+                    <CirclePlus size={20} />
+                    Thêm lớp
+                </Button>
+
+                <Searchbar setSearchText={handleSearch} />
+            </div>
+
+            {isLoading ? <SpinLoading /> : (
+                <>
+                    <DataGrid<IClass>
+                        rowKey="id"
+                        data={classes}
+                        columns={columns}
+                        pageIndex={pageIndex}
+                        pageSize={pageSize}
+                        totalRecords={totalClasses}
+                        setPageIndex={setPageIndex}
+                        setPageSize={setPageSize} />
+                </>
+            )}
+
+            <CustomModal
+                isOpen={isModalCreate}
+                onClose={handleClose}
+                title="Thêm thông tin lớp"
+                footer={
+                    <Space>
+                        <Button type="primary" onClick={handleCreate}>
+                            <CirclePlus size={20} />Thêm lớp
+                        </Button>
+                        <Button type="default" onClick={handleClose}>
+                            <CircleX size={20} />Đóng</Button>
+                    </Space>
+                }>
+                <FormClass form={form} students={students} lecturers={lecturers} />
+            </CustomModal>
+
+            <CustomModal
+                isOpen={isModalOpen}
+                onClose={handleClose}
+                title="Chỉnh sửa thông tin lớp"
+                footer={
+                    <Space>
+                        <Button type="primary" onClick={() => selectedClass && handleUpdate(selectedClass)}>Cập nhật</Button>
+                        <Button type="default" onClick={handleClose}>Đóng</Button>
+                    </Space>
+                }>
+                <FormClass form={form} students={students} lecturers={lecturers} />
+            </CustomModal>
+        </>
+    )
+}

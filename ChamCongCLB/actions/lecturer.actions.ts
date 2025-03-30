@@ -5,11 +5,50 @@ import { cookies, headers } from 'next/headers';
 import { ILecturer, ILecturerCreate, ILecturerUpdate } from "@/types/lecturer";
 import { IIndexResponse, IResponse } from "@/types/global";
 import { revalidateTag } from "next/cache";
+
+/**
+ * Get leturer by search
+ * @param search - The search string
+ * @param page - The page number
+ * @param pageSize - The page size
+ * @returns List of lecturers
+ */
+export const getLecturers = async (
+    search: string,
+    page: number,
+    pageSize: number,
+) => {
+    const response = await fetch(
+        `${globalConfig.baseUrl}/leturer?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization:
+                    headers().get('Authorization') ||
+                    `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+            },
+            next: {
+                tags: ['leturer.index'],
+            },
+        },    
+    )
+
+    const data = await response.json();
+
+    return {
+        ok: response.ok,
+        status: response.status,
+        data: data.data,
+        total: data.totalRecords,
+    }
+}
+
 /**
  * Get all lecturers
  * @returns List of lecturers
  */
-export const getLecturers = async () => {
+export const getAllLecturers = async () => {
     const response = await fetch(`${globalConfig.baseUrl}/lecturer`,
         {
             method: 'GET',
