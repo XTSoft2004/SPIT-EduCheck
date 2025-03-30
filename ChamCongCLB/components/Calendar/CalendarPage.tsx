@@ -12,6 +12,7 @@ import { getClasses } from "@/actions/class.actions";
 import { IClass } from "@/types/class";
 
 import CalendarDayView from "@/components/Calendar/CalendarDayView";
+import SpinLoading from "../ui/Loading/SpinLoading";
 
 const CalendarPage: React.FC = () => {
     const [events, setEvents] = useState<Record<string, { id: number, type: string; content: string }[]>>({});
@@ -21,18 +22,20 @@ const CalendarPage: React.FC = () => {
     const [classes, setClasses] = useState<IClass[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<ITimesheet | null>(null);
     const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const fetchDataTimeSheets = async () => {
-            const timesheetRes = await getTimesheets();
-            if (timesheetRes.ok) setTimesheets(timesheetRes.data);
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const [timesheetRes, classRes] = await Promise.all([getTimesheets(), getClasses()]);
+                if (timesheetRes.ok) setTimesheets(timesheetRes.data);
+                if (classRes.ok) setClasses(classRes.data);
+            } finally {
+                setLoading(false);
+            }
         };
-        const fetchDataClasses = async () => {
-            const classRes = await getClasses();
-            if (classRes.ok) setClasses(classRes.data);
-        };
-        fetchDataTimeSheets();
-        fetchDataClasses();
+        fetchData();
     }, []);
 
     useEffect(() => {
@@ -54,55 +57,61 @@ const CalendarPage: React.FC = () => {
 
     return (
         <>
-            {/* Chế độ Calendar (ẩn trên mobile) */}
-            <div className="hidden sm:block">
-                <Calendar
-                    value={calendarDate} // Giữ nguyên ngày hiển thị
-                    dateCellRender={(value) => (
-                        <EventList
+            {loading ? (
+                <SpinLoading />
+            ) : (
+                <>
+                    {/* Chế độ Calendar (ẩn trên mobile) */}
+                    <div className="hidden sm:block">
+                        <Calendar
+                            value={calendarDate} // Giữ nguyên ngày hiển thị
+                            dateCellRender={(value) => (
+                                <EventList
+                                    timesheets={timesheets}
+                                    value={value}
+                                    events={events}
+                                    form={form}
+                                    setIsModalOpen={setIsModalOpen}
+                                    setSelectedEvent={setSelectedEvent}
+                                    setSelectedDate={setSelectedDate}
+                                />
+                            )}
+                            onSelect={(date, { source }) => {
+                                if (source !== "date") return; // Chỉ xử lý khi chọn ngày từ lịch
+                                setSelectedDate(date);
+                                setIsModalOpen(true);
+                            }}
+                            onPanelChange={(date) => setCalendarDate(date)} // Chỉ thay đổi nếu chuyển tháng hoặc năm
+                        />
+                    </div>
+
+                    {/* Chế độ Ngày (ẩn trên desktop) */}
+                    <div className="sm:hidden">
+                        <CalendarDayView
                             timesheets={timesheets}
-                            value={value}
                             events={events}
                             form={form}
+                            selectedDate={selectedDate}
                             setIsModalOpen={setIsModalOpen}
                             setSelectedEvent={setSelectedEvent}
                             setSelectedDate={setSelectedDate}
+                            setTimesheets={setTimesheets}
                         />
-                    )}
-                    onSelect={(date, { source }) => {
-                        if (source !== "date") return; // Chỉ xử lý khi chọn ngày từ lịch
-                        setSelectedDate(date);
-                        setIsModalOpen(true);
-                    }}
-                    onPanelChange={(date) => setCalendarDate(date)} // Chỉ thay đổi nếu chuyển tháng hoặc năm
-                />
-            </div>
+                    </div>
 
-            {/* Chế độ Ngày (ẩn trên desktop) */}
-            <div className="sm:hidden">
-                <CalendarDayView
-                    timesheets={timesheets}
-                    events={events}
-                    form={form}
-                    selectedDate={selectedDate}
-                    setIsModalOpen={setIsModalOpen}
-                    setSelectedEvent={setSelectedEvent}
-                    setSelectedDate={setSelectedDate}
-                    setTimesheets={setTimesheets}
-                />
-            </div>
-
-            <EventModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                selectedDate={selectedDate}
-                selectedEvent={selectedEvent}
-                form={form}
-                setIsModalOpen={setIsModalOpen}
-                setSelectedEvent={setSelectedEvent}
-                classes={classes}
-                setTimesheets={setTimesheets}
-            />
+                    <EventModal
+                        isOpen={isModalOpen}
+                        onClose={() => setIsModalOpen(false)}
+                        selectedDate={selectedDate}
+                        selectedEvent={selectedEvent}
+                        form={form}
+                        setIsModalOpen={setIsModalOpen}
+                        setSelectedEvent={setSelectedEvent}
+                        classes={classes}
+                        setTimesheets={setTimesheets}
+                    />
+                </>
+            )}
         </>
     );
 };

@@ -49,18 +49,13 @@ const getProfile = async (accessToken: string): Promise<IProfile> => {
   return (await response.json()).data as IProfile
 }
 
-/**
- * refresh the access token
- * @param refreshToken - The refresh token of the user
- * @returns - The new access token
- */
-const refresh = async (refreshToken: string): Promise<ITokens> => {
-  const response = await fetch(`${baseUrl}/auth/refresh-token`, {
-    method: 'POST',
+const refresh = async (accessToken: string): Promise<ITokens> => {
+  const response = await fetch(`${globalConfig.baseUrl}/auth/refresh-token`, {
+    method: 'GET',
     headers: {
-      'content-type': 'application/json',
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
     },
-    body: JSON.stringify({ refreshToken }),
   })
 
   if (!response.ok) throw response
@@ -101,6 +96,7 @@ export async function middleware(request: NextRequest) {
     : NextResponse.next()
 
   try {
+    // Kiểm tra profile xem còn hợp lệ hay không
     const accessToken = request.cookies.get('accessToken')?.value ?? ' '
     await getProfile(accessToken)
   } catch (error) {
@@ -110,13 +106,16 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/500', request.url))
 
     if (response.status === 401) {
+      /// Kiểm tra xem token có hết hạn hay không
       const refreshToken = request.cookies.get('refreshToken')?.value ?? ' '
-
       if (!refreshToken) return redirectLogin(request)
-
       try {
+        // Nếu token hết hạn thì gọi api refresh token
         const newToken = await refresh(refreshToken)
+        // console.log('server >> middleware New Token', newToken.accessToken)
+        // console.log('server >> middleware Refresh Token', newToken.refreshToken)
 
+        // Set lại token vào cookie
         globalResponse.cookies.set('accessToken', newToken.accessToken)
         globalResponse.cookies.set('refreshToken', newToken.refreshToken)
 
@@ -125,6 +124,7 @@ export async function middleware(request: NextRequest) {
           `Bearer ${newToken.accessToken}`,
         )
       } catch (error) {
+        /// Nếu refresh token cũng không hợp lệ thì redirect về trang login
         const resposne = error as Response
         if (resposne.status === 500)
           return NextResponse.redirect(new URL('/500', request.url))

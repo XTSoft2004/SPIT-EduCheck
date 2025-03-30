@@ -53,10 +53,12 @@ const getLevelKeys = (items1: LevelKeysProps[]) => {
 
 const levelKeys = getLevelKeys(items as LevelKeysProps[]);
 
-const MenuSidebar: React.FC = () => {
-    const { theme, toggleTheme } = useTheme()
+
+const MenuSidebar: React.FC<{ setCollapsed: (collapsed: boolean) => void }> = ({ setCollapsed }) => {
+    const { theme, toggleTheme } = useTheme();
     const [stateOpenKeys, setStateOpenKeys] = useState(['2', '23']);
     const router = useRouter();
+
     const onOpenChange: MenuProps['onOpenChange'] = (openKeys) => {
         const currentOpenKey = openKeys.find((key) => stateOpenKeys.indexOf(key) === -1);
         // open
@@ -87,7 +89,7 @@ const MenuSidebar: React.FC = () => {
                 openKeys={stateOpenKeys}
                 onOpenChange={onOpenChange}
                 items={items}
-                onClick={({ key }) => router.push(key)}
+                onClick={({ key }) => { router.push(key); setCollapsed(false); }}
             />
         </>
 

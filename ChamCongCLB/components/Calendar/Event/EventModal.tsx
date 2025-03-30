@@ -178,7 +178,7 @@ const EventModal: React.FC<EventModalProps> = ({
                 </Button>,
             ]}
         >
-            <Form form={form} layout="vertical">
+            <Form form={form} layout="vertical" style={{ maxHeight: "400px", overflowY: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 {/* Chọn sinh viên */}
                 <Form.Item
                     name="studentsId"
