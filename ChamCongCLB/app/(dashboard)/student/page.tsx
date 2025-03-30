@@ -1,6 +1,6 @@
 'use client'
-import { Button, Space, Form, Pagination, Input } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { Button, Space, Form } from 'antd';
+import React, { useState } from 'react';
 import useSWR, { mutate } from 'swr';
 import DataGrid from '@/components/ui/Table/DataGrid';
 import { createStudent, getStudents, updateStudent } from '@/actions/student.actions';
@@ -9,10 +9,9 @@ import CustomModal from '@/components/Modal/CustomModal';
 import dayjs from 'dayjs';
 import FormStudent from './FormStudent';
 import SpinLoading from '@/components/ui/Loading/SpinLoading';
-import { FLIGHT_PARAMETERS } from 'next/dist/client/components/app-router-headers';
 import Searchbar from '@/components/ui/Table/Searchbar';
 import { CirclePlus, CircleX } from 'lucide-react'
-import { PoweroffOutlined, SyncOutlined } from '@ant-design/icons';
+import { EditOutlined } from '@ant-design/icons';
 
 export default function UserPage() {
     const columns = [
@@ -70,7 +69,7 @@ export default function UserPage() {
             key: 'action',
             render: (_: unknown, record: IStudent) => (
                 <Space>
-                    <Button type="primary" onClick={() => handleEdit(record)}>Sửa</Button>
+                    <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
                 </Space>
             ),
         }

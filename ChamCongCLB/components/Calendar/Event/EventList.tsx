@@ -24,8 +24,15 @@ const EventList: React.FC<Props> = ({ value, events, timesheets, form, setIsModa
 
                 return (
                     <>
-                        <Button key={index} className={`${styles.eventButton} dark:text-white`}
-                            style={{ borderLeftColor: item.type === "success" ? "#52c41a" : item.type === "warning" ? "#faad14" : "#ff4d4f" }}
+                        <Button
+                            key={index}
+                            className={`${styles.eventButton} dark:text-white border-l-4 pl-4 sm:pl-5 md:pl-6 w-full text-left truncate`}
+                            style={{
+                                borderLeftColor:
+                                    item.type === "success" ? "#52c41a" :
+                                        item.type === "warning" ? "#faad14" :
+                                            "#ff4d4f",
+                            }}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 if (event) {
@@ -42,7 +49,9 @@ const EventList: React.FC<Props> = ({ value, events, timesheets, form, setIsModa
                                 }
                             }}
                         >
-                            {item.content}
+                            <span className="block max-w-full truncate whitespace-nowrap">
+                                {item.content.split(" - ")[1] + " - " + item.content.split(" - ")[0]}
+                            </span>
                         </Button>
                     </>
                 )
