@@ -1,35 +1,62 @@
-'use server';
-import { cookies, headers } from 'next/headers';
-import globalConfig from '@/app.config';
+'use server'
+import { cookies, headers } from 'next/headers'
+import globalConfig from '@/app.config'
 
-import { IUser, IUserSearch } from '@/types/user.d';
-import { IIndexResponse } from '@/types/global';
+import { IUser, IUserSearch } from '@/types/user.d'
+import { IIndexResponse, IShowResponse } from '@/types/global'
 
-const baseUrl = globalConfig.baseUrl;
+const baseUrl = globalConfig.baseUrl
 
 /**
  * Get all users
  * @returns List of users
  */
 export const getUsers = async () => {
-    const response = await fetch(`${baseUrl}/user`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-        },
-        next: {
-            tags: ['user.index']
-        }
-    });
+  const response = await fetch(`${baseUrl}/user`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+    next: {
+      tags: ['user.index'],
+    },
+  })
 
-    const data = await response.json();
+  const data = await response.json()
 
-    return {
-        ok: response.ok,
-        status: response.status,
-        ...data,
-    } as IIndexResponse<IUser>
+  return {
+    ok: response.ok,
+    status: response.status,
+    ...data,
+  } as IIndexResponse<IUser>
+}
+
+/**
+ * Get me
+ * @returns User
+ */
+export const getMe = async () => {
+  const response = await fetch(`${baseUrl}/user/me`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+    next: {
+      tags: ['user.me'],
+    },
+  })
+  const data = await response.json()
+  return {
+    ok: response.ok,
+    status: response.status,
+    ...data,
+  } as IShowResponse<IUser>
 }
 
 /**
@@ -38,22 +65,24 @@ export const getUsers = async () => {
  * @returns User
  */
 export const getUserById = async (search: IUserSearch) => {
-    const response = await fetch(`${baseUrl}/user/${search.id}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-        },
-        next: {
-            tags: ['user.search']
-        }
-    });
+  const response = await fetch(`${baseUrl}/user/${search.id}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+    next: {
+      tags: ['user.search'],
+    },
+  })
 
-    const data = await response.json();
+  const data = await response.json()
 
-    return {
-        ok: response.ok,
-        status: response.status,
-        ...data,
-    } as IIndexResponse<IUser>
+  return {
+    ok: response.ok,
+    status: response.status,
+    ...data,
+  } as IIndexResponse<IUser>
 }

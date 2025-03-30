@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Chip, Select, MenuItem } from '@mui/material';
 import { getClasses, createClass, updateClass, deleteClass } from '@/actions/class.actions';
-import { getStudents } from '@/actions/student.actions';
+import { getAllStudents } from '@/actions/student.actions';
 import { IClass, IClassCreate, IClassUpdate } from '@/types/class';
 import { IStudent } from '@/types/student';
 
@@ -30,7 +30,7 @@ export default function ClassPage() {
     };
 
     const fetchStudents = async () => {
-        const response = await getStudents();
+        const response = await getAllStudents();
         if (response.ok) {
             setStudents(response.data);
         }
