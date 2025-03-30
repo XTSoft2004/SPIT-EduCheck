@@ -40,11 +40,12 @@ const DataGrid = <T extends object>({
                 }
             />
             <Pagination
-                className='flex flex-row justify-end mt-5'
+                className='flex flex-row mt-5 items-center sm:justify-end justify-between'
                 current={pageIndex}
                 pageSize={pageSize}
                 total={totalRecords}
                 showSizeChanger
+                showLessItems
                 pageSizeOptions={['6', '10', '15', '20']}
                 onShowSizeChange={(current, size) => {
                     setPageIndex(1);

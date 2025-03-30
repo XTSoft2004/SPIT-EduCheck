@@ -46,7 +46,7 @@ const AppSider: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapsed
             open={collapsed}
             bodyStyle={{ padding: 0 }} // Xóa padding mặc định của Drawer
         >
-            <MenuSidebar />
+            <MenuSidebar setCollapsed={setCollapsed} />
         </Drawer>
     ) : (
         <Sider
@@ -68,7 +68,7 @@ const AppSider: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapsed
                     />
                     {!collapsed && <p className="dark:text-white font-bold">SPIT TEAM</p>}
                 </div>
-                <MenuSidebar />
+                <MenuSidebar setCollapsed={setCollapsed} />
             </div>
         </Sider>
     );

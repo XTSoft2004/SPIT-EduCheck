@@ -18,7 +18,7 @@ const CustomModal: React.FC<CustomModalProps> = ({ isOpen, onClose, title, child
             width={600}
             footer={footer || null} // Nếu không truyền, không có footer
         >
-            <div style={{ maxHeight: "400px", overflowY: "auto", paddingRight: "10px" }}>
+            <div style={{ maxHeight: "400px", overflowY: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 {children}
             </div>
         </Modal>
