@@ -29,11 +29,15 @@ const DataGrid = <T extends object>({
         <>
 
             <Table<T>
+
                 columns={columns}
                 dataSource={data}
                 rowKey={rowKey as string}
                 scroll={{ x: 'max-content' }}
                 pagination={false}
+                rowClassName={(record, index) =>
+                    index % 2 === 0 ? 'dark:bg-[#1E2636] bg-gray-100' : 'dark:bg-[#242f45]'
+                }
             />
             <Pagination
                 className='flex flex-row justify-end mt-5'
