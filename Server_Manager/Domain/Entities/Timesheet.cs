@@ -11,10 +11,6 @@ namespace Domain.Entities
 {
     public class Timesheet : EntityBase
     {
-        public long StudentId { get; set; }
-        [ForeignKey(nameof(StudentId))]
-        public virtual Student Student { get; set; }
-
         public long ClassId { get; set; }
         [ForeignKey(nameof(ClassId))]
         public virtual Class Class { get; set; }

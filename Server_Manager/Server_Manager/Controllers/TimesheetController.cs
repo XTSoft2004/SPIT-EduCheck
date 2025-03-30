@@ -1,4 +1,5 @@
-﻿using Domain.Common.Http;
+﻿using Domain.Common;
+using Domain.Common.Http;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Timesheet;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,7 @@ namespace Server_Manager.Controllers
             _services = services;
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateTimesheet([FromBody] CreateTimesheetRequest timesheetRequest)
+        public async Task<IActionResult> CreateTimesheet([FromBody] TimesheetRequest timesheetRequest)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
@@ -25,11 +26,13 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
         [HttpPut("{Id}")]
-        public async Task<IActionResult> UpdateTimesheet([FromBody] TimesheetRequest timesheetRequest)
+        public async Task<IActionResult> UpdateTimesheet(long Id, [FromBody] TimesheetRequest timesheetRequest)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
 
+            timesheetRequest.Id = Id;
+            timesheetRequest.Status = !string.IsNullOrEmpty(timesheetRequest.Status) ? timesheetRequest.Status : EnumExtensions.GetDisplayName(StatusTimesheet_Enum.Pending);
             var response = await _services.UpdateAsync(timesheetRequest);
             return response.ToActionResult();
         }

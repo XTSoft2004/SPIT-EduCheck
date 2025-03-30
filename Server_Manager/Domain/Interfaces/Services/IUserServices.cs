@@ -40,5 +40,6 @@ namespace Domain.Interfaces.Services
         /// <param name="Id"></param>
         /// <returns></returns>
         Task<HttpResponse> DeleteAsync(long Id);
+        Task<HttpResponse> SetSemesterUser(long IdSemester);
     }
 }

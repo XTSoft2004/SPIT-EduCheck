@@ -36,6 +36,7 @@ namespace Domain.Services
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Thêm ID vào token
                 new Claim(ClaimTypes.Role, user.RoleName),
+                new Claim(ClaimTypes.GroupSid, user.SemesterId.ToString()), // Thêm SemesterId vào token
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -58,6 +59,7 @@ namespace Domain.Services
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Thêm ID vào token
                 new Claim(ClaimTypes.Role, user.RoleName),
+                new Claim(ClaimTypes.GroupSid, user.SemesterId.ToString()),
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -89,10 +91,12 @@ namespace Domain.Services
             long id = long.Parse(IdValue);
             var username = claims.FirstOrDefault(c => c.Type == "unique_name")?.Value; // hoặc "unique_name"
             var role = claims.FirstOrDefault(c => c.Type == "role")?.Value;
+            var semesterId = claims.FirstOrDefault(c => c.Type == "groupsid")?.Value;
             return new UserResponse() { 
                 Id = id,
                 Username = username,
                 RoleName = role,
+                SemesterId = long.Parse(semesterId)
             };
         }
         public AuthToken GetInfoFromToken(string token)
@@ -114,6 +118,7 @@ namespace Domain.Services
             long id = long.Parse(IdValue);
             var username = claims.FirstOrDefault(c => c.Type == "unique_name")?.Value; // hoặc "unique_name"
             var role = claims.FirstOrDefault(c => c.Type == "role")?.Value;
+            var semesterId = claims.FirstOrDefault(c => c.Type == "groupsid")?.Value;
             var expiryDateUnix = claims.FirstOrDefault(c => c.Type == "exp")?.Value;
             var expiryDate = expiryDateUnix != null ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiryDateUnix)).DateTime : DateTime.MinValue;
 
@@ -122,7 +127,8 @@ namespace Domain.Services
                 Id = id,
                 Username = username,
                 RoleName = role,
-                ExpiryDate = expiryDate
+                SemesterId = long.Parse(semesterId),
+                ExpiryDate = expiryDate,
             };
         }
         public ClaimsPrincipal? ValidateToken(string token)

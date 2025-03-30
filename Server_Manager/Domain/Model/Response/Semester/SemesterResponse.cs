@@ -13,7 +13,9 @@ namespace Domain.Model.Response.Semester
         [Required]
         public int Semesters_Number { get; set; }
         [Required]
-        public int Year { get; set; }
+        public int YearStart { get; set; }
+        [Required]
+        public int YearEnd { get; set; }
 
     }
 }

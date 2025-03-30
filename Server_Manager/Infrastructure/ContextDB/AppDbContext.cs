@@ -23,6 +23,7 @@ namespace Infrastructure.ContextDB
         public DbSet<Time> Times { get; set; }
         // DbSet cho các mối quan hệ
         public DbSet<Class_Student> ClassStudents { get; set; }
+        public DbSet<Timesheet_Students> TimesheetStudents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -62,6 +63,9 @@ namespace Infrastructure.ContextDB
 
             modelBuilder.Entity<Class_Student>()
                 .HasKey(cs => new { cs.ClassId, cs.StudentId }); // Khóa chính kết hợp  
+
+            modelBuilder.Entity<Timesheet_Students>()
+                .HasKey(cs => new { cs.TimesheetId, cs.StudentId }); // Khóa chính kết hợp  
 
             // Seed dữ liệu cho Role
             var roleValues = Enum.GetValues(typeof(Role_Enum)).Cast<Role_Enum>().ToArray();

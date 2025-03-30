@@ -8,6 +8,7 @@ using Domain.Model.Request.Timesheet;
 using Domain.Model.Response.Timesheet;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,20 +17,26 @@ namespace Domain.Services
 {
     public class TimesheetServices : BaseService, ITimesheetServices
     {
+        private readonly IRepositoryBase<Timesheet_Students> _TimesheetStudents;
         private readonly IRepositoryBase<Timesheet> _Timesheet;
         private readonly IRepositoryBase<Student> _Student;
         private readonly IRepositoryBase<Class> _Class;
         private readonly IRepositoryBase<Time> _Time;
 
-        public TimesheetServices(IRepositoryBase<Timesheet> timesheet, IRepositoryBase<Student> student, IRepositoryBase<Class> @class, IRepositoryBase<Time> time)
+        public TimesheetServices(IRepositoryBase<Timesheet> timesheet, 
+            IRepositoryBase<Student> student, 
+            IRepositoryBase<Class> @class, 
+            IRepositoryBase<Time> time,
+            IRepositoryBase<Timesheet_Students> timesheetstudents)
         {
             _Timesheet = timesheet;
             _Student = student;
             _Class = @class;
             _Time = time;
+            _TimesheetStudents = timesheetstudents;
         }
 
-        public async Task<HttpResponse> CreateAsync(CreateTimesheetRequest timesheetRequest)
+        public async Task<HttpResponse> CreateAsync(TimesheetRequest timesheetRequest)
         {
             if (timesheetRequest == null)
                 return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
@@ -37,7 +44,7 @@ namespace Domain.Services
             //if (!EnumExtensions.IsValidDisplayName(timesheetRequest.Status, typeof(StatusTimesheet_Enum)))
             //    return HttpResponse.Error("Trạng thái điểm danh không hợp lệ.", System.Net.HttpStatusCode.BadRequest);
 
-            var _student = _Student.Find(f => f.Id == timesheetRequest.StudentId);
+            var _student = _Student.Find(f => timesheetRequest.StudentsId.Contains(f.Id));
             if (_student == null)
                 return HttpResponse.Error("Không tìm thấy sinh viên.", System.Net.HttpStatusCode.NotFound);
 
@@ -49,8 +56,7 @@ namespace Domain.Services
             if (_time == null)
                 return HttpResponse.Error("Không tìm thấy thời gian học.", System.Net.HttpStatusCode.NotFound);
 
-            var _timesheet = _Timesheet.Find(f => f.StudentId == timesheetRequest.StudentId
-                          && f.ClassId == timesheetRequest.ClassId
+            var _timesheet = _Timesheet.Find(f => f.ClassId == timesheetRequest.ClassId
                           && f.TimeId == timesheetRequest.TimeId
                           && f.Date == timesheetRequest.Date);
 
@@ -60,7 +66,6 @@ namespace Domain.Services
             {
                 var Timesheet = new Timesheet()
                 {
-                    StudentId = timesheetRequest.StudentId,
                     ClassId = timesheetRequest.ClassId,
                     TimeId = timesheetRequest.TimeId,
                     Date = timesheetRequest.Date,
@@ -72,6 +77,17 @@ namespace Domain.Services
                 _Timesheet.Insert(Timesheet);
                 await UnitOfWork.CommitAsync();
 
+                var Students = _Student.ListBy(l => timesheetRequest.StudentsId.Contains(l.Id));
+                foreach(Student student in Students)
+                {
+                    _TimesheetStudents.Insert(new Timesheet_Students()
+                    {
+                        Student = student,
+                        Timesheet = Timesheet
+                    });
+                }
+                await UnitOfWork.CommitAsync();
+
                 return HttpResponse.OK(message: "Điểm danh thành công.");
             }
         }
@@ -80,11 +96,11 @@ namespace Domain.Services
             if (timesheetRequest == null)
                 return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
 
-            var _student = _Student.Find(f => f.Id == timesheetRequest.StudentId);
+            var _student = _Student.Find(f => timesheetRequest.StudentsId.Contains(f.Id));
             if (_student == null)
                 return HttpResponse.Error("Không tìm thấy sinh viên.", System.Net.HttpStatusCode.NotFound);
         
-            if (EnumExtensions.IsValidDisplayName(timesheetRequest.Status, typeof(StatusTimesheet_Enum)))
+            if (!EnumExtensions.IsValidDisplayName(timesheetRequest.Status, typeof(StatusTimesheet_Enum)))
                 return HttpResponse.Error("Trạng thái điểm danh không hợp lệ.", System.Net.HttpStatusCode.BadRequest);
 
             var _class = _Class.Find(f => f.Id == timesheetRequest.ClassId);
@@ -98,7 +114,7 @@ namespace Domain.Services
             var _timesheet = _Timesheet.Find(f => f.Id == timesheetRequest.Id);
             if(_timesheet == null)
                 return HttpResponse.Error("Không tìm thấy điểm danh.", System.Net.HttpStatusCode.NotFound);
-            else if (_Timesheet.Find(f => f.StudentId == timesheetRequest.StudentId
+            else if (_Timesheet.Find(f => timesheetRequest.StudentsId.Contains(f.Id)
                            && f.ClassId == timesheetRequest.ClassId
                            && f.TimeId == timesheetRequest.TimeId
                            && f.Date == timesheetRequest.Date
@@ -106,9 +122,26 @@ namespace Domain.Services
                 return HttpResponse.Error("Đã tồn tại điểm danh này trong hệ thống, vui lòng kiểm tra lại !!", System.Net.HttpStatusCode.BadRequest);
             else
             {
+                var StudentsTimesheet = _TimesheetStudents.ListBy(l => l.TimesheetId == timesheetRequest.Id).Select(s => s.StudentId).ToList();
+                var StudentIdRemove = StudentsTimesheet.Except(timesheetRequest.StudentsId).ToList();
+                var StudentRemove = _TimesheetStudents.ListBy(l => StudentIdRemove.Contains(l.StudentId) && l.TimesheetId == timesheetRequest.Id);
+                _TimesheetStudents.DeleteRange(StudentRemove);
+
+                var StudentIdAdd = timesheetRequest.StudentsId.Except(StudentsTimesheet).ToList();
+                _TimesheetStudents.InsertRange(new List<Timesheet_Students>(StudentIdAdd.Select(s => new Timesheet_Students()
+                {
+                    StudentId = s,
+                    TimesheetId = timesheetRequest.Id
+                })));
+                await UnitOfWork.CommitAsync();
+
+                _timesheet.Date = timesheetRequest.Date;
+                _timesheet.Class = _class;
+                _timesheet.Time = _time;
                 _timesheet.Image_Check = timesheetRequest.Image_Check;
                 _timesheet.Status = timesheetRequest.Status;
                 _timesheet.Note = timesheetRequest.Note;
+
                 _timesheet.ModifiedDate = DateTime.Now;
                 _Timesheet.Update(_timesheet);
                 await UnitOfWork.CommitAsync();
@@ -146,11 +179,17 @@ namespace Domain.Services
                 query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
             }
 
+            //var students = _TimesheetStudents.Find(f => f.TimesheetId == )
+
             var timesheets = query
+                .AsEnumerable()  // Chuyển về client-side evaluation
                 .Select(f => new TimesheetResponse
                 {
                     Id = f.Id,
-                    StudentId = f.StudentId,
+                    StudentsId = _TimesheetStudents
+                        .ListBy(t => t.TimesheetId == f.Id)
+                        .Select(s => s.StudentId)
+                        .ToList(),
                     ClassId = f.ClassId,
                     TimeId = f.TimeId,
                     Date = f.Date,

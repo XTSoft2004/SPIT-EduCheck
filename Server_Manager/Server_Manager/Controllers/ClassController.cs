@@ -41,7 +41,7 @@ namespace Server_Manager.Controllers
             var response = await _services.DeleteAsync(Id);
             return response.ToActionResult();
         }
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllClass(int pageNumber = -1, int pageSize = -1)
         {
             var classResponses = _services.GetAll(pageNumber, pageSize, out int totalRecords);
@@ -53,6 +53,20 @@ namespace Server_Manager.Controllers
 
             return Ok(ResponseArray.ResponseList(classResponses, totalRecords, totalPages, pageNumber, pageSize));
         }
+        [HttpGet]
+        public async Task<IActionResult> GetAllClassSemester(int pageNumber = -1, int pageSize = -1)
+        {
+            var classResponses = _services.GetClassInSemester(pageNumber, pageSize, out int totalRecords);
+
+            if (classResponses == null || !classResponses.Any())
+                return BadRequest(new { Message = "Danh sách lớp trống !!!" });
+
+            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+            return Ok(ResponseArray.ResponseList(classResponses, totalRecords, totalPages, pageNumber, pageSize));
+        }
+
+
         //[HttpGet("add-lecturer")]
         //public async Task<IActionResult> Add_Lecturer_To_Class(long ClassId, long LecturerId)
         //{

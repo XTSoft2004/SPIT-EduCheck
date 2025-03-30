@@ -89,7 +89,8 @@ namespace Server_Manager.Middleware
                     {
                         new Claim(ClaimTypes.NameIdentifier, _user.Id.ToString()),
                         new Claim(ClaimTypes.Name, _user?.Username),
-                        new Claim(ClaimTypes.Role, _user?.RoleName) // Gán role vào Claims
+                        new Claim(ClaimTypes.Role, _user?.RoleName), // Gán role vào Claims
+                        new Claim(ClaimTypes.GroupSid, _user?.SemesterId.ToString()) // Gán role vào Claims
                     };
 
                     var identity = new ClaimsIdentity(claims, "jwt");

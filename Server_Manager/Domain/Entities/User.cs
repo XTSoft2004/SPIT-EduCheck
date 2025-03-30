@@ -34,13 +34,26 @@ namespace Domain.Entities
         /// </summary>
         public bool IsVerify { get; set; } = false;
 
+        /// <summary>
+        /// Chức danh
+        /// </summary>
         public long? RoleId { get; set; }
         [ForeignKey(nameof(RoleId))]
         public virtual Role? Role { get; set; }
 
+        /// <summary>
+        /// Sinh viên
+        /// </summary>
         public long? StudentId { get; set; }
         [ForeignKey(nameof(StudentId))]
         public virtual Student? Student { get; set; }
+
+        /// <summary>
+        /// Học kỳ đang chọn của sinh viên
+        /// </summary>
+        public long? SemesterId { get; set; }
+        [ForeignKey(nameof(SemesterId))]
+        public virtual Semester? Semester { get; set; }
 
         public virtual RefreshToken RefreshToken { get; set; } 
     }

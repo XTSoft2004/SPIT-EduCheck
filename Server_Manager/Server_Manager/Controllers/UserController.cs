@@ -13,7 +13,7 @@ namespace Server_Manager.Controllers
         private readonly IUserServices _services;
 
         public UserController(IUserServices services)
-        {
+        {   
             _services = services;
         }
         [HttpGet("me")]
@@ -54,6 +54,15 @@ namespace Server_Manager.Controllers
                 return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
 
             var response = await _services.ChangePassword(changePwRequest);
+            return response.ToActionResult();
+        }
+        [HttpGet("set-semester/{Id}")]
+        public async Task<IActionResult> SetSemesterUser(long Id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
+
+            var response = await _services.SetSemesterUser(Id);
             return response.ToActionResult();
         }
     }

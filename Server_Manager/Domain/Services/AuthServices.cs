@@ -21,14 +21,16 @@ namespace Domain.Services
         private readonly IRepositoryBase<RefreshToken> _RefreshToken;
         private readonly IRepositoryBase<User> _User;
         private readonly IRepositoryBase<Role> _Role;
+        private readonly IRepositoryBase<Semester> _Semester;
         private readonly ITokenServices _tokenServices;
         private readonly ResponseHeader.HttpContext _httpContext;
         private long UserId { set; get; }
-        public AuthServices(IRepositoryBase<RefreshToken> refreshToken, IRepositoryBase<User> user, IRepositoryBase<Role> role, ITokenServices tokenServices, ResponseHeader.IHttpContextAccessor httpContextAccessor)
+        public AuthServices(IRepositoryBase<RefreshToken> refreshToken, IRepositoryBase<User> user, IRepositoryBase<Semester> semester, IRepositoryBase<Role> role, ITokenServices tokenServices, ResponseHeader.IHttpContextAccessor httpContextAccessor)
         {
             _RefreshToken = refreshToken;
             _User = user;
             _Role = role;
+            _Semester = semester;
             _tokenServices = tokenServices;
             _httpContext = httpContextAccessor.HttpContext; // ✅ Lấy HttpContext từ HttpContextAccessor
             UserId = _httpContext.Items["UserId"] == null ? -100 : Convert.ToInt64(_httpContext.Items["UserId"]);
@@ -49,11 +51,44 @@ namespace Domain.Services
                 Password = registerRequest.Password,
                 RoleId = -2,
                 CreatedDate = DateTime.Now,
+                Semester = GetSemesterNow(),
             };
             _User.Insert(user);
             await UnitOfWork.CommitAsync();
 
             return HttpResponse.OK(message: "Tạo tài khoản thành công.");
+        }
+        private Semester GetSemesterNow()
+        {
+            int yearNow = DateTime.Now.Year;
+            int monthNow = DateTime.Now.Month;
+            int semesterNow;
+            int yearStart, yearEnd;
+
+            if (monthNow >= 9 && monthNow <= 12)
+            {
+                semesterNow = 1;
+                yearStart = yearNow;
+                yearEnd = yearNow + 1;
+            }
+            else if (monthNow >= 1 && monthNow <= 5)
+            {
+                semesterNow = 2;
+                yearStart = yearNow - 1;
+                yearEnd = yearNow;
+            }
+            else // Từ tháng 6 đến đầu tháng 9
+            {
+                semesterNow = 3;
+                yearStart = yearNow - 1;
+                yearEnd = yearNow;
+            }
+
+            var semester = _Semester.Find(f => f.YearStart == yearStart
+                && f.YearEnd == yearEnd
+                && f.Semesters_Number == semesterNow);
+
+            return semester;
         }
 
         public async Task<HttpResponse> LoginAsync(LoginDTO loginDTO)
@@ -75,6 +110,7 @@ namespace Domain.Services
                     IsLocked = _user.IsLocked,
                     IsVerify = _user.IsVerify,
                     RoleName = _Role.Find(_Role => _Role.Id == _user.RoleId).DisplayName,
+                    SemesterId = _user.SemesterId
                     //RoleName = _user.Role?.DisplayName
                 };
                 user.AccessToken = _tokenServices.GenerateToken(user);
@@ -84,7 +120,8 @@ namespace Domain.Services
                 {
                     UserId = user.Id,
                     Token = user.RefreshToken,
-                    ExpiryDate = TokenServices.GetDateTimeFormToken(user.RefreshToken)
+                    ExpiryDate = TokenServices.GetDateTimeFormToken(user.RefreshToken),
+                    SemesterId = _user.SemesterId
                 });
 
                 return HttpResponse.OK(user, "Đăng nhập thành công.");

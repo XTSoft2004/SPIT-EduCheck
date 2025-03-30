@@ -26,7 +26,7 @@ namespace WebApp.Configures.DIConfig
             // Inject UnitOfWork
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             // Add Interfaces Automatic
-            services.AddServicesFromAssembly(typeof(IStudentServices).Assembly, "Domain.Interfaces.Services");
+            services.AddServicesFromAssembly(typeof(IStudentServices).Assembly, "Domain.Interfaces");
 
             //services.AddDatabaseDeveloperPageExceptionFilter();
 

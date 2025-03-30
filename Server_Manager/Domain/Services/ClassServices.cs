@@ -1,16 +1,21 @@
 ﻿using Domain.Base.Services;
+using Domain.Common;
 using Domain.Common.Http;
 using Domain.Entities;
+using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Class;
 using Domain.Model.Response.Class;
+using Microsoft.AspNetCore.Http.Headers;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Domain.Services
 {
@@ -21,14 +26,26 @@ namespace Domain.Services
         private readonly IRepositoryBase<Course> _Course;
         private readonly IRepositoryBase<Class_Student> _Class_Student;
         private readonly IRepositoryBase<Student> _Student;
+        private readonly IRepositoryBase<User> _User;
+        private readonly IHttpContextHelper _HttpContextHelper;
+        private long UserId { set; get; }
 
-        public ClassServices(IRepositoryBase<Class> @class, IRepositoryBase<Lecturer> lecturer, IRepositoryBase<Course> course, IRepositoryBase<Class_Student> class_Student, IRepositoryBase<Student> student)
+        public ClassServices(IRepositoryBase<Class> @class,
+            IRepositoryBase<Lecturer> lecturer,
+            IRepositoryBase<Course> course, 
+            IRepositoryBase<User> user,
+            IRepositoryBase<Class_Student> class_Student, 
+            IRepositoryBase<Student> student,
+            IHttpContextHelper httpContextHelper)
         {
             _Class = @class;
             _Lecturer = lecturer;
+            _User = user;
             _Course = course;
             _Class_Student = class_Student;
             _Student = student;
+            _HttpContextHelper = httpContextHelper;
+            UserId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("UserId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("UserId"));
         }
 
         public async Task<HttpResponse> CreateAsync(ClassRequest request)
@@ -138,6 +155,18 @@ namespace Domain.Services
             }
         }
 
+        public async Task<HttpResponse> Remove_Lecturer_To_Class(long ClassId)
+        {
+            var _class = _Class.Find(f => f.Id == ClassId);
+            if (_class == null)
+                return HttpResponse.Error("Không tìm thấy lớp học.", System.Net.HttpStatusCode.NotFound);
+
+            _class.LecturerId = null;
+            _Class.Update(_class);
+            await UnitOfWork.CommitAsync();
+            return HttpResponse.OK(message: "Xóa giảng viên khỏi lớp học thành công.");
+        }
+
         public List<ClassResponse> GetAll(int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _Class.All();
@@ -174,17 +203,44 @@ namespace Domain.Services
 
             return classes;
         }
-
-        public async Task<HttpResponse> Remove_Lecturer_To_Class(long ClassId)
+        // Lấy học kỳ mà user chọn để hiển thị các lớp trong năm đoá
+        public List<ClassResponse> GetClassInSemester(int pageNumber, int pageSize, out int totalRecords)
         {
-            var _class = _Class.Find(f => f.Id == ClassId);
-            if (_class == null)
-                return HttpResponse.Error("Không tìm thấy lớp học.", System.Net.HttpStatusCode.NotFound);
+            var query = _Class.All();
+            totalRecords = query.Count(); // Đếm tổng số bản ghi
 
-            _class.LecturerId = null;
-            _Class.Update(_class);
-            await UnitOfWork.CommitAsync();
-            return HttpResponse.OK(message: "Xóa giảng viên khỏi lớp học thành công.");
+            if (pageNumber != -1 && pageSize != -1)
+            {
+                // Sắp xếp phân trang
+                query = query.OrderBy(u => u.Id)
+                             .Skip((pageNumber - 1) * pageSize)
+                             .Take(pageSize);
+            }
+            else
+            {
+                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
+            }
+            var User = _User.Find(f => f.Id == UserId);
+
+            var classSemester = query
+                .AsEnumerable() // Chuyển sang truy vấn trên bộ nhớ
+                .Where(w => w.CourseId == _Course.Find(f => f.SemesterId == User.SemesterId)?.Id) 
+                .Select(s => new ClassResponse()
+                {
+                    Id = s.Id,
+                    Code = s.Code,
+                    Name = s.Name,
+                    TimeStart = s.TimeStart,
+                    TimeEnd = s.TimeEnd,
+                    LecturerId = s.LecturerId,
+                    CourseId = s.CourseId,
+                    StudentsId = _Class_Student.ListBy(f => f.ClassId == s.Id)
+                                               .Select(s => s.StudentId)
+                                               .ToList() // Thực hiện trên bộ nhớ thay vì trong SQL
+                }).ToList();
+
+
+            return classSemester;
         }
     }
 }

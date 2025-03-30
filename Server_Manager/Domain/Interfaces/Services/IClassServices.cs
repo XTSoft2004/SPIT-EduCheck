@@ -12,6 +12,7 @@ namespace Domain.Interfaces.Services
     public interface IClassServices
     {
         List<ClassResponse> GetAll(int pageNumber, int pageSize, out int totalRecords);
+        List<ClassResponse> GetClassInSemester(int pageNumber, int pageSize, out int totalRecords);
         Task<HttpResponse> CreateAsync(ClassRequest request);
         Task<HttpResponse> UpdateAsync(ClassRequest request);
         Task<HttpResponse> DeleteAsync(long Id);

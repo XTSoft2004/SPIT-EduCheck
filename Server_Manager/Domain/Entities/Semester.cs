@@ -22,7 +22,9 @@ namespace Domain.Entities
         /// Năm học kỳ
         /// </summary>
         [Required]
-        public int Year { get; set; }
+        public int YearStart { get; set; }
+        [Required]
+        public int YearEnd { get; set; }
         /// <summary>
         /// Danh sách các học phần trong học kỳ
         /// </summary>

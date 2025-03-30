@@ -13,6 +13,7 @@ namespace Domain.Model.Response.Auth
         public long Id { get; set; }
         public string? Username { get; set; }
         public string? RoleName { get; set; }
+        public long? SemesterId { get; set; }
         public DateTime ExpiryDate { get; set; }
     }
 }

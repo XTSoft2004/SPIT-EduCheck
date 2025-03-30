@@ -1,4 +1,5 @@
 ﻿using Domain.Base.Services;
+using Domain.Common;
 using Domain.Common.Http;
 using Domain.Entities;
 using Domain.Interfaces.Repositories;
@@ -6,6 +7,7 @@ using Domain.Interfaces.Services;
 using Domain.Model.DTOs;
 using Domain.Model.Request.User;
 using Domain.Model.Response.User;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,18 +23,22 @@ namespace Domain.Services
         private readonly IRepositoryBase<User> _User;
         private readonly IRepositoryBase<Role> _Role;
         private readonly IRepositoryBase<Student> _Student;
+        private readonly IRepositoryBase<Semester> _Semester;
+        private readonly IRepositoryBase<Timesheet_Students> _TimeSheetStudets;
         private readonly ITokenServices _jwtHelper;
         private readonly ResponseHeader.HttpContext _httpContext;
         private long UserId { set; get; }
         public UserServices(
             IRepositoryBase<User> user,
             IRepositoryBase<Role> role,
+            IRepositoryBase<Semester> semester,
             IRepositoryBase<Student> student,
             ITokenServices jwtHelper,
             ResponseHeader.IHttpContextAccessor httpContextAccessor)
         {
             _User = user;
             _Role = role;
+            _Semester = semester;
             _Student = student;
             _jwtHelper = jwtHelper;
             _httpContext = httpContextAccessor.HttpContext; // ✅ Lấy HttpContext từ HttpContextAccessor
@@ -92,15 +98,17 @@ namespace Domain.Services
                 query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
             }
 
-            var users = query.Select(s => new UserResponse()
-            {
-                Id = s.Id,
-                Username = s.Username,
-                IsLocked = s.IsLocked,
-                IsVerify = s.IsVerify,
-                RoleName = s.Role.DisplayName,
-                StudentName = s.Student != null ? (s.Student.FirstName + " " + s.Student.LastName) : null
-            }).ToList();
+            var users = query
+                .Select(s => new UserResponse()
+                {
+                    Id = s.Id,
+                    Username = s.Username,
+                    IsLocked = s.IsLocked,
+                    IsVerify = s.IsVerify,
+                    RoleName = s.Role.DisplayName,
+                    StudentName = s.Student != null ? (s.Student.LastName + " " + s.Student.FirstName) : null,
+                    SemesterId = s.SemesterId   
+                }).ToList();
 
             return users;
         }
@@ -142,6 +150,23 @@ namespace Domain.Services
                 return userResponse;
             }
             return null;
+        }
+
+        public async Task<HttpResponse> SetSemesterUser(long IdSemester)
+        {
+            var User = _User.Find(f => f.Id == UserId);
+            if (User == null)
+                return HttpResponse.Error("Không tìm thấy user !!.");
+
+            var Semester = _Semester.Find(f => f.Id ==  IdSemester);
+            if (Semester == null)
+                return HttpResponse.Error("Không tìm thấy học kì !!.");
+
+            User.Semester = Semester;
+            _User.Update(User);
+
+            await UnitOfWork.CommitAsync();
+            return HttpResponse.OK(message: $"Chuyển sang học kỳ {Semester.YearStart}-{Semester.YearEnd} thành công !!.");
         }
     }
 }

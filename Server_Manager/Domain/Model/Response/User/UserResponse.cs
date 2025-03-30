@@ -14,7 +14,11 @@ namespace Domain.Model.Response.User
         public string? Username { get; set; }
         public bool IsLocked { get; set; }
         public bool IsVerify { get; set; }
+
         public string? RoleName { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public long? SemesterId { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? AccessToken { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
