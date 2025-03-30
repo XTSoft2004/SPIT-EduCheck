@@ -21,7 +21,7 @@ namespace Domain.Interfaces.Services
         /// Lấy tất cả người dùng
         /// </summary>
         /// <returns></returns>
-        List<UserResponse> GetAllUsers(int pageNumber, int pageSize, out int totalRecords);
+        List<UserResponse> GetAllUsers(string search, int pageNumber, int pageSize, out int totalRecords);
         /// <summary>
         /// Lấy người dùng theo Id
         /// </summary>

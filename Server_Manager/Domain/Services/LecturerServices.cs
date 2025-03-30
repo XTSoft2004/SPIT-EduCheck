@@ -72,9 +72,16 @@ namespace Domain.Services
             }
         }
 
-        public List<LecturerResponse> GetAll(int pageNumber, int pageSize, out int totalRecords)
+        public List<LecturerResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _repository.All();
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(w => 
+                    w.FullName.Contains(search) || 
+                    w.Email.Contains(search) || 
+                    w.PhoneNumber.Contains(search));
+            }
             totalRecords = query.Count(); // Đếm tổng số bản ghi
         
             if (pageNumber != -1 && pageSize != -1)

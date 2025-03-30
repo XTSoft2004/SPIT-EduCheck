@@ -27,9 +27,9 @@ namespace Server_Manager.Controllers
         }
         [HttpGet]
         //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllUsers(int pageNumber = -1, int pageSize = -1)
+        public async Task<IActionResult> GetAllUsers(string search = "", int pageNumber = -1, int pageSize = -1)
         {
-            var users = _services.GetAllUsers(pageNumber, pageSize, out int totalRecords);
+            var users = _services.GetAllUsers(search, pageNumber, pageSize, out int totalRecords);
 
             if (users == null || !users.Any())
                 return BadRequest(new { Message = "Danh sách người dùng trống !!!" });

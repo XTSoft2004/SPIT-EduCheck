@@ -95,9 +95,16 @@ namespace Domain.Services
             }
         }
 
-        public List<CourseResponse> GetAll(int pageNumber, int pageSize, out int totalRecords)
+        public List<CourseResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _Course.All();
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(f => 
+                    f.Code.Contains(search) || 
+                    f.Name.Contains(search) ||
+                    f.Credits.ToString().Contains(search));
+            }
             totalRecords = query.Count(); // Đếm tổng số bản ghi
 
             if (pageNumber != -1 && pageSize != -1)

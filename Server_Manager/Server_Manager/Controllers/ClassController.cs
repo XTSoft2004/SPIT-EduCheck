@@ -42,9 +42,9 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllClass(int pageNumber = -1, int pageSize = -1)
+        public async Task<IActionResult> GetAllClass(string search = "", int pageNumber = -1, int pageSize = -1)
         {
-            var classResponses = _services.GetAll(pageNumber, pageSize, out int totalRecords);
+            var classResponses = _services.GetAll(search, pageNumber, pageSize, out int totalRecords);
 
             if (classResponses == null || !classResponses.Any())
                 return BadRequest(new { Message = "Danh sách lớp trống !!!" });
@@ -54,9 +54,9 @@ namespace Server_Manager.Controllers
             return Ok(ResponseArray.ResponseList(classResponses, totalRecords, totalPages, pageNumber, pageSize));
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllClassSemester(int pageNumber = -1, int pageSize = -1)
+        public async Task<IActionResult> GetAllClassSemester(string search = "", int pageNumber = -1, int pageSize = -1)
         {
-            var classResponses = _services.GetClassInSemester(pageNumber, pageSize, out int totalRecords);
+            var classResponses = _services.GetClassInSemester(search, pageNumber, pageSize, out int totalRecords);
 
             if (classResponses == null || !classResponses.Any())
                 return BadRequest(new { Message = "Danh sách lớp trống !!!" });

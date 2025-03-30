@@ -12,7 +12,7 @@ namespace Domain.Interfaces.Services
 {
     public interface ICourseServices
     {
-        List<CourseResponse> GetAll(int pageNumber, int pageSize, out int totalRecords);
+        List<CourseResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords);
         Task<HttpResponse> CreateAsync(CourseRequest courseRequest);
         Task<HttpResponse> UpdateAsync(CourseRequest courseRequest);
         Task<HttpResponse> DeleteAsync(long Id);

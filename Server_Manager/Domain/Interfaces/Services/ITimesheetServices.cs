@@ -11,7 +11,7 @@ namespace Domain.Interfaces.Services
 {
     public interface ITimesheetServices
     {
-        List<TimesheetResponse> GetAll(int pageNumber, int pageSize, out int totalRecords);
+        List<TimesheetResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords);
         Task<HttpResponse> CreateAsync(TimesheetRequest timesheetRequest);
         Task<HttpResponse> UpdateAsync(TimesheetRequest timesheetRequest);
         Task<HttpResponse> DeleteAsync(long Id);

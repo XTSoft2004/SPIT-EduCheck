@@ -43,9 +43,9 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllTimesheet(int pageNumber = -1, int pageSize = -1)
+        public async Task<IActionResult> GetAllTimesheet(string search = "", int pageNumber = -1, int pageSize = -1)
         {
-            var timesheets = _services.GetAll(pageNumber, pageSize, out int totalRecords);
+            var timesheets = _services.GetAll(search, pageNumber, pageSize, out int totalRecords);
 
             if (timesheets == null || !timesheets.Any())
                 return BadRequest(new { Message = "Danh sách chấm công trống !!!" });

@@ -41,9 +41,9 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllLecturer(int pageNumber = -1, int pageSize = -1)
+        public async Task<IActionResult> GetAllLecturer(string search = "", int pageNumber = -1, int pageSize = -1)
         {
-            var users = _services.GetAll(pageNumber, pageSize, out int totalRecords);
+            var users = _services.GetAll(search, pageNumber, pageSize, out int totalRecords);
 
             if (users == null || !users.Any())
                 return BadRequest(new { Message = "Danh sách giảng viên trống !!!" });

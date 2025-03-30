@@ -167,9 +167,19 @@ namespace Domain.Services
             return HttpResponse.OK(message: "Xóa giảng viên khỏi lớp học thành công.");
         }
 
-        public List<ClassResponse> GetAll(int pageNumber, int pageSize, out int totalRecords)
+        public List<ClassResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _Class.All();
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(s =>
+                       s.Code.ToLower().Contains(search) ||
+                       s.Name.ToLower().Contains(search) ||
+                       s.TimeStart.ToString().Contains(search) ||
+                       s.TimeEnd.ToString().Contains(search) ||
+                       s.LecturerId.ToString().Contains(search) ||
+                       s.CourseId.ToString().Contains(search));
+            }
             totalRecords = query.Count(); // Đếm tổng số bản ghi
 
             if (pageNumber != -1 && pageSize != -1)
@@ -204,9 +214,19 @@ namespace Domain.Services
             return classes;
         }
         // Lấy học kỳ mà user chọn để hiển thị các lớp trong năm đoá
-        public List<ClassResponse> GetClassInSemester(int pageNumber, int pageSize, out int totalRecords)
+        public List<ClassResponse> GetClassInSemester(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _Class.All();
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(s =>
+                       s.Code.ToLower().Contains(search) ||
+                       s.Name.ToLower().Contains(search) ||
+                       s.TimeStart.ToString().Contains(search) ||
+                       s.TimeEnd.ToString().Contains(search) ||
+                       s.LecturerId.ToString().Contains(search) ||
+                       s.CourseId.ToString().Contains(search));
+            }
             totalRecords = query.Count(); // Đếm tổng số bản ghi
 
             if (pageNumber != -1 && pageSize != -1)

@@ -81,9 +81,13 @@ namespace Domain.Services
                 return HttpResponse.OK(message: "Xóa tài khoản thành công.");
         }
 
-        public List<UserResponse> GetAllUsers(int pageNumber, int pageSize, out int totalRecords)
+        public List<UserResponse> GetAllUsers(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _User.All();
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(u => u.Username.Contains(search));
+            }
             totalRecords = query.Count(); // Đếm tổng số bản ghi
 
             if (pageNumber != -1 && pageSize != -1)

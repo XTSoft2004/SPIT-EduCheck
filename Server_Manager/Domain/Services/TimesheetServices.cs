@@ -162,9 +162,18 @@ namespace Domain.Services
             }
         }
 
-        public List<TimesheetResponse> GetAll(int pageNumber, int pageSize, out int totalRecords)
+        public List<TimesheetResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _Timesheet.All();
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(f =>
+                    f.Class.Name.ToLower().Contains(search) ||
+                    f.Time.Name.ToLower().Contains(search) ||
+                    f.Date.ToString().Contains(search) ||
+                    f.Status.ToLower().Contains(search) ||
+                    f.Note.ToLower().Contains(search));
+            }
             totalRecords = query.Count(); // Đếm tổng số bản ghi
 
             if (pageNumber != -1 && pageSize != -1)
