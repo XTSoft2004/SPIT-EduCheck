@@ -56,7 +56,8 @@ const CalendarDayView: React.FC<Props> = ({
                         <div className="w-72 bg-white shadow-lg rounded-lg">
                             <Calendar
                                 fullscreen={false}
-                                onSelect={(date) => {
+                                onSelect={(date, { source }) => {
+                                    if (source !== "date") return;
                                     setSelectedDate(date);
                                     setIsCalendarOpen(false);
                                 }}

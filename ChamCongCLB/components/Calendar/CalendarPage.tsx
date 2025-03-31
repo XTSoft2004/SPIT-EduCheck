@@ -8,7 +8,7 @@ import EventModal from "@/components/Calendar/Event/EventModal";
 import EventList from "@/components/Calendar/Event/EventList";
 import { ITimesheet } from "@/types/timesheet";
 import { getTimesheets } from "@/actions/timesheet.actions";
-import { getClasses } from "@/actions/class.actions";
+import { getAllClasses, getClasses } from "@/actions/class.actions";
 import { IClass } from "@/types/class";
 
 import CalendarDayView from "@/components/Calendar/CalendarDayView";
@@ -28,7 +28,7 @@ const CalendarPage: React.FC = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const [timesheetRes, classRes] = await Promise.all([getTimesheets(), getClasses()]);
+                const [timesheetRes, classRes] = await Promise.all([getTimesheets(), getAllClasses("", -1, -1)]);
                 if (timesheetRes.ok) setTimesheets(timesheetRes.data);
                 if (classRes.ok) setClasses(classRes.data);
             } finally {

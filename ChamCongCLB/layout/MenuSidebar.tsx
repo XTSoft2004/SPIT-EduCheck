@@ -1,34 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/contexts/ThemeContext'
 import { CalendarRange, CircleUserRound, School, CalendarDays, AlignVerticalDistributeEnd, Book, Computer, LayoutGrid, SquareChartGantt } from 'lucide-react'
+import SwitchSemester from '@/components/Dashboard/Semesters/SwitchSemester';
+import { useMediaQuery } from 'react-responsive';
 
 type MenuItem = Required<MenuProps>['items'][number];
-
-const items: MenuItem[] = [
-    {
-        key: '1',
-        icon: <SquareChartGantt />,
-        label: 'Quản lý',
-        children: [
-            { key: '/user', label: 'Tài khoản', icon: <CircleUserRound size={20} /> },
-            { key: '/student', label: 'Sinh viên', icon: <School size={20} /> },
-            { key: '/class', label: 'Lớp', icon: <AlignVerticalDistributeEnd size={20} /> },
-            { key: '/lecture', label: 'Giảng viên', icon: <Book size={20} /> },
-            { key: '/semeter', label: 'Học kỳ', icon: <LayoutGrid size={20} /> },
-            { key: '/course', label: 'Học phần', icon: <Computer size={20} /> },
-            { key: '/timesheet', label: 'Chấm công', icon: <CalendarDays size={20} /> },
-        ],
-    }
-    , {
-        key: '/calendar',
-        icon: <CalendarRange />,
-        label: 'Lịch chấm công'
-    }
-];
 
 interface LevelKeysProps {
     key?: string;
@@ -51,10 +31,44 @@ const getLevelKeys = (items1: LevelKeysProps[]) => {
     return key;
 };
 
-const levelKeys = getLevelKeys(items as LevelKeysProps[]);
-
-
 const MenuSidebar: React.FC<{ setCollapsed: (collapsed: boolean) => void }> = ({ setCollapsed }) => {
+
+    const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
+    // Cập nhật kích thước màn hình khi resize
+    useEffect(() => {
+        const handleResize = () => setIsSmallScreen(window.innerWidth <= 640);
+        handleResize(); // Gọi ngay khi component mount
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const items: MenuItem[] = [
+        ...(!isSmallScreen ? [] : [{
+            key: '/semester/change',
+            label: <SwitchSemester />,
+        }]),
+        {
+            key: '1',
+            icon: <SquareChartGantt />,
+            label: 'Quản lý',
+            children: [
+                { key: '/user', label: 'Tài khoản', icon: <CircleUserRound size={20} /> },
+                { key: '/student', label: 'Sinh viên', icon: <School size={20} /> },
+                { key: '/class', label: 'Lớp', icon: <AlignVerticalDistributeEnd size={20} /> },
+                { key: '/lecture', label: 'Giảng viên', icon: <Book size={20} /> },
+                { key: '/semeter', label: 'Học kỳ', icon: <LayoutGrid size={20} /> },
+                { key: '/course', label: 'Học phần', icon: <Computer size={20} /> },
+                { key: '/timesheet', label: 'Chấm công', icon: <CalendarDays size={20} /> },
+            ],
+        }
+        , {
+            key: '/calendar',
+            icon: <CalendarRange />,
+            label: 'Lịch chấm công'
+        }
+    ];
+    const levelKeys = getLevelKeys(items as LevelKeysProps[]);
+
     const { theme, toggleTheme } = useTheme();
     const [stateOpenKeys, setStateOpenKeys] = useState(['2', '23']);
     const router = useRouter();

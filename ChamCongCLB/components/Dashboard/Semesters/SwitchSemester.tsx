@@ -25,8 +25,15 @@ export default function SwitchSemester() {
     const currentSemester = user ? semester?.find((s) => s.id === user.semesterId) : undefined;
 
     return (
-        <Button className='w-25 flex text-red-400 font-bold border-none' onClick={() => router.push('/semester/change')}>
-            {currentSemester ? `Học kỳ: ${currentSemester.semesters_Number}, Năm học: ${currentSemester.yearStart} : ${currentSemester.yearEnd}` : 'No semester selected'}
-        </Button >
+        <div className="flex justify-center items-center h-screen">
+            <Button
+                className="w-25 flex items-center text-red-400 font-bold border-none text-lg sm:text-sm"
+                onClick={() => router.push('/semester/change')}
+            >
+                {currentSemester
+                    ? `Học kỳ: ${currentSemester.semesters_Number}, Năm học: ${currentSemester.yearStart} : ${currentSemester.yearEnd}`
+                    : 'No semester selected'}
+            </Button>
+        </div>
     );
 }
