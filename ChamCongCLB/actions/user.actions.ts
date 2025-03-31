@@ -2,7 +2,7 @@
 import { cookies, headers } from 'next/headers'
 import globalConfig from '@/app.config'
 
-import { IUser, IUserSearch } from '@/types/user.d'
+import { IUser, IUserProfile, IUserSearch } from '@/types/user.d'
 import { IIndexResponse, IShowResponse } from '@/types/global'
 
 const baseUrl = globalConfig.baseUrl
@@ -57,6 +57,31 @@ export const getMe = async () => {
     status: response.status,
     ...data,
   } as IShowResponse<IUser>
+}
+
+export const getProfile = async () => {
+  const response = await fetch(`${baseUrl}/user/profile`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+    next: {
+      tags: ['user.profile'],
+    },
+  })
+
+  const data = await response.json()
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    data: {
+      ...data,
+    },
+  } as IShowResponse<IUserProfile>
 }
 
 /**

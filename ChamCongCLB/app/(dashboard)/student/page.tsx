@@ -46,12 +46,6 @@ export default function UserPage() {
             key: 'email',
         },
         {
-            title: 'Giới tính',
-            dataIndex: 'gender',
-            key: 'gender',
-            render: (value: boolean) => (value ? 'Nam' : 'Nữ'),
-        },
-        {
             title: 'Ngày sinh',
             dataIndex: 'dob',
             key: 'dob',
@@ -63,6 +57,12 @@ export default function UserPage() {
                     year: 'numeric'
                 });
             },
+        },
+        {
+            title: 'Giới tính',
+            dataIndex: 'gender',
+            key: 'gender',
+            render: (value: boolean) => (value ? 'Nam' : 'Nữ'),
         },
         {
             title: 'Hành động',
@@ -123,11 +123,11 @@ export default function UserPage() {
         form.resetFields();
     };
 
-    const handleUpdate = async (student: IStudent) => {
+    const handleUpdate = async () => {
         try {
             const values = await form.validateFields();
             const formUpdate: IStudentUpdate = {
-                id: student.id,
+                id: selectedStudent?.id,
                 maSinhVien: values.maSinhVien,
                 lastName: values.lastName,
                 firstName: values.firstName,
@@ -144,7 +144,7 @@ export default function UserPage() {
                 setSelectedStudent(null);
 
                 // Revalidate dữ liệu SWR
-                mutate(['students', pageIndex, pageSize]);
+                mutate(['students', searchText, pageIndex, pageSize]);
             }
         } catch (error) {
             console.error('Failed to update student:', error);
@@ -172,7 +172,7 @@ export default function UserPage() {
                 form.resetFields(); // Reset form
 
                 // Revalidate dữ liệu SWR
-                mutate(['students', pageIndex, pageSize]);
+                mutate(['students', searchText, pageIndex, pageSize]);
             }
         } catch (error) {
             console.error('Failed to create student:', error);
@@ -231,7 +231,7 @@ export default function UserPage() {
                 title="Chỉnh sửa thông tin sinh viên"
                 footer={
                     <Space>
-                        <Button type="primary" onClick={() => selectedStudent && handleUpdate(selectedStudent)}>Cập nhật</Button>
+                        <Button type="primary" onClick={() => selectedStudent && handleUpdate()}>Cập nhật</Button>
                         <Button type="default" onClick={handleClose}>Đóng</Button>
                     </Space>
                 }>

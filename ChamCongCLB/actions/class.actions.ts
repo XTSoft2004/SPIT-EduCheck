@@ -152,6 +152,7 @@ export const deleteClass = async (id: number) => {
     },
   })
   revalidateTag('class.index')
+  revalidateTag('class.show')
 
   const data = await response.json()
 
@@ -181,6 +182,7 @@ export const deleteLecturer = async (classObj: IClassDeleteLecturer) => {
     },
   )
   revalidateTag('class.index')
+  revalidateTag('class.show')
 
   const data = await response.json()
 

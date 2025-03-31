@@ -41,7 +41,7 @@ export interface IStudentCreate {
 }
 
 export interface IStudentUpdate {
-  id: number
+  id?: number
   maSinhVien?: string
   firstName?: string
   lastName?: string

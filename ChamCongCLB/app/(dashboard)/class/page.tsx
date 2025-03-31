@@ -167,7 +167,7 @@ export default function ClassPage() {
 
             const response = await updateClass(formUpdate);
             if (response.ok) {
-                setIsModalOpen
+                setIsModalOpen(false);
                 form.resetFields();
                 setSelectedClass(null);
 

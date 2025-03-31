@@ -9,6 +9,7 @@ import {
 import UserDropdown from '@/components/header/UserDropdown';
 
 import { ThemeToggleButton } from '@/components/common/ThemeToggleButton';
+import SwitchSemester from '@/components/Dashboard/Semesters/SwitchSemester';
 
 const AppHeader: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapsed: boolean }> = ({ setCollapsed, collapsed }) => {
     return (
@@ -33,6 +34,7 @@ const AppHeader: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapse
                 <p className='dark:text-white font-bold text-xl'>SPIT TEAM</p>
             </div>
             <div className="flex items-center gap-4">
+                <SwitchSemester />
                 <ThemeToggleButton />
                 {/* DropDrown User */}
                 <UserDropdown />

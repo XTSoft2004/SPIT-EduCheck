@@ -7,10 +7,6 @@ const { Header, Sider, Content } = Layout;
 import AppHeader from './AppHeader';
 import AppSider from './AppSider';
 
-
-
-
-
 export default function Dashboard({
     children,
 }: {

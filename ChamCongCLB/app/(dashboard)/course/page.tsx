@@ -1,126 +1,220 @@
-'use client';
+'use client'
 import React, { useState, useEffect } from 'react';
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Autocomplete } from '@mui/material';
-import { getCourses, createCourse, updateCourse, deleteCourse } from '@/actions/course.actions';
+import useSWR, { mutate } from 'swr';
+import { Button, Space, Form } from 'antd';
+import DataGrid from '@/components/ui/Table/DataGrid';
+
 import { ICourse, ICourseCreate, ICourseUpdate } from '@/types/course';
-import { getSemesters } from '@/actions/semester.actions';
 import { ISemester } from '@/types/semester';
 
-export default function CoursePage() {
-    const [courses, setCourses] = useState<ICourse[]>([]);
+import { getCourses, createCourse, updateCourse } from '@/actions/course.actions';
+import { getSemesters } from '@/actions/semester.actions';
+
+import CustomModal from '@/components/Modal/CustomModal';
+import FormCourse from './FormCourse';
+import SpinLoading from '@/components/ui/Loading/SpinLoading';
+import Searchbar from '@/components/ui/Table/Searchbar';
+import { CirclePlus, CircleX } from 'lucide-react'
+import { EditOutlined } from '@ant-design/icons';
+import { title } from 'process';
+
+export default function ClassPage() {
     const [semesters, setSemesters] = useState<ISemester[]>([]);
-    const [selectedCourse, setSelectedCourse] = useState<ICourse | null>(null);
-    const [open, setOpen] = useState(false);
 
     useEffect(() => {
-        fetchCourses();
-        fetchSemesters();
+        const fetchData = async () => {
+            const [semestersRes] = await Promise.all([
+                getSemesters(),
+            ]);
+
+            if (semestersRes.ok) setSemesters(semestersRes.data);
+        };
+
+        fetchData();
     }, []);
 
-    const fetchCourses = async () => {
-        const response = await getCourses();
-        if (response.ok) {
-            setCourses(response.data);
+    const columns = [
+        {
+            title: 'Mã học phần',
+            dataIndex: 'code',
+            key: 'code',
+        },
+        {
+            title: 'Tên học phần',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: 'Số tín chỉ',
+            dataIndex: 'credits',
+            key: 'credits',
+        },
+        {
+            title: 'Học kỳ',
+            dataIndex: 'semesterId',
+            key: 'semesterId',
+            render: (semesterId: number) => {
+                const semester = semesters.find((sem) => sem.id === semesterId);
+                return semester ? `${semester.yearStart} - ${semester.yearEnd}.${semester.semesters_Number}` : '';
+            },
+        },
+        {
+            title: 'Thao tác',
+            key: 'action',
+            render: (_: unknown, record: ICourse) => (
+                <Space>
+                    <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
+                </Space>
+            ),
         }
+    ];
+
+    const [pageIndex, setPageIndex] = useState(1);
+    const [pageSize, setPageSize] = useState(6);
+    const [selectedCourse, setSelectedCourse] = useState<ICourse | null>(null);
+
+    const [searchText, setSearchText] = useState('');
+
+    const handleSearch = (value: string) => {
+        setSearchText(value);
+        setPageIndex(1)
     };
 
-    const fetchSemesters = async () => {
-        const response = await getSemesters();
-        if (response.ok) {
-            setSemesters(response.data);
+    const { data, isLoading } = useSWR(
+        ['courses', searchText, pageIndex, pageSize],
+        ([, search, page, limit]) => getCourses(search, page, limit),
+        { revalidateOnFocus: false }
+    );
+
+    const courses = data?.data || [];
+    const totalCourses = data?.total || 0;
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalCreate, setIsModalCreate] = useState(false);
+    const [form] = Form.useForm();
+
+    const handleEdit = (formData: ICourse) => {
+        form.setFieldsValue({
+            code: formData.code,
+            name: formData.name,
+            credits: formData.credits,
+            semesterId: formData.semesterId,
+        });
+        setIsModalOpen(true);
+        setSelectedCourse(formData);
+    };
+
+    const handleClose = () => {
+        setIsModalOpen(false);
+        setIsModalCreate(false);
+        form.resetFields();
+    }
+
+    const handleUpdate = async () => {
+        try {
+            const values = await form.getFieldsValue();
+            const formUpdate: ICourseUpdate = {
+                id: selectedCourse?.id || 0,
+                code: values.code,
+                name: values.name,
+                credits: values.credits,
+                semesterId: values.semesterId,
+            };
+
+            const response = await updateCourse(formUpdate);
+            if (response.ok) {
+                setIsModalOpen(false);
+                form.resetFields();
+                setSelectedCourse(null);
+
+                mutate(['courses', searchText, pageIndex, pageSize]);
+            }
+        }
+        catch (error) {
+            console.error('Error updating course:', error);
         }
     }
 
-    const handleAdd = () => {
-        setSelectedCourse({ id: 0, code: '', name: '', credits: 0, semesterId: 1 });
-        setOpen(true);
-    };
+    const handleCreate = async () => {
+        try {
+            const values = await form.getFieldsValue();
+            const formCreate: ICourseCreate = {
+                code: values.code,
+                name: values.name,
+                credits: values.credits,
+                semesterId: values.semesterId,
+            };
 
-    const handleEdit = (course: ICourse) => {
-        setSelectedCourse(course);
-        setOpen(true);
-    };
+            const response = await createCourse(formCreate);
+            if (response.ok) {
+                setIsModalOpen(false);
+                form.resetFields();
+                setSelectedCourse(null);
 
-    const handleDelete = async (id: number) => {
-        if (window.confirm('Are you sure you want to delete this course?')) {
-            await deleteCourse(id);
-            fetchCourses();
-        }
-    };
-
-    const handleSave = async () => {
-        if (selectedCourse) {
-            if (selectedCourse.id === 0) {
-                const newCourse: ICourseCreate = { ...selectedCourse };
-                await createCourse(newCourse);
-            } else {
-                const updatedCourse: ICourseUpdate = { ...selectedCourse };
-                await updateCourse(updatedCourse);
+                mutate(['courses', searchText, pageIndex, pageSize]);
             }
-            fetchCourses();
-            setOpen(false);
         }
-    };
-
-    const columns: GridColDef[] = [
-        { field: 'id', headerName: 'ID', width: 50 },
-        { field: 'code', headerName: 'Code', width: 150 },
-        { field: 'name', headerName: 'Name', width: 200 },
-        { field: 'credits', headerName: 'Credits', width: 100 },
-        {
-            field: 'semester',
-            headerName: 'Semester',
-            width: 200,
-            renderCell: (params: { row: ICourse }) => {
-                const semester = semesters.find(s => s.id === params.row.semesterId);
-                return <p>{semester ? `${semester.semesters_Number} - ${semester.year}` : ''}</p>;
-            }
-        },
-        {
-            field: 'actions',
-            headerName: 'Actions',
-            width: 200,
-            renderCell: (params) => (
-                <>
-                    <Button onClick={() => handleEdit(params.row)}>Edit</Button>
-                    <Button onClick={() => handleDelete(params.row.id)}>Delete</Button>
-                </>
-            ),
-        },
-    ];
+        catch (error) {
+            console.error('Error creating course:', error);
+        }
+    }
 
     return (
-        <div style={{ height: 600, width: '100%' }}>
-            <Button onClick={handleAdd}>Add Course</Button>
-            <DataGrid
-                rows={courses}
-                columns={columns}
-                pageSizeOptions={[5, 10, 20]}
-                pagination
-                slots={{ toolbar: GridToolbar }}
-                checkboxSelection
-                disableRowSelectionOnClick
-            />
-            <Dialog open={open} onClose={() => setOpen(false)}>
-                <DialogTitle>{selectedCourse?.id === 0 ? 'Add Course' : 'Edit Course'}</DialogTitle>
-                <DialogContent>
-                    <TextField margin="dense" label="Code" fullWidth value={selectedCourse?.code || ''} onChange={(e) => setSelectedCourse(selectedCourse ? { ...selectedCourse, code: e.target.value } : null)} />
-                    <TextField margin="dense" label="Name" fullWidth value={selectedCourse?.name || ''} onChange={(e) => setSelectedCourse(selectedCourse ? { ...selectedCourse, name: e.target.value } : null)} />
-                    <TextField margin="dense" label="Credits" type="number" fullWidth value={selectedCourse?.credits || ''} onChange={(e) => setSelectedCourse(selectedCourse ? { ...selectedCourse, credits: Number(e.target.value) } : null)} />
-                    <Autocomplete
-                        options={semesters}
-                        getOptionLabel={(option) => `${option.semesters_Number} - ${option.year}`}
-                        renderInput={(params) => <TextField {...params} label="Select Semester" margin="dense" fullWidth />}
-                        value={semesters.find(s => s.id === selectedCourse?.semesterId) || null}
-                        onChange={(_, newValue) => setSelectedCourse(selectedCourse ? { ...selectedCourse, semesterId: newValue?.id || 1 } : null)}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={handleSave}>Save</Button>
-                </DialogActions>
-            </Dialog>
-        </div>
-    );
+        <>
+            <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">
+                <Button
+                    className="w-full md:w-auto flex items-center gap-2"
+                    onClick={() => setIsModalCreate(true)}
+                >
+                    <CirclePlus size={20} />
+                    Thêm học phần
+                </Button>
+
+                <Searchbar setSearchText={handleSearch} />
+            </div>
+
+            {isLoading ? <SpinLoading /> : (
+                <>
+                    <DataGrid<ICourse>
+                        rowKey="id"
+                        data={courses}
+                        columns={columns}
+                        pageIndex={pageIndex}
+                        pageSize={pageSize}
+                        totalRecords={totalCourses}
+                        setPageIndex={setPageIndex}
+                        setPageSize={setPageSize} />
+                </>
+            )}
+
+            <CustomModal
+                isOpen={isModalCreate}
+                onClose={handleClose}
+                title="Thêm thông tin học phần"
+                footer={
+                    <Space>
+                        <Button type="primary" onClick={handleCreate}>
+                            <CirclePlus size={20} />Thêm học phần
+                        </Button>
+                        <Button type="default" onClick={handleClose}>
+                            <CircleX size={20} />Đóng</Button>
+                    </Space>
+                }>
+                <FormCourse form={form} semesters={semesters} />
+            </CustomModal>
+
+            <CustomModal
+                isOpen={isModalOpen}
+                onClose={handleClose}
+                title="Chỉnh sửa thông tin học phần"
+                footer={
+                    <Space>
+                        <Button type="primary" onClick={() => selectedCourse && handleUpdate()}>Cập nhật</Button>
+                        <Button type="default" onClick={handleClose}>Đóng</Button>
+                    </Space>
+                }>
+                <FormCourse form={form} semesters={semesters} />
+            </CustomModal>
+        </>
+    )
 }

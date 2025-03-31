@@ -1,10 +1,10 @@
 'use server'
-import globalConfig from "@/app.config";
-import { cookies, headers } from 'next/headers';
+import globalConfig from '@/app.config'
+import { cookies, headers } from 'next/headers'
 
-import { ILecturer, ILecturerCreate, ILecturerUpdate } from "@/types/lecturer";
-import { IIndexResponse, IResponse } from "@/types/global";
-import { revalidateTag } from "next/cache";
+import { ILecturer, ILecturerCreate, ILecturerUpdate } from '@/types/lecturer'
+import { IIndexResponse, IResponse } from '@/types/global'
+import { revalidateTag } from 'next/cache'
 
 /**
  * Get leturer by search
@@ -14,34 +14,34 @@ import { revalidateTag } from "next/cache";
  * @returns List of lecturers
  */
 export const getLecturers = async (
-    search: string,
-    page: number,
-    pageSize: number,
+  search: string,
+  page: number,
+  pageSize: number,
 ) => {
-    const response = await fetch(
-        `${globalConfig.baseUrl}/leturer?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,
-        {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization:
-                    headers().get('Authorization') ||
-                    `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-            },
-            next: {
-                tags: ['leturer.index'],
-            },
-        },    
-    )
+  const response = await fetch(
+    `${globalConfig.baseUrl}/leturer?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:
+          headers().get('Authorization') ||
+          `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+      },
+      next: {
+        tags: ['leturer.index'],
+      },
+    },
+  )
 
-    const data = await response.json();
+  const data = await response.json()
 
-    return {
-        ok: response.ok,
-        status: response.status,
-        data: data.data,
-        total: data.totalRecords,
-    }
+  return {
+    ok: response.ok,
+    status: response.status,
+    data: data.data,
+    total: data.totalRecords,
+  }
 }
 
 /**
@@ -49,24 +49,25 @@ export const getLecturers = async (
  * @returns List of lecturers
  */
 export const getAllLecturers = async () => {
-    const response = await fetch(`${globalConfig.baseUrl}/lecturer`,
-        {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-            },
-            next: {
-                tags: ['lecturer.index'],
-            }
-        });
+  const response = await fetch(`${globalConfig.baseUrl}/lecturer`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+    next: {
+      tags: ['lecturer.indexAll'],
+    },
+  })
 
-    const data = await response.json();
-    return {
-        ok: response.ok,
-        status: response.status,
-        ...data,
-    } as IIndexResponse<ILecturer>;
+  const data = await response.json()
+  return {
+    ok: response.ok,
+    status: response.status,
+    ...data,
+  } as IIndexResponse<ILecturer>
 }
 
 /**
@@ -75,23 +76,25 @@ export const getAllLecturers = async () => {
  * @returns The created lecturer
  */
 export const createLecturer = async (formData: ILecturerCreate) => {
-    const response = await fetch(`${globalConfig.baseUrl}/lecturer/create`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-        },
-        body: JSON.stringify(formData)
-    });
-    revalidateTag('lecturer.index');
-    revalidateTag('lecturer.show');
+  const response = await fetch(`${globalConfig.baseUrl}/lecturer/create`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+    body: JSON.stringify(formData),
+  })
+  revalidateTag('lecturer.index')
+  revalidateTag('lecturer.show')
 
-    const data = await response.json();
+  const data = await response.json()
 
-    return {
-        ok: response.ok,
-        ...data,
-    } as IResponse;
+  return {
+    ok: response.ok,
+    ...data,
+  } as IResponse
 }
 
 /**
@@ -100,23 +103,28 @@ export const createLecturer = async (formData: ILecturerCreate) => {
  * @returns The updated lecturer
  */
 export const updateLecturer = async (formData: ILecturerUpdate) => {
-    const response = await fetch(`${globalConfig.baseUrl}/lecturer/${formData.id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-        },
-        body: JSON.stringify(formData)
-    });
-    revalidateTag('lecturer.index');
-    revalidateTag('lecturer.show');
+  const response = await fetch(
+    `${globalConfig.baseUrl}/lecturer/${formData.id}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:
+          headers().get('Authorization') ||
+          `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+      },
+      body: JSON.stringify(formData),
+    },
+  )
+  revalidateTag('lecturer.index')
+  revalidateTag('lecturer.show')
 
-    const data = await response.json();
+  const data = await response.json()
 
-    return {
-        ok: response.ok,
-        ...data,
-    } as IResponse;
+  return {
+    ok: response.ok,
+    ...data,
+  } as IResponse
 }
 
 /**
@@ -125,20 +133,22 @@ export const updateLecturer = async (formData: ILecturerUpdate) => {
  * @returns The deleted lecturer
  */
 export const deleteLecturer = async (id: number) => {
-    const response = await fetch(`${globalConfig.baseUrl}/lecturer/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-        }
-    });
-    revalidateTag('lecturer.index');
-    revalidateTag('lecturer.show');
+  const response = await fetch(`${globalConfig.baseUrl}/lecturer/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+  })
+  revalidateTag('lecturer.index')
+  revalidateTag('lecturer.show')
 
-    const data = await response.json();
+  const data = await response.json()
 
-    return {
-        ok: response.ok,
-        ...data,
-    } as IResponse;
+  return {
+    ok: response.ok,
+    ...data,
+  } as IResponse
 }
