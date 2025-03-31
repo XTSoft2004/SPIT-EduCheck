@@ -50,6 +50,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
             colorBorder: theme === 'dark' ? '#555555' : '#DDDDDD',
             colorTextSecondary: theme === 'dark' ? '#BBBBBB' : '#666666',
             colorFillContent: theme === 'dark' ? '#393E46' : '#F5F5F5',
+            colorBgElevated: theme === "dark" ? "#2A2F45" : "#FFFFFF", // Màu nền cho popup
           },
         }}
       >

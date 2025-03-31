@@ -43,11 +43,11 @@ export default function ClassPage() {
     }, []);
 
     const columns = [
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-        },
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'id',
+        //     key: 'id',
+        // },
         {
             title: 'Mã lớp',
             dataIndex: 'code',
@@ -249,7 +249,7 @@ export default function ClassPage() {
                             <CircleX size={20} />Đóng</Button>
                     </Space>
                 }>
-                <FormClass form={form} students={students} lecturers={lecturers} />
+                <FormClass form={form} students={students} lecturers={lecturers} courses={courses} />
             </CustomModal>
 
             <CustomModal
@@ -262,7 +262,7 @@ export default function ClassPage() {
                         <Button type="default" onClick={handleClose}>Đóng</Button>
                     </Space>
                 }>
-                <FormClass form={form} students={students} lecturers={lecturers} />
+                <FormClass form={form} students={students} lecturers={lecturers} courses={courses} />
             </CustomModal>
         </>
     )

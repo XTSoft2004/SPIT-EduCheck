@@ -1,10 +1,15 @@
-'use server';
-import globalConfig from "@/app.config";
-import { cookies, headers } from 'next/headers';
+'use server'
+import globalConfig from '@/app.config'
+import { cookies, headers } from 'next/headers'
 
-import { IClass, IClassCreate, IClassDeleteLecturer, IClassUpdate } from "@/types/class";
-import { IIndexResponse, IResponse } from "@/types/global";
-import { revalidateTag } from "next/cache";
+import {
+  IClass,
+  IClassCreate,
+  IClassDeleteLecturer,
+  IClassUpdate,
+} from '@/types/class'
+import { IIndexResponse, IResponse } from '@/types/global'
+import { revalidateTag } from 'next/cache'
 
 /**
  * Get class by search
@@ -14,60 +19,68 @@ import { revalidateTag } from "next/cache";
  * @returns List of classes
  */
 export const getClasses = async (
-    search: string,
-    page: number,
-    pageSize: number,
+  search: string,
+  page: number,
+  pageSize: number,
 ) => {
-    const response = await fetch(
-        `${globalConfig.baseUrl}/class?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,
-        {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization:
-                    headers().get('Authorization') ||
-                    `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-            },
-            next: {
-                tags: ['class.index'],
-            },
-        },    
-    )
+  const response = await fetch(
+    `${globalConfig.baseUrl}/class?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:
+          headers().get('Authorization') ||
+          `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+      },
+      next: {
+        tags: ['class.index'],
+      },
+    },
+  )
 
-    const data = await response.json();
+  const data = await response.json()
 
-    return {
-        ok: response.ok,
-        status: response.status,
-        data: data.data,
-        total: data.totalRecords,
-    }
+  return {
+    ok: response.ok,
+    status: response.status,
+    data: data.data,
+    total: data.totalRecords,
+  }
 }
 
 /**
  * Get all classes
  * @returns List of classes
  */
-export const getAllClasses = async () => {
-    const response = await fetch(`${globalConfig.baseUrl}/class`,
-        {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-            },
-            next: {
-                tags: ['class.index'],
-            }
-        });
+export const getAllClasses = async (
+  search: string,
+  page: number,
+  pageSize: number,
+) => {
+  const response = await fetch(
+    `${globalConfig.baseUrl}/class/all?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:
+          headers().get('Authorization') ||
+          `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+      },
+      next: {
+        tags: ['class.indexAll'],
+      },
+    },
+  )
 
-    const data = await response.json();
+  const data = await response.json()
 
-    return {
-        ok: response.ok,
-        status: response.status,
-        ...data,
-    } as IIndexResponse<IClass>;
+  return {
+    ok: response.ok,
+    status: response.status,
+    ...data,
+  } as IIndexResponse<IClass>
 }
 
 /**
@@ -76,23 +89,25 @@ export const getAllClasses = async () => {
  * @returns The created class
  */
 export const createClass = async (classObj: IClassCreate) => {
-    const response = await fetch(`${globalConfig.baseUrl}/class/create`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-        },
-        body: JSON.stringify(classObj)
-    });
-    revalidateTag('class.index');
-    revalidateTag('class.show');
+  const response = await fetch(`${globalConfig.baseUrl}/class/create`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+    body: JSON.stringify(classObj),
+  })
+  revalidateTag('class.index')
+  revalidateTag('class.show')
 
-    const data = await response.json();
+  const data = await response.json()
 
-    return {
-        ok: response.ok,
-        ...data,
-    } as IResponse;
+  return {
+    ok: response.ok,
+    ...data,
+  } as IResponse
 }
 
 /**
@@ -101,22 +116,24 @@ export const createClass = async (classObj: IClassCreate) => {
  * @returns The updated class
  */
 export const updateClass = async (classObj: IClassUpdate) => {
-    const response = await fetch(`${globalConfig.baseUrl}/class/${classObj.id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-        },
-        body: JSON.stringify(classObj)
-    });
-    revalidateTag('class.index');
-    revalidateTag('class.show');
+  const response = await fetch(`${globalConfig.baseUrl}/class/${classObj.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+    body: JSON.stringify(classObj),
+  })
+  revalidateTag('class.index')
+  revalidateTag('class.show')
 
-    const data = await response.json();
-    return {
-        ok: response.ok,
-        ...data,
-    } as IResponse;
+  const data = await response.json()
+  return {
+    ok: response.ok,
+    ...data,
+  } as IResponse
 }
 
 /**
@@ -125,22 +142,24 @@ export const updateClass = async (classObj: IClassUpdate) => {
  * @returns The deleted class
  */
 export const deleteClass = async (id: number) => {
-    const response = await fetch(`${globalConfig.baseUrl}/class/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-        }
-    });
-    revalidateTag('class.index');
+  const response = await fetch(`${globalConfig.baseUrl}/class/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+  })
+  revalidateTag('class.index')
 
-    const data = await response.json();
+  const data = await response.json()
 
-    return {
-        ok: response.ok,
-        ...data,
-    } as IResponse;
-};
+  return {
+    ok: response.ok,
+    ...data,
+  } as IResponse
+}
 
 /**
  * Delete a lecturer from a class
@@ -148,20 +167,25 @@ export const deleteClass = async (id: number) => {
  * @returns The deleted lecturer
  */
 export const deleteLecturer = async (classObj: IClassDeleteLecturer) => {
-    const response = await fetch(`${globalConfig.baseUrl}/class/remove-lecturer?ClassId=${classObj.classId}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: headers().get('Authorization') || `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-        },
-        body: JSON.stringify({ classObj })
-    });
-    revalidateTag('class.index');
+  const response = await fetch(
+    `${globalConfig.baseUrl}/class/remove-lecturer?ClassId=${classObj.classId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:
+          headers().get('Authorization') ||
+          `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+      },
+      body: JSON.stringify({ classObj }),
+    },
+  )
+  revalidateTag('class.index')
 
-    const data = await response.json();
+  const data = await response.json()
 
-    return {
-        ok: response.ok,
-        ...data,
-    } as IResponse;
+  return {
+    ok: response.ok,
+    ...data,
+  } as IResponse
 }
