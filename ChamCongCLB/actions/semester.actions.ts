@@ -6,8 +6,12 @@ import { ISemester, ISemesterCreate, ISemesterUpdate } from '@/types/semester'
 import { IIndexResponse, IResponse } from '@/types/global'
 import { revalidateTag } from 'next/cache'
 
-export const getSemesters = async () => {
-  const response = await fetch(`${globalConfig.baseUrl}/semester`, {
+export const getSemesters = async (
+  search: string,
+  pageIndex: number,
+  pageSize: number,
+) => {
+  const response = await fetch(`${globalConfig.baseUrl}/semester?search=${search}&pageIndex=${pageIndex}$pageSize=${pageSize}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -25,8 +29,9 @@ export const getSemesters = async () => {
   return {
     ok: response.ok,
     status: response.status,
-    ...data,
-  } as IIndexResponse<ISemester>
+    data: data.data,
+    total: data.totalRecords,
+  }
 }
 
 export const createSemester = async (semester: ISemesterCreate) => {

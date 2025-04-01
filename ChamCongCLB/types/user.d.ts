@@ -4,6 +4,8 @@ export interface IUser {
   isLocked: boolean
   isVerify: boolean
   roleName: string
+  semesterId: number
+  studentName: string
 }
 
 interface IUserProfile {
@@ -21,6 +23,12 @@ export interface IUserFilter {
 
 export interface IUserSearch {
   id: number
+}
+
+export interface IUSerUpdate {
+  oldPassword: string
+  password: string
+  confirmPassword: string
 }
 
 export interface IUserCreate {

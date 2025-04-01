@@ -19,7 +19,7 @@ export const getLecturers = async (
   pageSize: number,
 ) => {
   const response = await fetch(
-    `${globalConfig.baseUrl}/leturer?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,
+    `${globalConfig.baseUrl}/lecturer?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,
     {
       method: 'GET',
       headers: {
@@ -29,7 +29,7 @@ export const getLecturers = async (
           `Bearer ${cookies().get('accessToken')?.value || ' '}`,
       },
       next: {
-        tags: ['leturer.index'],
+        tags: ['lecturer.index'],
       },
     },
   )

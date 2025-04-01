@@ -1,111 +1,191 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
-import { getSemesters, createSemester, updateSemester, deleteSemester } from '@/actions/semester.actions';
+'use client'
+import React, { useState } from 'react';
+import useSWR, { mutate } from 'swr';
+import { Button, Space, Form } from 'antd';
+import DataGrid from '@/components/ui/Table/DataGrid';
+
 import { ISemester, ISemesterCreate, ISemesterUpdate } from '@/types/semester';
 
-export default function SemesterPage() {
-    const [semesters, setSemesters] = useState<ISemester[]>([]);
-    const [selectedSemester, setSelectedSemester] = useState<ISemester | null>(null);
-    const [open, setOpen] = useState(false);
+import { getSemesters, updateSemester, createSemester } from '@/actions/semester.actions';
 
-    useEffect(() => {
-        fetchSemesters();
-    }, []);
+import CustomModal from '@/components/Modal/CustomModal';
+import FormSemester from './FormSemester';
+import SpinLoading from '@/components/ui/Loading/SpinLoading';
+import Searchbar from '@/components/ui/Table/Searchbar';
+import { CirclePlus, CircleX } from 'lucide-react'
+import { EditOutlined } from '@ant-design/icons';
 
-    const fetchSemesters = async () => {
-        const response = await getSemesters();
-        if (response.ok) {
-            setSemesters(response.data);
-        }
-    };
-
-    const handleAdd = () => {
-        setSelectedSemester({ id: 0, semesters_Number: 1, year: new Date().getFullYear() });
-        setOpen(true);
-    };
-
-    const handleEdit = (semester: ISemester) => {
-        setSelectedSemester(semester);
-        setOpen(true);
-    };
-
-    const handleDelete = async (id: number) => {
-        if (window.confirm('Are you sure you want to delete this semester?')) {
-            await deleteSemester(id);
-            fetchSemesters();
-        }
-    };
-
-    const handleSave = async () => {
-        if (selectedSemester) {
-            if (selectedSemester.id === 0) {
-                const newSemester: ISemesterCreate = { ...selectedSemester };
-                await createSemester(newSemester);
-            } else {
-                const updatedSemester: ISemesterUpdate = { ...selectedSemester };
-                await updateSemester(updatedSemester);
-            }
-            fetchSemesters();
-            setOpen(false);
-        }
-    };
-
-    const columns: GridColDef[] = [
-        { field: 'id', headerName: 'ID', width: 70 },
-        { field: 'semesters_Number', headerName: 'Semester Number', width: 150 },
-        { field: 'year', headerName: 'Year', width: 150 },
+export default function ClassPage() {
+    const columns = [
         {
-            field: 'actions',
-            headerName: 'Actions',
-            width: 200,
-            renderCell: (params) => (
-                <>
-                    <Button onClick={() => handleEdit(params.row)}>Edit</Button>
-                    <Button onClick={() => handleDelete(params.row.id)}>Delete</Button>
-                </>
-            ),
+            title: 'Năm bắt đầu',
+            dataIndex: 'yearStart',
+            key: 'yearStart',
         },
+        {
+            title: 'Năm kết thúc',
+            dataIndex: 'yearEnd',
+            key: 'yearEnd',
+        },
+        {
+            title: 'Học kỳ',
+            dataIndex: 'semesters_Number',
+            key: 'semesters_Number',
+        },
+        {
+            title: 'Thao tác',
+            key: 'action',
+            render: (_: unknown, record: ISemester) => (
+                <Space>
+                    <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
+                </Space>
+            ),
+        }
     ];
 
-    return (
-        <div style={{ height: 600, width: '100%' }}>
-            <Button onClick={handleAdd}>Add Semester</Button>
-            <DataGrid
-                rows={semesters}
-                columns={columns}
-                pageSizeOptions={[5, 10, 20]}
-                pagination
-                checkboxSelection
-                disableRowSelectionOnClick
-                slots={{ toolbar: GridToolbar }}
-            />
-            <Dialog open={open} onClose={() => setOpen(false)}>
-                <DialogTitle>{selectedSemester?.id === 0 ? 'Add Semester' : 'Edit Semester'}</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        margin="dense"
-                        label="Semester Number"
-                        type="number"
-                        fullWidth
-                        value={selectedSemester?.semesters_Number || ''}
-                        onChange={(e) => setSelectedSemester(selectedSemester ? { ...selectedSemester, semesters_Number: Number(e.target.value) } : null)}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Year"
-                        type="number"
-                        fullWidth
-                        value={selectedSemester?.year || ''}
-                        onChange={(e) => setSelectedSemester(selectedSemester ? { ...selectedSemester, year: Number(e.target.value) } : null)}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={handleSave}>Save</Button>
-                </DialogActions>
-            </Dialog>
-        </div>
+    const [pageIndex, setPageIndex] = useState(1);
+    const [pageSize, setPageSize] = useState(6);
+    const [selectedCourse, setSelectedCourse] = useState<ISemester | null>(null);
+
+    const [searchText, setSearchText] = useState('');
+
+    const handleSearch = (value: string) => {
+        setSearchText(value);
+        setPageIndex(1)
+    };
+
+    const { data, isLoading } = useSWR(
+        ['semesters', searchText, pageIndex, pageSize],
+        ([, search, page, limit]) => getSemesters(search, page, limit),
+        { revalidateOnFocus: false }
     );
+
+    const semesters = data?.data || [];
+    const totalCourses = data?.total || 0;
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalCreate, setIsModalCreate] = useState(false);
+    const [form] = Form.useForm();
+
+    const handleEdit = (formData: ISemester) => {
+        form.setFieldsValue({
+            semesters_Number: formData.semesters_Number,
+            yearStart: formData.yearStart,
+            yearEnd: formData.yearEnd,
+        });
+        setIsModalOpen(true);
+        setSelectedCourse(formData);
+    };
+
+    const handleClose = () => {
+        setIsModalOpen(false);
+        setIsModalCreate(false);
+        form.resetFields();
+    }
+
+    const handleUpdate = async () => {
+        try {
+            const values = await form.getFieldsValue();
+            const formUpdate: ISemesterUpdate = {
+                id: selectedCourse?.id || 0,
+                semesters_Number: values.semesters_Number,
+                yearStart: values.yearStart,
+                yearEnd: values.yearEnd,
+            };
+
+            const response = await updateSemester(formUpdate);
+            if (response.ok) {
+                setIsModalOpen(false);
+                form.resetFields();
+                setSelectedCourse(null);
+
+                mutate(['semesters', searchText, pageIndex, pageSize]);
+            }
+        }
+        catch (error) {
+            console.error('Error updating semester:', error);
+        }
+    }
+
+    const handleCreate = async () => {
+        try {
+            const values = await form.getFieldsValue();
+            const formCreate: ISemesterCreate = {
+                semesters_Number: values.semesters_Number,
+                yearStart: values.yearStart,
+                yearEnd: values.yearEnd,
+            };
+
+            const response = await createSemester(formCreate);
+            if (response.ok) {
+                setIsModalOpen(false);
+                form.resetFields();
+                setSelectedCourse(null);
+
+                mutate(['semesters', searchText, pageIndex, pageSize]);
+            }
+        }
+        catch (error) {
+            console.error('Error creating semester:', error);
+        }
+    }
+
+    return (
+        <>
+            <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">
+                <Button
+                    className="w-full md:w-auto flex items-center gap-2"
+                    onClick={() => setIsModalCreate(true)}
+                >
+                    <CirclePlus size={20} />
+                    Thêm học kỳ
+                </Button>
+
+                <Searchbar setSearchText={handleSearch} />
+            </div>
+
+            {isLoading ? <SpinLoading /> : (
+                <>
+                    <DataGrid<ISemester>
+                        rowKey="id"
+                        data={semesters}
+                        columns={columns}
+                        pageIndex={pageIndex}
+                        pageSize={pageSize}
+                        totalRecords={totalCourses}
+                        setPageIndex={setPageIndex}
+                        setPageSize={setPageSize} />
+                </>
+            )}
+
+            <CustomModal
+                isOpen={isModalCreate}
+                onClose={handleClose}
+                title="Thêm thông tin học kỳ"
+                footer={
+                    <Space>
+                        <Button type="primary" onClick={handleCreate}>
+                            <CirclePlus size={20} />Thêm học kỳ
+                        </Button>
+                        <Button type="default" onClick={handleClose}>
+                            <CircleX size={20} />Đóng</Button>
+                    </Space>
+                }>
+                <FormSemester form={form} />
+            </CustomModal>
+
+            <CustomModal
+                isOpen={isModalOpen}
+                onClose={handleClose}
+                title="Chỉnh sửa thông tin học kỳ"
+                footer={
+                    <Space>
+                        <Button type="primary" onClick={() => selectedCourse && handleUpdate()}>Cập nhật</Button>
+                        <Button type="default" onClick={handleClose}>Đóng</Button>
+                    </Space>
+                }>
+                <FormSemester form={form} />
+            </CustomModal>
+        </>
+    )
 }

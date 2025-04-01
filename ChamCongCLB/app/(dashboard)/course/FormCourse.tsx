@@ -34,7 +34,12 @@ export default function FormClass({ form, semesters }: FormClassProps) {
             <Form.Item
                 label="Số tín chỉ"
                 name="credits"
-                rules={[{ required: true, message: 'Vui lòng nhập số tín chỉ!' }]}
+                rules={
+                    [
+                        { required: true, message: 'Vui lòng nhập số tín chỉ!' },
+                        { pattern: /^[0-9]+$/, message: 'Số tín chỉ không hợp lệ!' },
+                        { min: 1, max: 1, message: 'Số tín chỉ không hợp lệ!' },
+                    ]}
             >
                 <Input placeholder="VD: 3" />
             </Form.Item>
