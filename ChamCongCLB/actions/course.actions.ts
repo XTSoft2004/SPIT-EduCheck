@@ -37,9 +37,9 @@ export const getAllCourses = async () => {
  * @returns List of courses
  */
 export const getCourses = async (
-  search: string,
-  page: number,
-  pageSize: number,
+  search: string = '',
+  page: number = -1,
+  pageSize: number = -1,
 ) => {
   const response = await fetch(
     `${globalConfig.baseUrl}/course?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,

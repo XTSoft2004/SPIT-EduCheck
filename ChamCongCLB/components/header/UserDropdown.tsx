@@ -18,8 +18,13 @@ const handleLogout = async () => {
 const menu = (
   <Menu className='pt-5'>
     <Menu.Item key="profile" icon={<UserOutlined />}>
-      Trang cá nhân
+      <span className='font-bold'>Trần Xuân Trường</span>
     </Menu.Item>
+
+
+    {/* <Menu.Item key="profile" icon={<UserOutlined />}>
+      Trang cá nhân
+    </Menu.Item> */}
     <Menu.Divider />
     <Menu.Item key="settings" icon={<SettingOutlined />}>
       Cài đặt
@@ -34,7 +39,10 @@ export default function UserDropdown() {
   return (
     <Dropdown overlay={menu} placement="bottomRight">
       <Space className="cursor-pointer">
-        <Avatar className='mb-1 mr-2' size="large" icon={<UserOutlined />} />
+        <div className='mr-5 flex items-center'>
+          <Avatar className='mr-2' size="large" icon={<UserOutlined />} />
+          <span className='sm:block hidden font-bold'>Admin</span>
+        </div>
         {/* <span className="dark:text-white">Admin</span> */}
       </Space>
     </Dropdown>

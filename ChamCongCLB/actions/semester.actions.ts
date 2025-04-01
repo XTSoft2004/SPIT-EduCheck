@@ -7,22 +7,25 @@ import { IIndexResponse, IResponse } from '@/types/global'
 import { revalidateTag } from 'next/cache'
 
 export const getSemesters = async (
-  search: string,
-  pageIndex: number,
-  pageSize: number,
+  search: string = '',
+  pageIndex: number = -1,
+  pageSize: number = -1,
 ) => {
-  const response = await fetch(`${globalConfig.baseUrl}/semester?search=${search}&pageIndex=${pageIndex}$pageSize=${pageSize}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization:
-        headers().get('Authorization') ||
-        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+  const response = await fetch(
+    `${globalConfig.baseUrl}/semester?search=${search}&pageIndex=${pageIndex}$pageSize=${pageSize}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:
+          headers().get('Authorization') ||
+          `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+      },
+      next: {
+        tags: ['semester.index'],
+      },
     },
-    next: {
-      tags: ['semester.index'],
-    },
-  })
+  )
 
   const data = await response.json()
 

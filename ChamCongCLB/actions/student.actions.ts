@@ -20,9 +20,9 @@ const baseUrl = globalConfig.baseUrl
  * @returns List of students
  */
 export const getStudents = async (
-  search: string,
-  page: number,
-  pageSize: number,
+  search: string = '',
+  page: number = -1,
+  pageSize: number = -1,
 ) => {
   const response = await fetch(
     `${baseUrl}/student?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,

@@ -28,7 +28,7 @@ const CalendarPage: React.FC = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const [timesheetRes, classRes] = await Promise.all([getTimesheets(), getAllClasses("", -1, -1)]);
+                const [timesheetRes, classRes] = await Promise.all([getTimesheets(), getAllClasses()]);
                 if (timesheetRes.ok) setTimesheets(timesheetRes.data);
                 if (classRes.ok) setClasses(classRes.data);
             } finally {

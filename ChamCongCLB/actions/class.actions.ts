@@ -19,9 +19,9 @@ import { revalidateTag } from 'next/cache'
  * @returns List of classes
  */
 export const getClasses = async (
-  search: string,
-  page: number,
-  pageSize: number,
+  search: string = '',
+  page: number = -1,
+  pageSize: number = -1,
 ) => {
   const response = await fetch(
     `${globalConfig.baseUrl}/class?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,
@@ -54,9 +54,9 @@ export const getClasses = async (
  * @returns List of classes
  */
 export const getAllClasses = async (
-  search: string,
-  page: number,
-  pageSize: number,
+  search: string = '',
+  page: number = -1,
+  pageSize: number = -1,
 ) => {
   const response = await fetch(
     `${globalConfig.baseUrl}/class/all?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,

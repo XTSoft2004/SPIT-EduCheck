@@ -14,9 +14,9 @@ import { revalidateTag } from 'next/cache'
  * @returns List of lecturers
  */
 export const getLecturers = async (
-  search: string,
-  page: number,
-  pageSize: number,
+  search: string = '',
+  page: number = -1,
+  pageSize: number = -1,
 ) => {
   const response = await fetch(
     `${globalConfig.baseUrl}/lecturer?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,
