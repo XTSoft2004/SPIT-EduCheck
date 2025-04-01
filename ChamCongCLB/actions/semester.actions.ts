@@ -12,7 +12,7 @@ export const getSemesters = async (
   pageSize: number = -1,
 ) => {
   const response = await fetch(
-    `${globalConfig.baseUrl}/semester?search=${search}&pageIndex=${pageIndex}$pageSize=${pageSize}`,
+    `${globalConfig.baseUrl}/semester?search=${search}&pageIndex=${pageIndex}&pageSize=${pageSize}`,
     {
       method: 'GET',
       headers: {

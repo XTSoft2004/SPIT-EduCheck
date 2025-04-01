@@ -98,7 +98,7 @@ export const logout = async () => {
 
 export const refreshToken = async () => {
   const response = await fetch(`${globalConfig.baseUrl}/auth/refresh-token`, {
-    method: 'POST',
+    method: 'GET',
     headers: {
       Authorization:
         headers().get('Authorization') ||
@@ -108,6 +108,7 @@ export const refreshToken = async () => {
 
   //   if (!response.ok) throw response
   var data = await response.json()
+
   if (response.ok) {
     cookies().delete('accessToken')
     cookies().delete('refreshToken')
@@ -117,6 +118,7 @@ export const refreshToken = async () => {
   }
   return {
     ok: response.ok,
+    message: data.message,
     ...data,
   } as IShowResponse<ITokens>
 }

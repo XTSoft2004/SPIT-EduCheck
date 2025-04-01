@@ -13,6 +13,7 @@ interface IUserProfile {
   username: string
   roleName: string
   semesterId: number
+  studentName: string
   expiryDate: string
 }
 

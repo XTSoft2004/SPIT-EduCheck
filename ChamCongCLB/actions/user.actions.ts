@@ -52,10 +52,13 @@ export const getMe = async () => {
     },
   })
   const data = await response.json()
+
   return {
     ok: response.ok,
     status: response.status,
-    ...data,
+    data: {
+      ...data,
+    },
   } as IShowResponse<IUser>
 }
 
@@ -126,7 +129,6 @@ export const setSemesterId = async (semesterId: number) => {
         headers().get('Authorization') ||
         `Bearer ${cookies().get('accessToken')?.value || ' '}`,
     },
-    body: JSON.stringify({ semesterId }),
   })
 
   const data = await response.json()
@@ -134,6 +136,9 @@ export const setSemesterId = async (semesterId: number) => {
   return {
     ok: response.ok,
     status: response.status,
-    ...data,
+    message: data.message,
+    data: {
+      ...data,
+    },
   } as IShowResponse<IUserProfile>
 }
