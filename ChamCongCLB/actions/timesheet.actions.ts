@@ -5,8 +5,12 @@ import { cookies, headers } from 'next/headers';
 import { ITimesheet, ITimesheetCreate, ITimesheetUpdate } from "@/types/timesheet";
 import { IIndexResponse, IResponse } from "@/types/global";
 
-export const getTimesheets = async () => {
-    const response = await fetch(`${globalConfig.baseUrl}/timesheet`, {
+export const getTimesheets = async (
+    search: string = '',
+    pageNumber: number = -1,
+    pageSize: number =-1,
+) => {
+    const response = await fetch(`${globalConfig.baseUrl}/timesheet?search=${search}&pageNumber=${pageNumber}&pageSize=${pageSize}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

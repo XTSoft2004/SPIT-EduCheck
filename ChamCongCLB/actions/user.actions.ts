@@ -111,3 +111,29 @@ export const getUserById = async (search: IUserSearch) => {
     ...data,
   } as IIndexResponse<IUser>
 }
+
+/**
+ * Set semesterId in user profile
+ * @param semesterId - Semester id to set
+ * @returns User profile
+ */
+export const setSemesterId = async (semesterId: number) => {
+  const response = await fetch(`${baseUrl}/user/set-semester/${semesterId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+    body: JSON.stringify({ semesterId }),
+  })
+
+  const data = await response.json()
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    ...data,
+  } as IShowResponse<IUserProfile>
+}
