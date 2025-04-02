@@ -51,7 +51,8 @@ export default function FormClass({ form, semesters }: FormClassProps) {
                 <Select placeholder="Chọn học kỳ">
                     {semesters.map((semester) => (
                         <Option key={semester.id} value={semester.id}>
-                            {semester.yearStart} - {semester.yearEnd}.{semester.semesters_Number}
+                            {/* {semester.yearStart} - {semester.yearEnd}.{semester.semesters_Number} */}
+                            Học kỳ: {semester.semesters_Number} - Năm học: {semester.yearStart} - {semester.yearEnd}
                         </Option>
                     ))}
                 </Select>
