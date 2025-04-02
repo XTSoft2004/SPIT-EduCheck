@@ -1,6 +1,6 @@
 'use client'
-import { Button, Space, Form } from 'antd';
-import React, { useState } from 'react';
+import { Button, Space, Form, TableProps, Table } from 'antd';
+import React, { use, useEffect, useState } from 'react';
 import useSWR, { mutate } from 'swr';
 import DataGrid from '@/components/ui/Table/DataGrid';
 import { createStudent, getStudents, updateStudent } from '@/actions/student.actions';
@@ -12,8 +12,18 @@ import SpinLoading from '@/components/ui/Loading/SpinLoading';
 import Searchbar from '@/components/ui/Table/Searchbar';
 import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
+import AddStudentButton from '@/components/ui/Button/AddStudentButton';
 
 export default function UserPage() {
+    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (keys: React.Key[]) => {
+            setSelectedRowKeys(keys);
+        },
+    };
+
     const columns = [
         {
             title: 'Mã sinh viên',
@@ -75,11 +85,9 @@ export default function UserPage() {
         }
     ];
 
-    // Sử dụng state cho phân trang
     const [pageIndex, setPageIndex] = useState(1);
     const [pageSize, setPageSize] = useState(6);
     const [selectedStudent, setSelectedStudent] = useState<IStudent | null>(null);
-
     const [searchText, setSearchText] = useState('');
 
     const handleSearch = (value: string) => {
@@ -87,13 +95,11 @@ export default function UserPage() {
         setPageIndex(1)
     };
 
-    // Gọi API sử dụng SWR
     const { data, isLoading } = useSWR(
         ['students', searchText, pageIndex, pageSize],
         ([, search, page, limit]) => getStudents(search, page, limit),
         { revalidateOnFocus: false }
     );
-
 
     const students = data?.data || [];
     const totalStudents = data?.total || 0;
@@ -139,18 +145,15 @@ export default function UserPage() {
             };
             const response = await updateStudent(formUpdate);
             if (response.ok) {
-                setIsModalOpen(false); // Đóng modal
-                form.resetFields(); // Reset form
+                setIsModalOpen(false);
+                form.resetFields();
                 setSelectedStudent(null);
-
-                // Revalidate dữ liệu SWR
                 mutate(['students', searchText, pageIndex, pageSize]);
             }
         } catch (error) {
             console.error('Failed to update student:', error);
         }
     };
-
 
     const handleCreate = async () => {
         try {
@@ -168,10 +171,8 @@ export default function UserPage() {
             };
             const response = await createStudent(formCreate);
             if (response.ok) {
-                setIsModalCreate(false); // Đóng modal
-                form.resetFields(); // Reset form
-
-                // Revalidate dữ liệu SWR
+                setIsModalCreate(false);
+                form.resetFields();
                 mutate(['students', searchText, pageIndex, pageSize]);
             }
         } catch (error) {
@@ -190,6 +191,9 @@ export default function UserPage() {
                     Thêm sinh viên
                 </Button>
 
+                <div className="flex justify-end w-full">
+                    <AddStudentButton selectedKeys={selectedRowKeys} />
+                </div>
 
                 <Searchbar setSearchText={handleSearch} />
             </div>
@@ -197,7 +201,8 @@ export default function UserPage() {
             {isLoading ? <SpinLoading /> : (
                 <>
                     <DataGrid<IStudent>
-                        rowKey="id"
+                        rowKey="maSinhVien"
+                        rowSelection={rowSelection}
                         data={students}
                         columns={columns}
                         pageIndex={pageIndex}
@@ -206,8 +211,7 @@ export default function UserPage() {
                         setPageIndex={setPageIndex}
                         setPageSize={setPageSize} />
                 </>
-            )
-            }
+            )}
 
             <CustomModal
                 isOpen={isModalCreate}

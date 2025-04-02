@@ -11,12 +11,12 @@ const LoadingScreen: React.FC = () => {
             ptg += 5;
             setPercent(ptg);
 
-            if (ptg > 120) {
+            if (ptg > 200) {
                 clearInterval(interval);
                 setSpinning(false);
                 setPercent(0);
             }
-        }, 100);
+        }, 200);
     }, []);
 
     return <Spin spinning={spinning} percent={percent} fullscreen />;

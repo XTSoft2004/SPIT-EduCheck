@@ -19,19 +19,26 @@ import Searchbar from '@/components/ui/Table/Searchbar';
 import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
 import { title } from 'process';
+import { on } from 'events';
 
 export default function ClassPage() {
     const [students, setStudents] = useState<IStudent[]>([]);
     const [classes, setClasses] = useState<IClass[]>([]);
+    const [isLoad, setIsLoad] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
-            const [studentsData, classesData] = await Promise.all([
-                getStudents(),
-                getClasses(),
-            ]);
-            setStudents(studentsData.data);
-            setClasses(classesData.data);
+            try {
+                const [studentsData, classesData] = await Promise.all([
+                    getStudents(),
+                    getClasses(),
+                ]);
+                setStudents(studentsData.data);
+                setClasses(classesData.data);
+            }
+            finally {
+                setIsLoad(false);
+            }
         };
 
         fetchData();
@@ -39,45 +46,49 @@ export default function ClassPage() {
 
     const columns = [
         {
-            title: 'Danh sách sinh viên',
-            dataIndex: 'studentsId',
-            key: 'studentsId',
-            filters: students.map((student) => ({
-                text: student.lastName + ' ' + student.firstName,
-                value: student.id,
-            })),
-            onFilter: (value: string, record: ITimesheet) => record.studentsId === Number(value),
-        },
-        {
             title: 'Lớp học',
             dataIndex: 'classId',
             key: 'classId',
-            render: (studentsId: IStudent[]) => {
-                studentsId.map((studentId) => {
-                    const studentData = students.find((s) => s.id === studentId);
-                    return (
-                        <span key={studentData?.id}>
-                            {studentData?.class}
-                        </span>
-                    );
-                })
+            render: (classId: number) => {
+                const className = classes.find(c => c.id === classId);
+                return className ? `${className.name}` : 'Không xác định';
             }
-        },
-        {
-            title: 'Thời gian',
-            dataIndex: 'timeId',
-            key: 'timeId',
-            filters: [
-                { text: 'Sáng', value: 1 },
-                { text: 'Chiều', value: 2 },
-                { text: 'Tối', value: 3 },
-            ],
-            onFilter: (value: string, record: ITimesheet) => record.timeId === Number(value),
         },
         {
             title: 'Ngày điểm danh',
             dataIndex: 'date',
             key: 'date',
+        },
+        {
+            title: 'Buổi',
+            dataIndex: 'timeId',
+            key: 'timeId',
+            render: (timeId: number) => {
+                switch (timeId) {
+                    case 1:
+                        return 'Sáng';
+                    case 2:
+                        return 'Chiều';
+                    case 3:
+                        return 'Tối';
+                    default:
+                        return 'Không xác định';
+                }
+            }
+        },
+        {
+            title: 'Danh sách sinh viên',
+            dataIndex: 'studentsId',
+            key: 'studentsId',
+            render: (studentsId: number[]) => {
+                const studentNames = studentsId
+                    .map(id => {
+                        const student = students.find(s => s.id === id);
+                        return student ? `${student.lastName} ${student.firstName}` : 'Không xác định';
+                    })
+                    .join(', ');
+                return studentNames.length > 20 ? `${studentNames.slice(0, 20)}...` : studentNames;
+            }
         },
         {
             title: 'Trạng thái',
@@ -93,6 +104,7 @@ export default function ClassPage() {
             title: 'Chú thích',
             dataIndex: 'note',
             key: 'note',
+            render: (note: string) => note.length > 50 ? `${note.slice(0, 50)}...` : note,
         },
         {
             title: 'Thao tác',
@@ -218,18 +230,17 @@ export default function ClassPage() {
                 <Searchbar setSearchText={handleSearch} />
             </div>
 
-            {isLoading ? <SpinLoading /> : (
-                <>
-                    <DataGrid<ITimesheet>
-                        rowKey="id"
-                        data={timesheets}
-                        columns={columns}
-                        pageIndex={pageIndex}
-                        pageSize={pageSize}
-                        totalRecords={totaltimesheets}
-                        setPageIndex={setPageIndex}
-                        setPageSize={setPageSize} />
-                </>
+            {(isLoading || classes.length === 0 || students.length === 0) ? <SpinLoading /> : (
+                <DataGrid<ITimesheet>
+                    rowKey="id"
+                    data={timesheets}
+                    columns={columns}
+                    pageIndex={pageIndex}
+                    pageSize={pageSize}
+                    totalRecords={totaltimesheets}
+                    setPageIndex={setPageIndex}
+                    setPageSize={setPageSize}
+                />
             )}
 
             <CustomModal
@@ -245,7 +256,7 @@ export default function ClassPage() {
                             <CircleX size={20} />Đóng</Button>
                     </Space>
                 }>
-                <FormTimesheet form={form} />
+                <FormTimesheet form={form} classes={classes} students={students} />
             </CustomModal>
 
             <CustomModal
@@ -258,7 +269,7 @@ export default function ClassPage() {
                         <Button type="default" onClick={handleClose}>Đóng</Button>
                     </Space>
                 }>
-                <FormTimesheet form={form} />
+                <FormTimesheet form={form} classes={classes} students={students} />
             </CustomModal>
         </>
     )

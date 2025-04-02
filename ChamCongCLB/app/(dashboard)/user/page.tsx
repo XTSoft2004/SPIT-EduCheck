@@ -53,5 +53,18 @@ export default function PageUser() {
         },
     ];
 
-    return <DataGrid<IUser> data={user} columns={columns} rowKey="id" />;
+    const [pageIndex, setPageIndex] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+
+    return (
+        <DataGrid<IUser>
+            data={user}
+            columns={columns}
+            rowKey="id"
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            totalRecords={user.length}
+            setPageIndex={setPageIndex}
+        />
+    );
 };

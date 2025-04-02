@@ -24,11 +24,12 @@ export const getProfile = async () => {
   })
 
   const data = await response.json()
-
   return {
     ok: response.ok,
     status: response.status,
-    ...data,
+    data: {
+      ...data,
+    },
   } as IShowResponse<IProfile>
 }
 
@@ -46,17 +47,12 @@ export const createAccount = async (formData: ILoginForm) => {
     } as IResponse
   }
 
-  const user: ILoginForm = {
-    username: formData.username,
-    password: formData.password,
-  }
-
   const response = await fetch(`${globalConfig.baseUrl}/auth/sign-up`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(user),
+    body: JSON.stringify(formData),
   })
 
   revalidateTag('user.index')

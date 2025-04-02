@@ -47,7 +47,7 @@ const SemesterDropdown = () => {
         loading={loading}
         value={selectedSemester}
         onChange={handleSelect}
-        placeholder="Select Semester"
+        placeholder="Chọn học kỳ"
       >
         {semesters.map((semester) => (
           <Option key={semester.id} value={semester.id}>

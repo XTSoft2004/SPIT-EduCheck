@@ -14,6 +14,7 @@ import SpinLoading from '@/components/ui/Loading/SpinLoading';
 import Searchbar from '@/components/ui/Table/Searchbar';
 import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
+import { render } from 'react-dom';
 
 export default function ClassPage() {
     const columns = [
@@ -26,11 +27,17 @@ export default function ClassPage() {
             title: 'Email',
             dataIndex: 'email',
             key: 'email',
+            render: (text: string) => (
+                <span>{text || 'Chưa cập nhật'}</span>
+            ),
         },
         {
             title: 'Số điện thoại',
             dataIndex: 'phoneNumber',
             key: 'phoneNumber',
+            render: (text: string) => (
+                <span>{text || 'Chưa cập nhật'}</span>
+            ),
         },
         {
             title: 'Thao tác',

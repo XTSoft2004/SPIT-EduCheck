@@ -10,9 +10,9 @@ import {
   LogoutOutlined,
 } from '@ant-design/icons';
 
-import { getProfile } from '@/actions/user.actions'
+import { getMe } from '@/actions/user.actions'
 
-import { IUserProfile } from '@/types/user';
+import { IUser } from '@/types/user';
 
 const handleLogout = async () => {
   await logout()
@@ -20,11 +20,11 @@ const handleLogout = async () => {
 }
 
 export default function UserDropdown() {
-  const [user, setUser] = useState<IUserProfile | null>(null)
+  const [user, setUser] = useState<IUser | null>(null)
 
   useEffect(() => {
     const fetchUser = async () => {
-      const user = await getProfile()
+      const user = await getMe()
       setUser(user.data)
     }
     fetchUser()
@@ -33,15 +33,19 @@ export default function UserDropdown() {
   // Menu Dropdown
   const menu = (
     <Menu className='pt-5'>
-      <Menu.Item key="profile" icon={<UserOutlined />}>
-        <span className='font-bold'>Nhà tư bản</span> {/* username */}
-      </Menu.Item>
-
+      {user?.studentName == "" ?
+        <>
+          <Menu.Item key="profile" icon={<UserOutlined />}>
+            <span className='font-bold'>{user?.studentName}</span> {/* username */}
+          </Menu.Item>
+          <Menu.Divider />
+        </>
+        : undefined}
 
       {/* <Menu.Item key="profile" icon={<UserOutlined />}>
       Trang cá nhân
     </Menu.Item> */}
-      <Menu.Divider />
+
       <Menu.Item key="settings" icon={<SettingOutlined />}>
         Cài đặt
       </Menu.Item>
