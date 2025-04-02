@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react';
 import useSWR, { mutate } from 'swr';
-import { Button, Space, Form } from 'antd';
+import { Button, Space, Form, message } from 'antd';
 import DataGrid from '@/components/ui/Table/DataGrid';
 
 import { ILecturer, ILecturerCreate, ILecturerUpdate } from '@/types/lecturer';
@@ -96,8 +96,8 @@ export default function ClassPage() {
             const formUpdate: ILecturerUpdate = {
                 id: selectedCourse?.id || 0,
                 fullName: values.fullName,
-                email: values.email,
-                phoneNumber: values.phoneNumber,
+                email: values.email ?? '',
+                phoneNumber: values.phoneNumber ?? '',
             };
 
             const response = await updateLecturer(formUpdate);
@@ -107,6 +107,7 @@ export default function ClassPage() {
                 setSelectedCourse(null);
 
                 mutate(['lecturers', searchText, pageIndex, pageSize]);
+                message.success('Cập nhật giảng viên thành công');
             }
         }
         catch (error) {
@@ -119,10 +120,10 @@ export default function ClassPage() {
             const values = await form.getFieldsValue();
             const formCreate: ILecturerCreate = {
                 fullName: values.fullName,
-                email: values.email,
-                phoneNumber: values.phoneNumber,
+                email: values.email ?? '',
+                phoneNumber: values.phoneNumber ?? '',
             };
-
+            console.log('Form data:', formCreate);
             const response = await createLecturer(formCreate);
             if (response.ok) {
                 setIsModalOpen(false);
@@ -130,6 +131,7 @@ export default function ClassPage() {
                 setSelectedCourse(null);
 
                 mutate(['lecturers', searchText, pageIndex, pageSize]);
+                message.success('Thêm giảng viên thành công');
             }
         }
         catch (error) {

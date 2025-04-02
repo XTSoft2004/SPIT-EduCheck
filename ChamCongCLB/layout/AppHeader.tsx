@@ -30,7 +30,7 @@ const AppHeader: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapse
                     height: 64,
                 }}
             />
-            <div className='flex justify-center items-center py-3 gap-2 lg:hidden'>
+            <div className='flex justify-center items-center py-3 gap-2 sm:hidden'>
                 <Image src='/logo/logo-500x500.png' alt="Logo" width={40} height={40} loading="lazy" />
                 <p className='dark:text-white font-bold text-xl'>SPIT TEAM</p>
             </div>

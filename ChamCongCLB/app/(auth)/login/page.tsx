@@ -21,6 +21,7 @@ import KeyIcon from '@mui/icons-material/Key'
 import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
 import SnackbarAlert from '@/components/ui/Alert/SnackbarAlertProps'
+import SpinLoading from '@/components/ui/Loading/SpinLoading'
 // import Button from '@mui/material/Button'
 export default function SignInForm() {
   const {
@@ -31,39 +32,48 @@ export default function SignInForm() {
 
   const router = useRouter()
   const [loading, setLoading] = useState<boolean>(false)
-  const [openSuccess, setOpenSuccess] = useState<boolean>(false)
-  const [openError, setOpenError] = useState<boolean>(false)
+  const [openMessage, setopenMessage] = useState<boolean>(false)
+  const [message, setMessage] = useState<string>('')
+  const [typeMessage, setTypeMessage] = useState<'success' | 'error' | 'warning' | 'info'>('success')
   const onSubmit = async (formData: ILoginForm) => {
-    setLoading(true)
+    setLoading(true);
 
-    const response = await login(formData)
+    const response = await login(formData);
+
+    console.log('Response:', response); // Kiểm tra response nhận được gì
 
     if (response.ok) {
-      setOpenSuccess(true)
-      router.push('/')
-    } else {
-      setOpenError(true)
+      router.push('/');
+      setTypeMessage('success');
+    }
+    else {
+      setTypeMessage('error');
     }
 
-    setLoading(false)
-  }
+    if (response.message) {
+      setMessage(response.message); // Đảm bảo message có giá trị
+      setopenMessage(true);
+
+    } else {
+      setMessage("Có lỗi xảy ra, vui lòng thử lại!"); // Thêm fallback message
+      setopenMessage(true);
+    }
+
+    setLoading(false);
+  };
+
   const handleClose = () => {
-    setOpenSuccess(false)
-    setOpenError(false)
+    setopenMessage(false)
   }
 
   const [isChecked, setIsChecked] = useState(false)
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
-      {/* <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
-        <Link
-          href="/"
-          className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-        >
-          <ChevronLeft />
-          Back to dashboard
-        </Link>
-      </div> */}
+      {loading && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <SpinLoading />
+        </div>
+      )}
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8">
@@ -189,29 +199,11 @@ export default function SignInForm() {
               </div>
             </form>
             <SnackbarAlert
-              open={openSuccess}
+              open={openMessage}
               onClose={handleClose}
-              severity="success"
-              message="Đăng nhập thành công !!!"
+              severity={typeMessage}
+              message={message}
             />
-            <SnackbarAlert
-              open={openError}
-              onClose={handleClose}
-              severity="error"
-              message="Đăng nhập thất bại !!!"
-            />
-
-            {/* <div className="mt-5">
-              <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                Don&apos;t have an account? {''}
-                <Link
-                  href="/signup"
-                  className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                >
-                  Sign Up
-                </Link>
-              </p>
-            </div> */}
           </div>
         </div>
       </div>

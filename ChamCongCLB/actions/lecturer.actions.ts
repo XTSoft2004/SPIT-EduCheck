@@ -120,7 +120,7 @@ export const updateLecturer = async (formData: ILecturerUpdate) => {
   revalidateTag('lecturer.show')
 
   const data = await response.json()
-
+  console.log('Update lecturer response:', data)
   return {
     ok: response.ok,
     ...data,

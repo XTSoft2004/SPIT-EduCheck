@@ -11,27 +11,35 @@ const baseUrl = globalConfig.baseUrl
  * Get all users
  * @returns List of users
  */
-export const getUsers = async () => {
-  const response = await fetch(`${baseUrl}/user`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization:
-        headers().get('Authorization') ||
-        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+export const getUsers = async (
+  search: string = '',
+  page: number = -1,
+  pageSize: number = -1,
+) => {
+  const response = await fetch(
+    `${baseUrl}/user?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:
+          headers().get('Authorization') ||
+          `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+      },
+      next: {
+        tags: ['user.index'],
+      },
     },
-    next: {
-      tags: ['user.index'],
-    },
-  })
+  )
 
   const data = await response.json()
 
   return {
     ok: response.ok,
     status: response.status,
-    ...data,
-  } as IIndexResponse<IUser>
+    data: data.data,
+    total: data.totalRecords,
+  }
 }
 
 /**

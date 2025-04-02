@@ -3,9 +3,19 @@ import { getUsers } from "@/actions/user.actions";
 import { ILoginForm } from "@/types/auth";
 import { Button, message } from "antd";
 import { CirclePlus } from "lucide-react";
+import SnackbarAlert from "../Alert/SnackbarAlertProps";
 
 const AddStudentButton: React.FC<{ selectedKeys: React.Key[] }> = ({ selectedKeys }) => {
     const handleCreate = async () => {
+
+        message.config({
+            top: 100,
+            duration: 2,
+            maxCount: 3,
+            rtl: true,
+            prefixCls: 'my-message',
+        });
+
         if (selectedKeys.length === 0) {
             message.warning("Vui lòng chọn ít nhất một sinh viên!");
             return;
@@ -39,7 +49,7 @@ const AddStudentButton: React.FC<{ selectedKeys: React.Key[] }> = ({ selectedKey
     };
 
     return (
-        <Button onClick={handleCreate}>
+        <Button className="w-full md:w-auto flex items-center gap-2" onClick={handleCreate}>
             <CirclePlus size={20} />
             Tạo tài khoản đang chọn
         </Button>
