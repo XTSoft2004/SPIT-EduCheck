@@ -36,7 +36,7 @@ const SemesterDropdown = () => {
     const response = await setSemesterId(semesterId);
     if (response.status && response.message.includes('thành công')) {
       await refreshToken();
-      window.location.href = '/';
+      window.location.reload();
     }
   };
 

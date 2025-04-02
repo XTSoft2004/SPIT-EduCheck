@@ -7,6 +7,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { CalendarRange, CircleUserRound, School, CalendarDays, AlignVerticalDistributeEnd, Book, Computer, LayoutGrid, SquareChartGantt } from 'lucide-react'
 import SwitchSemester from '@/components/Dashboard/Semesters/SwitchSemester';
 import { useMediaQuery } from 'react-responsive';
+import SemesterDropdown from '@/components/ui/dropdown/SemesterDropdown';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -43,10 +44,10 @@ const MenuSidebar: React.FC<{ setCollapsed: (collapsed: boolean) => void }> = ({
     }, []);
 
     const items: MenuItem[] = [
-        ...(!isSmallScreen ? [] : [{
-            key: '/semester/change',
-            label: <SwitchSemester />,
-        }]),
+        // ...(!isSmallScreen ? [] : [{
+        //     key: '/semester/change',
+        //     label: ,
+        // }]),
         {
             key: '1',
             icon: <SquareChartGantt />,
@@ -96,6 +97,9 @@ const MenuSidebar: React.FC<{ setCollapsed: (collapsed: boolean) => void }> = ({
 
     return (
         <>
+            <div className='block sm:hidden lg:flex items-center justify-between p-4'>
+                <SemesterDropdown />
+            </div>
             <Menu
                 theme={theme}
                 mode="inline"

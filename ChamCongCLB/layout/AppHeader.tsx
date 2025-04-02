@@ -35,7 +35,7 @@ const AppHeader: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapse
                 <p className='dark:text-white font-bold text-xl'>SPIT TEAM</p>
             </div>
             <div className="flex items-center gap-4">
-                <SwitchSemester />
+                {/* <SwitchSemester /> */}
                 <div className="sm:block hidden">
                     <SemesterDropdown />
                 </div>
