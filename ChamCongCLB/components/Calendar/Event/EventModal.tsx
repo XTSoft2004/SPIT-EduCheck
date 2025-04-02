@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Select, Input, Button } from "antd";
+import { Modal, Form, Select, Input, Button, SelectProps } from "antd";
 import type { Dayjs } from "dayjs";
 
 import { ITimesheet, ITimesheetCreate, ITimesheetUpdate } from "@/types/timesheet";
@@ -155,6 +155,15 @@ const EventModal: React.FC<EventModalProps> = ({
         }
     }
 
+    const options: SelectProps['options'] = [];
+
+    students.forEach((student) => {
+        options.push({
+            value: student.id,
+            label: `${student.lastName} ${student.firstName} (${student.maSinhVien})`,
+        });
+    });
+
     return (
         <Modal
             title={`Điểm danh - ${selectedDate?.format("DD/MM/YYYY")}`}
@@ -185,12 +194,14 @@ const EventModal: React.FC<EventModalProps> = ({
                     label="Sinh viên"
                     rules={[{ required: true, message: "Chọn sinh viên", type: 'array' }]}
                 >
-                    <Select mode="multiple" placeholder="Chọn sinh viên">
-                        {students.map((student) => (
-                            <Select.Option key={student.id} value={student.id}>
-                                {`${student.lastName} ${student.firstName} (${student.maSinhVien})`}
-                            </Select.Option>
-                        ))}
+                    <Select
+                        showSearch
+                        mode="multiple"
+                        allowClear
+                        placeholder="Chọn sinh viên"
+                        optionFilterProp="label"
+                        options={options}
+                    >
                     </Select>
                 </Form.Item>
 

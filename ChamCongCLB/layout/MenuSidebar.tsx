@@ -97,7 +97,7 @@ const MenuSidebar: React.FC<{ setCollapsed: (collapsed: boolean) => void }> = ({
 
     return (
         <>
-            <div className='block sm:hidden lg:flex items-center justify-between p-4'>
+            <div className='block lg:hidden items-center justify-between p-4'>
                 <SemesterDropdown />
             </div>
             <Menu
