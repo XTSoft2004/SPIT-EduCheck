@@ -1,4 +1,6 @@
 ﻿using Domain.Interfaces.Services;
+using Domain.Model.Request.Timesheet;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Server_Manager.Controllers
@@ -8,11 +10,13 @@ namespace Server_Manager.Controllers
     public class ExtensionController : Controller
     {
         private readonly IExtensionServices _services;
-
-        public ExtensionController(IExtensionServices services)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public ExtensionController(IExtensionServices services, IWebHostEnvironment webHostEnvironment)
         {
             _services = services;
+            _webHostEnvironment = webHostEnvironment;
         }
+
         [HttpPost("CreateAccount")]
         public async Task<IActionResult> CreateAccountByStudentId([FromBody] List<string> studentsMSV)
         {
@@ -23,11 +27,23 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
         [HttpPost("ImportClass")]
-        public async Task<IActionResult> ImportClass([FromBody] string pathFile)
+        public async Task<IActionResult> ImportClass([FromForm] IFormFile fileUpload)
         {
-            if (string.IsNullOrEmpty(pathFile))
-                return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
-            var response = await _services.ImportClass(pathFile);
+            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "ClassesImport");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            // Tạo tên file duy nhất
+            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(fileUpload.FileName);
+            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            // Lưu file
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await fileUpload.CopyToAsync(fileStream);
+            }
+
+            var response = await _services.ImportClass(filePath);
             return response.ToActionResult();
         }
     }

@@ -6,7 +6,21 @@ using System.Threading.Tasks;
 
 namespace Domain.Model.Request.Extension
 {
-    internal class ClassImport
+    public class ClassImport
     {
+        public string classId { get; set; }
+        public string className { get; set; }
+        public string credits { get; set; }
+        public string teacher { get; set; }
+        public int day { get; set; }
+        public string timeStart { get; set; }
+        public string timeEnd { get; set; }
+    }
+
+    public class CourseImport
+    {
+        public string courseId { get; set; }
+        public string courseName { get; set; }
+        public List<ClassImport> Classes { get; set; }
     }
 }

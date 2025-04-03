@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Domain.Base.Services;
 using Domain.Common.Http;
@@ -9,6 +10,9 @@ using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Class;
+using Domain.Model.Request.Course;
+using Domain.Model.Request.Extension;
+using Domain.Model.Request.Semester;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Newtonsoft.Json;
 
@@ -18,11 +22,19 @@ namespace Domain.Services
     {
         private readonly IRepositoryBase<User> _User;
         private readonly IRepositoryBase<Semester> _Semester;
+        private readonly IRepositoryBase<Course> _Course;
+        private readonly IRepositoryBase<Class> _Class;
+        private readonly IRepositoryBase<Lecturer> _Lecturer;
+        private readonly IRepositoryBase<Lecturer_Class> _LectureClass;
 
-        public ExtensionServices(IRepositoryBase<User> user, IRepositoryBase<Semester> semester)
+        public ExtensionServices(IRepositoryBase<User> user, IRepositoryBase<Semester> semester, IRepositoryBase<Course> course, IRepositoryBase<Class> @class, IRepositoryBase<Lecturer> lecturer, IRepositoryBase<Lecturer_Class> lectureClass)
         {
             _User = user;
             _Semester = semester;
+            _Course = course;
+            _Class = @class;
+            _Lecturer = lecturer;
+            _LectureClass = lectureClass;
         }
 
         public async Task<HttpResponse> CreateAccountByStudentId(List<string> studentsMSV)
@@ -88,10 +100,88 @@ namespace Domain.Services
                 return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
 
             var readFile = File.ReadAllText(pathFile);
-            var jsonData = JsonConvert.DeserializeObject<List<ClassRequest>>(readFile);
+            CourseImport Course = JsonConvert.DeserializeObject<CourseImport>(readFile);
 
-            // Đọc nội dung file và xử lý
-            // ...
+            var ClassStr = Course.Classes?.FirstOrDefault()?.classId;
+            var SemesterImport = new SemesterRequest()
+            {
+                YearStart = Convert.ToInt32(Regex.Match(ClassStr, "(\\d{4})-(\\d{4})\\.(\\d+)").Groups[1]),
+                YearEnd = Convert.ToInt32(Regex.Match(ClassStr, "(\\d{4})-(\\d{4})\\.(\\d+)").Groups[2]),
+                Semesters_Number = Convert.ToInt32(Regex.Match(ClassStr, "(\\d{4})-(\\d{4})\\.(\\d+)").Groups[3])
+            };
+
+            var semester = _Semester.Find(f => f.YearStart == SemesterImport.YearStart
+                && f.YearEnd == SemesterImport.YearEnd
+                && f.Semesters_Number == SemesterImport.Semesters_Number);
+            if(semester == null)
+            {
+                semester = new Semester()
+                {
+                    YearStart = SemesterImport.YearStart,
+                    YearEnd = SemesterImport.YearEnd,
+                    Semesters_Number = SemesterImport.Semesters_Number
+                };
+                _Semester.Insert(semester);
+                await UnitOfWork.CommitAsync();
+            }
+
+            var course = _Course.Find(f => f.Code == Course.courseId && f.SemesterId == semester.Id);
+            if(course == null)
+            {
+                course = new Course()
+                {
+                    Code = Course.courseId,
+                    Name = Course.courseName,
+                    SemesterId = semester.Id
+                };
+                _Course.Insert(course);
+                await UnitOfWork.CommitAsync();
+            }
+
+            foreach (var item in Course.Classes)
+            {
+                var classImport = _Class.Find(f => f.Code == item.classId && f.CourseId == course.Id);
+                if (classImport == null)
+                {
+                    classImport = new Class()
+                    {
+                        Code = item.classId,
+                        Name = item.className,
+                        Day = item.day,
+                        TimeStart = TimeOnly.Parse(item.timeStart),
+                        TimeEnd = TimeOnly.Parse(item.timeEnd),
+                        CreatedDate = DateTime.Now,
+                        CourseId = course.Id,
+                    };
+                    _Class.Insert(classImport);
+                    await UnitOfWork.CommitAsync();
+                }
+
+                var lecturer = _Lecturer.Find(f => f.FullName == item.teacher);
+                if(lecturer == null)
+                {
+                    lecturer = new Lecturer()
+                    {
+                        FullName = item.teacher,
+                        CreatedDate = DateTime.Now
+                    };
+                    _Lecturer.Insert(lecturer);
+                    await UnitOfWork.CommitAsync();
+                }
+
+                var lecturerClass = _LectureClass.Find(f => f.ClassId == classImport.Id && f.LecturerId == lecturer.Id);
+                if (lecturerClass == null)
+                {
+                    lecturerClass = new Lecturer_Class()
+                    {
+                        ClassId = classImport.Id,
+                        LecturerId = lecturer.Id
+                    };
+                    _LectureClass.Insert(lecturerClass);
+                    await UnitOfWork.CommitAsync();
+                }
+            }
+
             return HttpResponse.OK(message: "Import lớp học thành công.");
         }
 
