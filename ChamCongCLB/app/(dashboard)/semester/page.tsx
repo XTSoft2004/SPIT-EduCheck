@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react';
 import useSWR, { mutate } from 'swr';
-import { Button, Space, Form } from 'antd';
+import { Button, Space, Form, message } from 'antd';
 import DataGrid from '@/components/ui/Table/DataGrid';
 
 import { ISemester, ISemesterCreate, ISemesterUpdate } from '@/types/semester';
@@ -14,6 +14,7 @@ import SpinLoading from '@/components/ui/Loading/SpinLoading';
 import Searchbar from '@/components/ui/Table/Searchbar';
 import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
+import MessageAlert from '@/components/ui/Alert/MessageAlert';
 
 export default function ClassPage() {
     const columns = [
@@ -95,8 +96,7 @@ export default function ClassPage() {
 
             const response = await updateSemester(formUpdate);
             if (response.ok) {
-                setIsModalOpen(false);
-                form.resetFields();
+                handleClose();
                 setSelectedCourse(null);
 
                 mutate(['semesters', searchText, pageIndex, pageSize]);
@@ -117,12 +117,16 @@ export default function ClassPage() {
             };
 
             const response = await createSemester(formCreate);
-            if (response.ok) {
-                setIsModalOpen(false);
-                form.resetFields();
+            if (response.status === 200) {
+                handleClose();
                 setSelectedCourse(null);
 
                 mutate(['semesters', searchText, pageIndex, pageSize]);
+                message.success({ content: response.message });
+                // <MessageAlert type='success' content={response.message} />
+            } else {
+                // <MessageAlert type='error' content={response.message} />
+                message.error({ content: response.message });
             }
         }
         catch (error) {

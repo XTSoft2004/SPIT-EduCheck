@@ -56,6 +56,7 @@ export const createSemester = async (semester: ISemesterCreate) => {
   return {
     ok: response.ok,
     ...data,
+    message: data.message,
   } as IResponse
 }
 
