@@ -16,7 +16,5 @@ namespace Domain.Interfaces.Services
         Task<HttpResponse> CreateAsync(ClassRequest request);
         Task<HttpResponse> UpdateAsync(ClassRequest request);
         Task<HttpResponse> DeleteAsync(long Id);
-        //Task<HttpResponse> Add_Lecturer_To_Class(long ClassId, long LecturerId);
-        Task<HttpResponse> Remove_Lecturer_To_Class(long ClassId);
     }
 }

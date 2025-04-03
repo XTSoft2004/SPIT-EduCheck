@@ -9,10 +9,10 @@ namespace Domain.Entities
 {
     public class Lecturer_Class : EntityBase
     {
-        public long? LecturerId { get; set; }
+        public long LecturerId { get; set; }
         public virtual Lecturer Lecturer { get; set; }
 
-        public long? ClassId { get; set; }
+        public long ClassId { get; set; }
         public virtual Class Class { get; set; }
     }
 }
