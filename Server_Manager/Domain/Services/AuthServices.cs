@@ -37,32 +37,6 @@ namespace Domain.Services
             _HttpContextHelper = httpContextHelper;
             UserId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("UserId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("UserId"));
         }
-        public async  Task<HttpResponse> CreateAccountByStudentId(List<string> studentsMSV)
-        {
-            if (studentsMSV == null || studentsMSV.Count == 0)
-                return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
-            var _userAll = _User.All();
-            int success = 0;
-            foreach (var studentMSV in studentsMSV)
-            {
-                var _user = _userAll.Where(f => f.Username == studentMSV).FirstOrDefault();
-                if (_user != null)
-                    continue;
-                User user = new User()
-                {
-                    Username = studentMSV,
-                    Password = "123456",
-                    RoleId = -1,
-                    CreatedDate = DateTime.Now,
-                    Semester = GetSemesterNow(),
-                };
-                _User.Insert(user);
-                success++;
-            }
-            await UnitOfWork.CommitAsync();
-            return HttpResponse.OK(message: $"Tạo tài khoản {success} tài khoản thành công.");
-        }   
-
         public async Task<HttpResponse> CreateAsync(RegisterRequest registerRequest)
         {
             if (registerRequest == null)
