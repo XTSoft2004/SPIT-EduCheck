@@ -1,6 +1,7 @@
 ﻿using Domain.Base.Services;
 using Domain.Common.Http;
 using Domain.Entities;
+using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Course;
@@ -21,12 +22,15 @@ namespace Domain.Services
         private readonly IRepositoryBase<Course> _Course;
         private readonly IRepositoryBase<Semester> _Semester;
         private readonly IRepositoryBase<Class> _Class;
-
-        public CourseServices(IRepositoryBase<Course> course, IRepositoryBase<Semester> semester, IRepositoryBase<Class> @class)
+        private readonly IHttpContextHelper _HttpContextHelper;
+        private long SemesterId { set; get; }
+        public CourseServices(IRepositoryBase<Course> course, IRepositoryBase<Semester> semester, IRepositoryBase<Class> @class, IHttpContextHelper httpContextHelper)
         {
             _Course = course;
             _Semester = semester;
             _Class = @class;
+            _HttpContextHelper = httpContextHelper;
+            SemesterId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("SemesterId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("SemesterId"));
         }
 
         public async Task<HttpResponse> CreateAsync(CourseRequest courseRequest)
@@ -95,13 +99,51 @@ namespace Domain.Services
             }
         }
 
+        public List<CourseResponse> GetAllInSemester(string search, int pageNumber, int pageSize, out int totalRecords)
+        {
+            var query = _Course.All();
+            query = query.Where(w => w.SemesterId == SemesterId);
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(f =>
+                    f.Code.Contains(search) ||
+                    f.Name.Contains(search) ||
+                    f.Credits.ToString().Contains(search));
+            }
+            totalRecords = query.Count(); // Đếm tổng số bản ghi
+
+            if (pageNumber != -1 && pageSize != -1)
+            {
+                // Sắp xếp phân trang
+                query = query.OrderBy(u => u.Id)
+                             .Skip((pageNumber - 1) * pageSize)
+                             .Take(pageSize);
+            }
+            else
+            {
+                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
+            }
+
+            var courses = query
+                .AsEnumerable() // Chuyển sang truy vấn trên bộ nhớ
+                .Select(f => new CourseResponse()
+                {
+                    Id = f.Id,
+                    Code = f.Code,
+                    Name = f.Name,
+                    Credits = f.Credits,
+                    SemesterId = f.SemesterId
+                }).ToList();
+
+            return courses;
+        }
         public List<CourseResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _Course.All();
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(f => 
-                    f.Code.Contains(search) || 
+                query = query.Where(f =>
+                    f.Code.Contains(search) ||
                     f.Name.Contains(search) ||
                     f.Credits.ToString().Contains(search));
             }
@@ -127,20 +169,6 @@ namespace Domain.Services
                     Name = f.Name,
                     Credits = f.Credits,
                     SemesterId = f.SemesterId
-                    //Semester = f.SemesterId != null ? new SemesterResponse()
-                    //{
-                    //    Id = f.Semester.Id,
-                    //    Semesters_Number = f.Semester.Semesters_Number,
-                    //    Year = f.Semester.Year,
-                    //} : null,
-                    //Class = f.ClassCourses.Select(s => new ClassResponse()
-                    //{
-                    //    Id = s.Class.Id,
-                    //    Code = s.Class.Code,
-                    //    Name = s.Class.Name,
-                    //    TimeStart = s.Class.TimeStart,
-                    //    TimeEnd = s.Class.TimeEnd,
-                    //}).ToList(),
                 }).ToList();
 
             return courses;

@@ -47,7 +47,7 @@ namespace Server_Manager.Controllers
         {
             var semesters = _services.GetAll(search, pageNumber, pageSize, out int totalRecords);
 
-            if (semesters == null || !semesters.Any())
+            if (semesters == null)
                 return BadRequest(new { Message = "Danh sách học kỳ trống !!!" });
 
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);

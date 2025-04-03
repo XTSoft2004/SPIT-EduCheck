@@ -16,11 +16,13 @@ namespace Server_Manager.Middleware
         private readonly RequestDelegate _next;
         private readonly string _secretKey;
         private readonly ITokenServices _tokenServices;
-        public JwtMiddleware(RequestDelegate next, IConfiguration config, ITokenServices tokenServices)
+        private readonly IUserServices _userServices;
+        public JwtMiddleware(RequestDelegate next, IConfiguration config, ITokenServices tokenServices, IUserServices userServices)
         {
             _next = next;
             _secretKey = config["JwtSettings:Secret"];
             _tokenServices = tokenServices;
+            _userServices = userServices;
         }
 
         public async Task Invoke(HttpContext context)
@@ -61,29 +63,47 @@ namespace Server_Manager.Middleware
                     await context.Response.WriteAsJsonAsync(new { Message = "Refresh Token đã hết hạn" });
                     return;
                 }
-                    
+
                 if (AuthInfo.ExpiryDate < dateTimeNow)
                 {
-                    UserResponse _userJwt = _tokenServices.GetUserFromToken(token);
-                    var access_token = _tokenServices.GenerateToken(_userJwt);
-                    context.Request.Headers["Authorization"] = $"Bearer {access_token}";
-                    var refresh_token = _tokenServices.GenerateRefreshToken(_userJwt);
-                    if (!string.IsNullOrEmpty(refresh_token))
-                    {
-                        await _tokenServices.UpdateRefreshToken(new RefreshToken()
-                        {
-                            UserId = _userJwt.Id,
-                            Token = refresh_token,
-                            ExpiryDate = TokenServices.GetDateTimeFormToken(refresh_token)
-                        });
-                    }
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await context.Response.WriteAsJsonAsync(new { Message = "Token không hợp lệ hoặc đã hết hạn" });
+                    return;
                 }
+
+                //if (AuthInfo.ExpiryDate < dateTimeNow)
+                //{
+                //    UserResponse _userJwt = _tokenServices.GetUserFromToken(token);
+                //    var access_token = _tokenServices.GenerateToken(_userJwt);
+                //    context.Request.Headers["Authorization"] = $"Bearer {access_token}";
+                //    var refresh_token = _tokenServices.GenerateRefreshToken(_userJwt);
+                //    if (!string.IsNullOrEmpty(refresh_token))
+                //    {
+                //        await _tokenServices.UpdateRefreshToken(new RefreshToken()
+                //        {
+                //            UserId = _userJwt.Id,
+                //            Token = refresh_token,
+                //            ExpiryDate = TokenServices.GetDateTimeFormToken(refresh_token)
+                //        });
+                //    }
+                //}
+
                 var token_exp = authHeader.Substring("Bearer ".Length).Trim();
+                //UserResponse _user = _tokenServices.GetUserFromToken(token);
                 UserResponse _user = _tokenServices.GetUserFromToken(token);
                 if (_user?.Id != null)
                 {
+                    //UserResponse userResponse = _userServices.GetUserById(_user.Id);
+                    if (_user?.IsLocked == true)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status423Locked;
+                        await context.Response.WriteAsJsonAsync(new { Message = "Tài khoản đã bị khóa" });
+                        return;
+                    }
+
                     context.Items["UserId"] = _user?.Id;
                     context.Items["RoleName"] = _user?.RoleName;
+                    context.Items["SemesterId"] = _user?.SemesterId;
 
                     var claims = new List<Claim>
                     {
@@ -103,7 +123,7 @@ namespace Server_Manager.Middleware
 
                 if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
                 {
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
                     await context.Response.WriteAsJsonAsync(new { Message = "Bạn không có quyền truy cập tài nguyên này!" });
                 }
             }

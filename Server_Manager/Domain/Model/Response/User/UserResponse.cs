@@ -17,14 +17,14 @@ namespace Domain.Model.Response.User
 
         public string? RoleName { get; set; }
 
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public long? SemesterId { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? AccessToken { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? RefreshToken { get; set; }
 
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? StudentName { get; set; }
     }
 }

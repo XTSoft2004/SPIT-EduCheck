@@ -103,14 +103,14 @@ namespace Domain.Services
                     FullName = s.FullName,
                     Email = s.Email,
                     PhoneNumber = s.PhoneNumber,
-                    ClassResponse = s.Class.Select(s => new ClassResponse()
-                    {
-                        Id = s.Id,
-                        Code = s.Code,
-                        Name = s.Name,
-                        TimeStart = s.TimeStart,
-                        TimeEnd = s.TimeEnd,
-                    }).ToList()
+                    //ClassResponse = s.Class.Select(s => new ClassResponse()
+                    //{
+                    //    Id = s.Id,
+                    //    Code = s.Code,
+                    //    Name = s.Name,
+                    //    TimeStart = s.TimeStart,
+                    //    TimeEnd = s.TimeEnd,
+                    //}).ToList()
                 }).ToList();
 
             return lecturers;

@@ -7,6 +7,7 @@ using Infrastructure.ContextDB;
 using Infrastructure.ContextDB.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +18,12 @@ using System.Security.Claims;
 using System.Text;
 using WebApp.Configures.DIConfig;
 
-var builder = WebApplication.CreateBuilder(args);
+//var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    WebRootPath = "wwwroot" // ✅ Thiết lập WebRootPath đúng cách
+});
 
 // Đảm bảo bạn đã đăng ký DbContext với DI container
 
@@ -90,15 +96,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
+            //ValidateIssuer = true,
+            //ValidateAudience = true,
+            //ValidateLifetime = true,
+            //ValidateIssuerSigningKey = true,
+            //ValidIssuer = issuer,
+            //ValidAudience = audience,
+            //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+            //ClockSkew = TimeSpan.Zero, // Tránh thời gian trễ khi kiểm tra token hết hạn
+            RequireSignedTokens = true,
+            RoleClaimType = ClaimTypes.Role,
+            ValidateIssuerSigningKey = true, // Bắt buộc kiểm tra chữ ký
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)), // Khóa bí mật
+            ValidateIssuer = true, // Kiểm tra Issuer
             ValidIssuer = issuer,
+            ValidateAudience = true, // Kiểm tra Audience
             ValidAudience = audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-            ClockSkew = TimeSpan.Zero, // Tránh thời gian trễ khi kiểm tra token hết hạn
-            RoleClaimType = ClaimTypes.Role
+            ValidateLifetime = true, // Kiểm tra thời gian hết hạn
+            ClockSkew = TimeSpan.Zero // Không cho phép trễ thời gian
         };
     });
 
@@ -135,6 +150,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseStaticFiles();
 
 //rescueContext.Database.Migrate();
 HttpAppContext.Configure(app.Services.GetRequiredService<IHttpContextAccessor>());
@@ -145,11 +161,50 @@ app.Use(async (context, next) =>
 {
     using (var scope = context.RequestServices.CreateScope())
     {
-        var middleware = new JwtMiddleware(next, context.RequestServices.GetRequiredService<IConfiguration>(), scope.ServiceProvider.GetRequiredService<ITokenServices>());
+        var middleware = new JwtMiddleware(next, context.RequestServices.GetRequiredService<IConfiguration>(), scope.ServiceProvider.GetRequiredService<ITokenServices>(), scope.ServiceProvider.GetRequiredService<IUserServices>());
         await middleware.Invoke(context);
     }
 });
 //app.UseMiddleware<JwtMiddleware>();
+app.Use(async (context, next) =>
+{
+    var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+    if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+    {
+        var token = authHeader.Substring("Bearer ".Length).Trim();
+        var parts = token.Split('.');
+
+        if (parts.Length == 3)
+        {
+            try
+            {
+                string input = parts[0];
+                string base64 = input.Replace('-', '+').Replace('_', '/'); // Chuyển đổi ký tự URL-safe
+                switch (base64.Length % 4) // Thêm padding nếu thiếu
+                {
+                    case 2: base64 += "=="; break;
+                    case 3: base64 += "="; break;
+                }
+                var header = Encoding.UTF8.GetString(Convert.FromBase64String(base64));
+                header = header.Trim();
+                if (header.Contains("\"alg\":\"none\"") || header.Contains("\"typ\":\"none\""))
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await context.Response.WriteAsJsonAsync(new { Message = "Invalid JWT Algorithm" });
+                    return;
+                }
+            }
+            catch
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsJsonAsync(new { Message = "Invalid JWT Algorithm" });
+                return;
+            }
+        }
+    }
+
+    await next();
+});
 
 
 // Sử dụng Middleware

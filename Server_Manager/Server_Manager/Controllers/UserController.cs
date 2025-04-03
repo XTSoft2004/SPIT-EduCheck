@@ -20,18 +20,27 @@ namespace Server_Manager.Controllers
         public async Task<IActionResult> GetMe()
         {
             var userResponse = _services.GetMe();
-            if(userResponse == null)
+            if (userResponse == null)
+                return BadRequest(new { Message = "Thông tin không tồn tại, vui lòng kiểm tra lại !!!" });
+            else
+                return Ok(userResponse);
+        }
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userResponse = _services.GetProfile();
+            if (userResponse == null)
                 return BadRequest(new { Message = "Thông tin không tồn tại, vui lòng kiểm tra lại !!!" });
             else
                 return Ok(userResponse);
         }
         [HttpGet]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUsers(string search = "", int pageNumber = -1, int pageSize = -1)
         {
             var users = _services.GetAllUsers(search, pageNumber, pageSize, out int totalRecords);
 
-            if (users == null || !users.Any())
+            if (users == null)
                 return BadRequest(new { Message = "Danh sách người dùng trống !!!" });
 
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);

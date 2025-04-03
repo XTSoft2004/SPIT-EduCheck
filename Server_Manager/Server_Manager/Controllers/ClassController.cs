@@ -46,7 +46,7 @@ namespace Server_Manager.Controllers
         {
             var classResponses = _services.GetAll(search, pageNumber, pageSize, out int totalRecords);
 
-            if (classResponses == null || !classResponses.Any())
+            if (classResponses == null)
                 return BadRequest(new { Message = "Danh sách lớp trống !!!" });
 
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
@@ -58,7 +58,7 @@ namespace Server_Manager.Controllers
         {
             var classResponses = _services.GetClassInSemester(search, pageNumber, pageSize, out int totalRecords);
 
-            if (classResponses == null || !classResponses.Any())
+            if (classResponses == null)
                 return BadRequest(new { Message = "Danh sách lớp trống !!!" });
 
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);

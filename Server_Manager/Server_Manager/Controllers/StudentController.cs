@@ -58,7 +58,7 @@ namespace Server_Manager.Controllers
         {
             var users = _services.GetAll(search, pageNumber, pageSize, out int totalRecords);
 
-            if (users == null || !users.Any())
+            if (users == null)
                 return BadRequest(new { Message = "Danh sách sinh viên trống !!!" });
 
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);

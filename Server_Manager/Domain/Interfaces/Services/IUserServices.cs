@@ -1,6 +1,7 @@
 ﻿using Domain.Common.Http;
 using Domain.Model.DTOs;
 using Domain.Model.Request.User;
+using Domain.Model.Response.Auth;
 using Domain.Model.Response.User;
 using System;
 using System.Collections.Generic;
@@ -41,5 +42,6 @@ namespace Domain.Interfaces.Services
         /// <returns></returns>
         Task<HttpResponse> DeleteAsync(long Id);
         Task<HttpResponse> SetSemesterUser(long IdSemester);
+        AuthToken GetProfile();
     }
 }

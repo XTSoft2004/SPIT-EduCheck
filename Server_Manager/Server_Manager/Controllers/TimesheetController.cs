@@ -1,7 +1,9 @@
-﻿using Domain.Common;
+﻿using Azure.Core;
+using Domain.Common;
 using Domain.Common.Http;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Timesheet;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Server_Manager.Controllers
@@ -11,18 +13,38 @@ namespace Server_Manager.Controllers
     public class TimesheetController : Controller
     {
         private readonly ITimesheetServices _services;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public TimesheetController(ITimesheetServices services)
+        public TimesheetController(ITimesheetServices services, IWebHostEnvironment webHostEnvironment)
         {
+            _webHostEnvironment = webHostEnvironment;
             _services = services;
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateTimesheet([FromBody] TimesheetRequest timesheetRequest)
+        public async Task<IActionResult> CreateTimesheet([FromForm] TimesheetRequest timesheetRequest)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
 
-            var response = await _services.CreateAsync(timesheetRequest);
+            if(timesheetRequest.ImageFile == null || timesheetRequest.ImageFile.Length == 0)
+                return BadRequest(new { Message = "Ảnh không được để trống !!!" });
+
+            // Lấy đường dẫn thư mục lưu file
+            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "chamcong");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            // Tạo tên file duy nhất
+            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(timesheetRequest.ImageFile.FileName);
+            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            // Lưu file
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await timesheetRequest.ImageFile.CopyToAsync(fileStream);
+            }
+
+            var response = await _services.CreateAsync(timesheetRequest, filePath);
             return response.ToActionResult();
         }
         [HttpPut("{Id}")]
@@ -47,7 +69,7 @@ namespace Server_Manager.Controllers
         {
             var timesheets = _services.GetAll(search, pageNumber, pageSize, out int totalRecords);
 
-            if (timesheets == null || !timesheets.Any())
+            if (timesheets == null)
                 return BadRequest(new { Message = "Danh sách chấm công trống !!!" });
 
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);

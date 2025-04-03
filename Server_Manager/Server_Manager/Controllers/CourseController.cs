@@ -40,12 +40,24 @@ namespace Server_Manager.Controllers
             var response = await _services.DeleteAsync(Id);
             return response.ToActionResult();
         }
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllCourse(string search = "", int pageNumber = -1, int pageSize = -1)
         {
             var courses = _services.GetAll(search, pageNumber, pageSize, out int totalRecords);
 
-            if (courses == null || !courses.Any())
+            if (courses == null)
+                return BadRequest(new { Message = "Danh sách môn học trống !!!" });
+
+            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+            return Ok(ResponseArray.ResponseList(courses, totalRecords, totalPages, pageNumber, pageSize));
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAllCourseInSemester(string search = "", int pageNumber = -1, int pageSize = -1)
+        {
+            var courses = _services.GetAllInSemester(search, pageNumber, pageSize, out int totalRecords);
+
+            if (courses == null)
                 return BadRequest(new { Message = "Danh sách môn học trống !!!" });
 
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);

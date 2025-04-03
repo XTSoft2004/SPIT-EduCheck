@@ -1,6 +1,8 @@
 ﻿using Domain.Base.Services;
+using Domain.Common;
 using Domain.Common.Http;
 using Domain.Entities;
+using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.DTOs;
@@ -23,18 +25,43 @@ namespace Domain.Services
         private readonly IRepositoryBase<Role> _Role;
         private readonly IRepositoryBase<Semester> _Semester;
         private readonly ITokenServices _tokenServices;
-        private readonly ResponseHeader.HttpContext _httpContext;
+        private readonly IHttpContextHelper _HttpContextHelper;
         private long UserId { set; get; }
-        public AuthServices(IRepositoryBase<RefreshToken> refreshToken, IRepositoryBase<User> user, IRepositoryBase<Semester> semester, IRepositoryBase<Role> role, ITokenServices tokenServices, ResponseHeader.IHttpContextAccessor httpContextAccessor)
+        public AuthServices(IRepositoryBase<RefreshToken> refreshToken, IRepositoryBase<User> user, IRepositoryBase<Semester> semester, IRepositoryBase<Role> role, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
         {
             _RefreshToken = refreshToken;
             _User = user;
             _Role = role;
             _Semester = semester;
             _tokenServices = tokenServices;
-            _httpContext = httpContextAccessor.HttpContext; // ✅ Lấy HttpContext từ HttpContextAccessor
-            UserId = _httpContext.Items["UserId"] == null ? -100 : Convert.ToInt64(_httpContext.Items["UserId"]);
+            _HttpContextHelper = httpContextHelper;
+            UserId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("UserId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("UserId"));
         }
+        public async  Task<HttpResponse> CreateAccountByStudentId(List<string> studentsMSV)
+        {
+            if (studentsMSV == null || studentsMSV.Count == 0)
+                return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
+            var _userAll = _User.All();
+            int success = 0;
+            foreach (var studentMSV in studentsMSV)
+            {
+                var _user = _userAll.Where(f => f.Username == studentMSV).FirstOrDefault();
+                if (_user != null)
+                    continue;
+                User user = new User()
+                {
+                    Username = studentMSV,
+                    Password = "123456",
+                    RoleId = -1,
+                    CreatedDate = DateTime.Now,
+                    Semester = GetSemesterNow(),
+                };
+                _User.Insert(user);
+                success++;
+            }
+            await UnitOfWork.CommitAsync();
+            return HttpResponse.OK(message: $"Tạo tài khoản {success} tài khoản thành công.");
+        }   
 
         public async Task<HttpResponse> CreateAsync(RegisterRequest registerRequest)
         {
@@ -100,7 +127,7 @@ namespace Domain.Services
             if (_user == null)
                 return HttpResponse.Error("Tài khoản hoặc mật khẩu không đúng.", System.Net.HttpStatusCode.BadRequest);
             else if (_user.Password != loginDTO.Password)
-                return HttpResponse.Error("Sai mật khẩu.");
+                return HttpResponse.Error("Sai mật khẩu, vui lòng thử lại.");
             else
             {
                 var user = new UserResponse()
@@ -144,8 +171,9 @@ namespace Domain.Services
             return HttpResponse.Error("Đăng xuất thất bại, vui lòng thử lại.", System.Net.HttpStatusCode.BadRequest);
         }
 
-        public async Task<HttpResponse> RefreshToken(string token)
+        public async Task<HttpResponse> RefreshToken()
         {
+            string token = _HttpContextHelper.GetHeader("Authorization")?.Replace("Bearer ", "");
             var InfoToken = _tokenServices.GetInfoFromToken(token);
             if(InfoToken != null && (InfoToken.ExpiryDate > DateTime.Now))
             {
@@ -159,14 +187,16 @@ namespace Domain.Services
                         IsLocked = user.IsLocked,
                         IsVerify = user.IsVerify,
                         RoleName = _Role.Find(_Role => _Role.Id == user.RoleId).DisplayName,
+                        SemesterId = user.SemesterId
                     };
                     userResponse.AccessToken = _tokenServices.GenerateToken(userResponse);
                     userResponse.RefreshToken = _tokenServices.GenerateRefreshToken(userResponse);
                     await _tokenServices.UpdateRefreshToken(new RefreshToken()
                     {
-                        UserId = user.Id,
+                        UserId = userResponse.Id,
                         Token = userResponse.RefreshToken,
-                        ExpiryDate = TokenServices.GetDateTimeFormToken(userResponse.RefreshToken)
+                        ExpiryDate = TokenServices.GetDateTimeFormToken(userResponse.RefreshToken),
+                        SemesterId = userResponse.SemesterId
                     });
                     return HttpResponse.OK(userResponse, "Lấy token mới thành công.");
                 }

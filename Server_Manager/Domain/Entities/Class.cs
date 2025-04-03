@@ -21,14 +21,11 @@ namespace Domain.Entities
         public TimeOnly TimeStart { get; set; }
         [Required]
         public TimeOnly TimeEnd { get; set; }
-
-        public long? LecturerId { get; set; }
-        [ForeignKey(nameof(LecturerId))]
-        public virtual Lecturer? Lecturer { get; set; }
         public long? CourseId { get; set; }
         [ForeignKey(nameof(CourseId))]
         public virtual Course? Course { get; set; }
         public ICollection<Class_Student> ClassStudents { get; set; } = new List<Class_Student>();
+        public ICollection<Lecturer_Class> LecturerClasses { get; set; } = new List<Lecturer_Class>();
         public virtual ICollection<Timesheet> Timesheets { get; set; }
     }
 }

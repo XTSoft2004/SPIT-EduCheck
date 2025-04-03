@@ -69,17 +69,16 @@ namespace Domain.Services
                     f.YearEnd.ToString().Contains(search));
             }
             totalRecords = query.Count(); // Đếm tổng số bản ghi
-           
+
+            // Sắp xếp theo năm bắt đầu giảm dần, sau đó theo số kỳ giảm dần
+            query = query.OrderByDescending(u => u.YearStart)
+                         .ThenByDescending(u => u.Semesters_Number);
+
             if (pageNumber != -1 && pageSize != -1)
             {
                 // Sắp xếp phân trang
-                query = query.OrderBy(u => u.Id)
-                             .Skip((pageNumber - 1) * pageSize)
+                query = query.Skip((pageNumber - 1) * pageSize)
                              .Take(pageSize);
-            }
-            else
-            {
-                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
             }
 
             var semesters = query

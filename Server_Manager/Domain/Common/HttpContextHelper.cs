@@ -43,7 +43,7 @@ namespace Domain.Common
         /// <returns></returns>
         public string GetItem(string key)
         {
-            return _httpContextAccessor?.HttpContext?.Items[key].ToString() ?? "";
+            return _httpContextAccessor?.HttpContext?.Items[key]?.ToString() ?? "";
         }
         /// <summary>
         /// Lấy URL hiện tại của request

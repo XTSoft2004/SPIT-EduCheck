@@ -2,10 +2,12 @@
 using Domain.Common;
 using Domain.Common.Http;
 using Domain.Entities;
+using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.DTOs;
 using Domain.Model.Request.User;
+using Domain.Model.Response.Auth;
 using Domain.Model.Response.User;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -26,7 +28,8 @@ namespace Domain.Services
         private readonly IRepositoryBase<Semester> _Semester;
         private readonly IRepositoryBase<Timesheet_Students> _TimeSheetStudets;
         private readonly ITokenServices _jwtHelper;
-        private readonly ResponseHeader.HttpContext _httpContext;
+        private readonly ITokenServices _Token;
+        private readonly IHttpContextHelper _HttpContextHelper;
         private long UserId { set; get; }
         public UserServices(
             IRepositoryBase<User> user,
@@ -34,15 +37,17 @@ namespace Domain.Services
             IRepositoryBase<Semester> semester,
             IRepositoryBase<Student> student,
             ITokenServices jwtHelper,
-            ResponseHeader.IHttpContextAccessor httpContextAccessor)
+            ITokenServices token,
+            IHttpContextHelper httpContextHelper)
         {
             _User = user;
             _Role = role;
             _Semester = semester;
             _Student = student;
             _jwtHelper = jwtHelper;
-            _httpContext = httpContextAccessor.HttpContext; // ✅ Lấy HttpContext từ HttpContextAccessor
-            UserId = _httpContext.Items["UserId"] == null ? -100 : Convert.ToInt64(_httpContext.Items["UserId"]);
+            _Token = token;
+            _HttpContextHelper = httpContextHelper;
+            UserId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("UserId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("UserId"));
         }
 
         public async Task<HttpResponse> ChangePassword(ChangePwRequest changePwRequest)
@@ -129,9 +134,21 @@ namespace Domain.Services
                     IsLocked = user.IsLocked,
                     IsVerify = user.IsVerify,
                     RoleName = _Role.Find(x => x.Id == user.RoleId)?.DisplayName,
-                    StudentName = _Student.Find(f => f.Id == user.StudentId) != null ? _Student.Find(f => f.Id == user.StudentId).FirstName + " " + _Student.Find(f => f.Id == user.StudentId).LastName : null
+                    StudentName = _Student.Find(f => f.Id == user.StudentId) != null ? _Student.Find(f => f.Id == user.StudentId).FirstName + " " + _Student.Find(f => f.Id == user.StudentId).LastName : null,
+                    SemesterId = user.SemesterId
                 };
                 return userResponse;
+            }
+            return null;
+        }
+        public AuthToken GetProfile()
+        {
+            var token = _HttpContextHelper.GetHeader("Authorization")?.Replace("Bearer ", "");
+            if(!string.IsNullOrEmpty(token))
+            {
+                var AuthToken = _Token.GetInfoFromToken(token);
+                if(AuthToken != null)
+                    return AuthToken;
             }
             return null;
         }
@@ -148,7 +165,8 @@ namespace Domain.Services
                     IsLocked = user.IsLocked,
                     IsVerify = user.IsVerify,
                     RoleName = _Role.Find(x => x.Id == user.RoleId)?.DisplayName,
-                    StudentName = _Student.Find(f => f.Id == user.StudentId) != null ? _Student.Find(f => f.Id == user.StudentId).FirstName + " " + _Student.Find(f => f.Id == user.StudentId).LastName : null
+                    StudentName = _Student.Find(f => f.Id == user.StudentId) != null ? _Student.Find(f => f.Id == user.StudentId).FirstName + " " + _Student.Find(f => f.Id == user.StudentId).LastName : null,
+                    SemesterId = user.SemesterId
                 };
 
                 return userResponse;

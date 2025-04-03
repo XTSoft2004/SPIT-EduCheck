@@ -9,6 +9,7 @@ using Domain.Model.Request.Class;
 using Domain.Model.Response.Class;
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,13 +29,13 @@ namespace Domain.Services
         private readonly IRepositoryBase<Student> _Student;
         private readonly IRepositoryBase<User> _User;
         private readonly IHttpContextHelper _HttpContextHelper;
-        private long UserId { set; get; }
+        private long SemesterId { set; get; }
 
         public ClassServices(IRepositoryBase<Class> @class,
             IRepositoryBase<Lecturer> lecturer,
-            IRepositoryBase<Course> course, 
+            IRepositoryBase<Course> course,
             IRepositoryBase<User> user,
-            IRepositoryBase<Class_Student> class_Student, 
+            IRepositoryBase<Class_Student> class_Student,
             IRepositoryBase<Student> student,
             IHttpContextHelper httpContextHelper)
         {
@@ -45,7 +46,7 @@ namespace Domain.Services
             _Class_Student = class_Student;
             _Student = student;
             _HttpContextHelper = httpContextHelper;
-            UserId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("UserId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("UserId"));
+            SemesterId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("SemesterId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("SemesterId"));
         }
 
         public async Task<HttpResponse> CreateAsync(ClassRequest request)
@@ -201,6 +202,7 @@ namespace Domain.Services
                     Id = s.Id,
                     Code = s.Code,
                     Name = s.Name,
+                    Day = s.Day,
                     TimeStart = s.TimeStart,
                     TimeEnd = s.TimeEnd,
                     LecturerId = s.LecturerId,
@@ -240,16 +242,17 @@ namespace Domain.Services
             {
                 query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
             }
-            var User = _User.Find(f => f.Id == UserId);
+            var c = _Course.ListBy(f => f.SemesterId == SemesterId).Select(s => s.Id).ToList();
 
             var classSemester = query
                 .AsEnumerable() // Chuyển sang truy vấn trên bộ nhớ
-                .Where(w => w.CourseId == _Course.Find(f => f.SemesterId == User.SemesterId)?.Id) 
+                .Where(w => c.Contains(w.CourseId.Value))
                 .Select(s => new ClassResponse()
                 {
                     Id = s.Id,
                     Code = s.Code,
                     Name = s.Name,
+                    Day = s.Day,
                     TimeStart = s.TimeStart,
                     TimeEnd = s.TimeEnd,
                     LecturerId = s.LecturerId,
@@ -261,6 +264,19 @@ namespace Domain.Services
 
 
             return classSemester;
+        }
+
+        public async Task<HttpResponse> ImportClassByFile(string pathFile)
+        {
+            if (string.IsNullOrEmpty(pathFile))
+                return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
+
+            var readFile = File.ReadAllText(pathFile);
+            var jsonData = JsonConvert.DeserializeObject<List<ClassRequest>>(readFile);
+
+            // Đọc nội dung file và xử lý
+            // ...
+            return HttpResponse.OK(message: "Import lớp học thành công.");
         }
     }
 }

@@ -22,21 +22,24 @@ namespace Domain.Services
         private readonly IRepositoryBase<Student> _Student;
         private readonly IRepositoryBase<Class> _Class;
         private readonly IRepositoryBase<Time> _Time;
+        private readonly IClassServices _ClassServices;
 
         public TimesheetServices(IRepositoryBase<Timesheet> timesheet, 
             IRepositoryBase<Student> student, 
             IRepositoryBase<Class> @class, 
             IRepositoryBase<Time> time,
-            IRepositoryBase<Timesheet_Students> timesheetstudents)
+            IRepositoryBase<Timesheet_Students> timesheetstudents,
+            IClassServices classServices)
         {
             _Timesheet = timesheet;
             _Student = student;
             _Class = @class;
             _Time = time;
             _TimesheetStudents = timesheetstudents;
+            _ClassServices = classServices;
         }
 
-        public async Task<HttpResponse> CreateAsync(TimesheetRequest timesheetRequest)
+        public async Task<HttpResponse> CreateAsync(TimesheetRequest timesheetRequest, string filePath)
         {
             if (timesheetRequest == null)
                 return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
@@ -69,7 +72,7 @@ namespace Domain.Services
                     ClassId = timesheetRequest.ClassId,
                     TimeId = timesheetRequest.TimeId,
                     Date = timesheetRequest.Date,
-                    Image_Check = timesheetRequest.Image_Check,
+                    Image_Check = filePath,
                     Status = EnumExtensions.GetDisplayName(StatusTimesheet_Enum.Pending),
                     Note = timesheetRequest.Note,
                     CreatedDate = DateTime.Now,
@@ -138,7 +141,7 @@ namespace Domain.Services
                 _timesheet.Date = timesheetRequest.Date;
                 _timesheet.Class = _class;
                 _timesheet.Time = _time;
-                _timesheet.Image_Check = timesheetRequest.Image_Check;
+                //_timesheet.Image_Check = timesheetRequest.Image_Check;
                 _timesheet.Status = timesheetRequest.Status;
                 _timesheet.Note = timesheetRequest.Note;
 
@@ -164,7 +167,20 @@ namespace Domain.Services
 
         public List<TimesheetResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
+            //// Lấy danh sách lớp học trong học kỳ hiện tại
+            int totalRecordsDummy = -1;
+            var ClassInSemester = _ClassServices.GetClassInSemester(string.Empty, -1, -1, out totalRecordsDummy)?
+                .Select(s => s.Id);
+            if(ClassInSemester == null)
+            {
+                totalRecords = 0;
+                return new List<TimesheetResponse>();
+            }
+
             var query = _Timesheet.All();
+
+            query = query.Where(w => ClassInSemester.Contains(w.ClassId));
+
             if (!string.IsNullOrEmpty(search))
             {
                 query = query.Where(f =>
