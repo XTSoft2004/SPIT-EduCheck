@@ -41,24 +41,18 @@ namespace Domain.Services
             var _semester = _Semester.Find(f => f.Id == courseRequest.SemesterId);
             if (_semester == null)
                 return HttpResponse.Error("Không tìm thấy học kỳ.", System.Net.HttpStatusCode.NotFound);
-
-            var _course = _Course.Find(f => f.Code == courseRequest.Code);
-            if (_course != null)
-                return HttpResponse.Error("Mã môn học đã tồn tại.", System.Net.HttpStatusCode.BadRequest);
-            else
+       
+            var Course = new Course()
             {
-                var Course = new Course()
-                {
-                    Code = courseRequest.Code,
-                    Name = courseRequest.Name,
-                    Credits = courseRequest.Credits,
-                    CreatedDate = DateTime.Now,
-                    SemesterId = courseRequest.SemesterId,
-                };
-                _Course.Insert(Course);
-                await UnitOfWork.CommitAsync();
-                return HttpResponse.OK(message: "Tạo môn học thành công.");
-            }
+                Code = courseRequest.Code,
+                Name = courseRequest.Name,
+                Credits = courseRequest.Credits,
+                CreatedDate = DateTime.Now,
+                SemesterId = courseRequest.SemesterId,
+            };
+            _Course.Insert(Course);
+            await UnitOfWork.CommitAsync();
+            return HttpResponse.OK(message: "Tạo môn học thành công.");
         }
 
         public async Task<HttpResponse> UpdateAsync(CourseRequest courseRequest)
@@ -73,18 +67,14 @@ namespace Domain.Services
             var course = _Course.Find(f => f.Id == courseRequest.Id);
             if (course == null)
                 return HttpResponse.Error("Không tìm thấy môn học.", System.Net.HttpStatusCode.NotFound);
-            else if (_Course.Find(f => f.Code == courseRequest.Code && f.Id != courseRequest.Id) != null)
-                return HttpResponse.Error("Mã môn học đã được đặt, vui lòng kiểm tra lại", System.Net.HttpStatusCode.BadRequest);
-            else
-            {
-                course.Code = courseRequest.Code;
-                course.Name = courseRequest.Name;
-                course.Credits = courseRequest.Credits;
-                course.SemesterId = courseRequest.SemesterId;
-                _Course.Update(course);
-                await UnitOfWork.CommitAsync();
-                return HttpResponse.OK(message: "Cập nhật môn học thành công.");
-            }
+    
+            course.Code = courseRequest.Code;
+            course.Name = courseRequest.Name;
+            course.Credits = courseRequest.Credits;
+            course.SemesterId = courseRequest.SemesterId;
+            _Course.Update(course);
+            await UnitOfWork.CommitAsync();
+            return HttpResponse.OK(message: "Cập nhật môn học thành công.");
         }
         public async Task<HttpResponse> DeleteAsync(long Id)
         {
