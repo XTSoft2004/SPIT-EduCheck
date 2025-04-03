@@ -38,15 +38,26 @@ export const getTimesheets = async (
 }
 
 export const createTimesheet = async (timesheet: ITimesheetCreate) => {
+  const formData = new FormData()
+
+  formData.append('studentsId', timesheet.studentsId.toString())
+  formData.append('classId', timesheet.classId.toString())
+  formData.append('timeId', timesheet.timeId.toString())
+  formData.append('date', timesheet.date)
+  formData.append('ImageFile', timesheet.ImageFile) // Upload file
+  formData.append('status', timesheet.status)
+  if (timesheet.note) {
+    formData.append('note', timesheet.note)
+  }
+
   const response = await fetch(`${globalConfig.baseUrl}/timesheet/create`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
       Authorization:
         headers().get('Authorization') ||
         `Bearer ${cookies().get('accessToken')?.value || ' '}`,
     },
-    body: JSON.stringify(timesheet),
+    body: formData, // Sử dụng FormData
   })
 
   const data = await response.json()

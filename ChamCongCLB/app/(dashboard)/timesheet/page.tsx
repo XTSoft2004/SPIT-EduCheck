@@ -197,7 +197,7 @@ export default function ClassPage() {
                 classId: values.classId,
                 timeId: values.timeId,
                 date: values.date,
-                image_Check: values.image_Check,
+                ImageFile: values.image_Check,
                 status: values.status,
                 note: values.note || '',
             };

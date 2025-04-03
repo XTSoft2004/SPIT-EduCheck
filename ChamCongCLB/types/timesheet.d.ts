@@ -19,7 +19,7 @@ export interface ITimesheetCreate {
   classId: number
   timeId: number
   date: string
-  image_Check: string
+  ImageFile: File
   status: string
   note?: string
 }

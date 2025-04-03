@@ -1,9 +1,10 @@
 import React from 'react';
-import { Form, Input, Select } from "antd";
+import { Button, Form, Input, Select, Upload } from "antd";
 import { FormInstance } from "antd/es/form";
 
 import { IClass } from '@/types/class';
 import { IStudent } from '@/types/student';
+import { UploadOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 
@@ -70,10 +71,17 @@ export default function FormClass({ form, classes, students }: FormClassProps) {
             </Form.Item>
             <Form.Item
                 label="Hình ảnh điểm danh"
-                name="image_Check"
+                name="ImageFile"
                 rules={[{ required: true, message: 'Vui lòng chọn hình ảnh điểm danh' }]}
             >
-                <Input placeholder="VD: abc" />
+                {/* <Input placeholder="VD: abc" /> */}
+                <Upload
+                    action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
+                    listType="picture"
+                    maxCount={1}
+                >
+                    <Button icon={<UploadOutlined />}>Upload (Max: 1)</Button>
+                </Upload>
             </Form.Item>
             <Form.Item
                 label="Trạng thái"
