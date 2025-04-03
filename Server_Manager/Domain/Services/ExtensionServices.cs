@@ -18,6 +18,13 @@ namespace Domain.Services
     {
         private readonly IRepositoryBase<User> _User;
         private readonly IRepositoryBase<Semester> _Semester;
+
+        public ExtensionServices(IRepositoryBase<User> user, IRepositoryBase<Semester> semester)
+        {
+            _User = user;
+            _Semester = semester;
+        }
+
         public async Task<HttpResponse> CreateAccountByStudentId(List<string> studentsMSV)
         {
             if (studentsMSV == null || studentsMSV.Count == 0)
@@ -33,7 +40,7 @@ namespace Domain.Services
                 {
                     Username = studentMSV,
                     Password = "123456",
-                    RoleId = -1,
+                    RoleId = -2,
                     CreatedDate = DateTime.Now,
                     Semester = GetSemesterNow(),
                 };
