@@ -153,7 +153,7 @@ export const setSemesterId = async (semesterId: number) => {
 
 export const changePassword = async (formData: IUSerUpdate) => {
   const response = await fetch(`${baseUrl}/user/change-password`, {
-    method: 'POST',
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       Authorization:

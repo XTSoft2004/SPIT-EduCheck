@@ -4,10 +4,12 @@ import { Form, Input, Button, message, Card } from 'antd'
 import { useState } from 'react'
 import { changePassword } from '@/actions/user.actions'
 import { IUSerUpdate } from '@/types/user'
+import { useRouter } from 'next/navigation'
 
 export default function ChangePasswordPage() {
     const [form] = Form.useForm<IUSerUpdate>()
     const [loading, setLoading] = useState(false)
+    const router = useRouter()
 
     const onFinish = async (values: IUSerUpdate) => {
         setLoading(true)
@@ -15,14 +17,15 @@ export default function ChangePasswordPage() {
             const res = await changePassword(values)
 
             if (res.ok) {
-                message.success('Đổi mật khẩu thành công!')
-                form.resetFields()
+                message.success(res.message)
+                router.push('/');
             } else {
-                message.error(res.message || 'Đổi mật khẩu thất bại.')
+                message.error(res.message)
             }
         } catch (err) {
             message.error('Có lỗi xảy ra.')
         } finally {
+            form.resetFields()
             setLoading(false)
         }
     }
@@ -79,7 +82,7 @@ export default function ChangePasswordPage() {
                             type="primary"
                             htmlType="submit"
                             loading={loading}
-                            className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                            className="w-full"
                         >
                             Đổi mật khẩu
                         </Button>
