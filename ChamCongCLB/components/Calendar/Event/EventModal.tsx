@@ -69,6 +69,7 @@ const EventModal: React.FC<EventModalProps> = ({
                 console.error("Chưa có file hợp lệ!")
                 return
             }
+            console.log("file", file)
 
             // Nếu file là File, chuyển nó thành Base64
             const imageBase64 = await fileToBase64(file)
@@ -100,12 +101,20 @@ const EventModal: React.FC<EventModalProps> = ({
     const handleSaveEvent = async () => {
         try {
             const values = await form.validateFields();
+            console.log("Form", form)
             if (!selectedDate) return;
-            const file = values.imageBase64?.[0]?.originFileObj;
+            // const file = values.imageBase64?.[0]?.originFileObj;
 
             // Chuyển file thành Base64 nếu có
+            // const base64Image = file ? await fileToBase64(file) : values.imageBase64;
+            const file = values.imageBase64?.[0]?.originFileObj
+            console.log("file", file)
+            console.log("values", values)
+            // if (!file) {
+            //     console.error("Chưa có file hợp lệ!")
+            //     return
+            // }
             const base64Image = file ? await fileToBase64(file) : values.imageBase64;
-
             if (selectedEvent) {
                 const updatedTimesheet: ITimesheetUpdate = {
                     id: selectedEvent.id,
@@ -174,7 +183,7 @@ const EventModal: React.FC<EventModalProps> = ({
     students.forEach((student) => {
         options.push({
             value: student.id,
-            label: `${student.lastName} ${student.firstName} (${student.maSinhVien})`,
+            label: `${student.lastName} ${student.firstName} (${student.maSinhVien.toUpperCase()})`,
         });
     });
 
@@ -185,35 +194,6 @@ const EventModal: React.FC<EventModalProps> = ({
             reader.onerror = reject;
             reader.readAsDataURL(file);
         });
-    };
-
-    const renderImagePreview = () => {
-        const imageBase64 = form.getFieldValue('imageBase64');
-        if (imageBase64) {
-            return <img src={`data:image/png;base64,${imageBase64}`} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px' }} />;
-        }
-
-        return (
-            <Upload
-                name="imageBase64"
-                listType="picture"
-                accept="image/*"
-                beforeUpload={() => false} // Prevent auto upload
-                maxCount={1}
-                showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
-                onChange={(info) => {
-                    if (info.file.status === 'done') {
-                        // Handle successful upload
-                    } else if (info.file.status === 'error') {
-                        // Handle upload failure
-                    }
-                }}
-            >
-                <Button icon={<UploadOutlined />}>
-                    Tải lên hình ảnh điểm danh
-                </Button>
-            </Upload>
-        );
     };
 
     return (
@@ -293,9 +273,35 @@ const EventModal: React.FC<EventModalProps> = ({
                     name="imageBase64"
                     valuePropName="fileList"
                     getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
-                    rules={[{ required: true, message: 'Vui lòng chọn hình ảnh điểm danh' }]}>
+                    rules={[{ required: !form.getFieldValue('imageBase64'), message: 'Vui lòng chọn hình ảnh điểm danh' }]}>
 
-                    {renderImagePreview()}
+                    {form.getFieldValue('imageBase64')?.length > 0 && (
+                        <img
+                            src={`data:image/png;base64,${form.getFieldValue('imageBase64')}`}
+                            alt="Hình ảnh điểm danh"
+                            style={{ width: "200px", height: "auto", marginBottom: "10px" }}
+                        />
+                    )}
+
+                    <Upload
+                        name="imageBase64"
+                        listType="picture"
+                        accept="image/*"
+                        beforeUpload={() => false} // Prevent auto upload
+                        maxCount={1}
+                        showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
+                        onChange={(info) => {
+                            if (info.file.status === 'done') {
+                                // Handle successful upload
+                            } else if (info.file.status === 'error') {
+                                // Handle upload failure
+                            }
+                        }}
+                    >
+                        <Button icon={<UploadOutlined />}>
+                            Tải lên hình ảnh điểm danh
+                        </Button>
+                    </Upload>
                 </Form.Item>
 
                 {/* Nhập chú thích */}

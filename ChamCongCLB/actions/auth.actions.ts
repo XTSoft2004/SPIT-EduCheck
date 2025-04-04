@@ -65,7 +65,7 @@ export const createMutipleAccount = async (formData: string[]) => {
   revalidateTag('user.show')
 
   const data = await response.json()
-  console.log('data', data)
+
   return {
     ok: response.ok,
     message: data.message,

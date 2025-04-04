@@ -2,7 +2,7 @@ import { createMutipleAccount } from "@/actions/auth.actions";
 import { Button, message } from "antd";
 import { CirclePlus } from "lucide-react";
 
-const AddStudentButton: React.FC<{ selectedKeys: React.Key[] }> = ({ selectedKeys }) => {
+const AddStudentButton: React.FC<{ selectedKeys: React.Key[]; onSuccess: () => void }> = ({ selectedKeys, onSuccess }) => {
     const handleCreate = async () => {
         if (selectedKeys.length === 0) {
             message.warning("Vui lòng chọn ít nhất một sinh viên!");
@@ -24,6 +24,8 @@ const AddStudentButton: React.FC<{ selectedKeys: React.Key[] }> = ({ selectedKey
             loadingMessage();
             message.error('Đã có lỗi xảy ra!');
         }
+
+        onSuccess();
     };
 
     return (

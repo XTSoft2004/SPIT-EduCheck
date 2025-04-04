@@ -20,6 +20,7 @@ import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
 import { title } from 'process';
 import { on } from 'events';
+import { render } from 'react-dom';
 
 export default function ClassPage() {
     const [students, setStudents] = useState<IStudent[]>([]);
@@ -97,8 +98,19 @@ export default function ClassPage() {
         },
         {
             title: 'Hình ảnh điểm danh',
-            dataIndex: 'image_Check',
-            key: 'image_Check',
+            dataIndex: 'imageBase64',
+            key: 'imageBase64',
+            render: (imageBase64: string) => {
+                return imageBase64 ? (
+                    <img
+                        src={`data:image/png;base64,${imageBase64}`}
+                        alt="Hình ảnh điểm danh"
+                        style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                    />
+                ) : (
+                    <span>Không có hình ảnh</span>
+                );
+            }
         },
         {
             title: 'Chú thích',
@@ -147,7 +159,7 @@ export default function ClassPage() {
             classId: formData.classId,
             timeId: formData.timeId,
             date: formData.date,
-            image_Check: formData.image_Check,
+            imageBase64: formData.imageBase64,
             status: formData.status,
             note: formData.note || '',
         });
@@ -170,7 +182,7 @@ export default function ClassPage() {
                 classId: values.classId,
                 timeId: values.timeId,
                 date: values.date,
-                image_Check: values.image_Check,
+                imageBase64: values.imageBase64,
                 status: values.status,
                 note: values.note || '',
             };
@@ -197,7 +209,7 @@ export default function ClassPage() {
                 classId: values.classId,
                 timeId: values.timeId,
                 date: values.date,
-                ImageFile: values.image_Check,
+                imageBase64: values.imageBase64,
                 status: values.status,
                 note: values.note || '',
             };
