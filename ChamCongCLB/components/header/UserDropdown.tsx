@@ -8,6 +8,7 @@ import {
   UserOutlined,
   SettingOutlined,
   LogoutOutlined,
+  LockOutlined,
 } from '@ant-design/icons';
 
 import { getMe } from '@/actions/user.actions'
@@ -17,6 +18,10 @@ import { IUser } from '@/types/user';
 const handleLogout = async () => {
   await logout()
   window.location.href = '/login'
+}
+
+const handleChangePassword = async () => {
+  window.location.href = '/change-password'
 }
 
 export default function UserDropdown() {
@@ -48,6 +53,9 @@ export default function UserDropdown() {
 
       <Menu.Item key="settings" icon={<SettingOutlined />}>
         Cài đặt
+      </Menu.Item>
+      <Menu.Item key="change-password" icon={<LockOutlined />} onClick={handleChangePassword}>
+        Đổi mật khẩu
       </Menu.Item>
       <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout} danger>
         Đăng xuất

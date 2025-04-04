@@ -46,7 +46,11 @@ const getProfile = async (accessToken: string): Promise<IProfile> => {
 
   if (!response.ok) throw response
 
-  return (await response.json()).data as IProfile
+  const data = await response.json()
+
+  return {
+    ...data
+  } as IProfile;
 }
 
 const refresh = async (accessToken: string): Promise<ITokens> => {
@@ -82,6 +86,19 @@ const redirectLogin = (request: NextRequest) => {
   return response
 }
 
+const redirectChangePassword = (request: NextRequest) => {
+  const isChangePasswordPage =
+    request.nextUrl.pathname === '/change-password' &&
+    request.nextUrl.search === ''
+
+  if (!isChangePasswordPage) {
+    const response = NextResponse.redirect(new URL('/change-password', request.url))
+    return response
+  }
+
+  return NextResponse.next()
+}
+
 export async function middleware(request: NextRequest) {
   console.log('server >> middleware', request.nextUrl.pathname)
 
@@ -91,14 +108,22 @@ export async function middleware(request: NextRequest) {
   const isLoginPage =
     request.nextUrl.pathname === '/login' && request.nextUrl.search === ''
 
-  const globalResponse = isLoginPage
-    ? NextResponse.redirect(new URL('/', request.url))
-    : NextResponse.next()
+  if (isLoginPage) return NextResponse.next()
+
+  const globalResponse = NextResponse.next()
 
   try {
     // Kiểm tra profile xem còn hợp lệ hay không
     const accessToken = request.cookies.get('accessToken')?.value ?? ' '
-    await getProfile(accessToken)
+    if (!accessToken) return redirectLogin(request)
+
+    const profile = await getProfile(accessToken)
+
+    // Kiểm tra nếu profile.isVerify là false, chuyển hướng về trang change-password
+    if (!profile.isVerify && request.nextUrl.pathname !== '/change-password') {
+      return redirectChangePassword(request)
+    }
+
   } catch (error) {
     const response = error as Response
 
