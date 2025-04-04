@@ -1,8 +1,8 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { getUsers } from '@/actions/user.actions';
-import { IUser } from '@/types/user';
-import { SearchOutlined } from '@ant-design/icons';
+import { IUser, IUSerUpdate } from '@/types/user';
+import { EditOutlined, SearchOutlined } from '@ant-design/icons';
 import type { InputRef, TableColumnsType } from 'antd';
 import { Button, Input, Space, Table } from 'antd';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
@@ -12,9 +12,11 @@ import { CirclePlus } from 'lucide-react';
 import Searchbar from '@/components/ui/Table/Searchbar';
 import { getClasses } from '@/actions/class.actions';
 import SpinLoading from '@/components/ui/Loading/SpinLoading';
+import { Role, useAuth } from '@/context/AuthContext';
+import { ButtonAddTable } from '@/components/ui/Button/ButtonAddTable';
 
 export default function PageUser() {
-
+    const { role } = useAuth();
 
     // useEffect(() => {
     //     fetchUsers();
@@ -28,12 +30,12 @@ export default function PageUser() {
     // };
 
     const columns: TableColumnsType<IUser> = [
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-            render: (value) => <strong>{value}</strong>,
-        },
+        /*         {
+                    title: 'ID',
+                    dataIndex: 'id',
+                    key: 'id',
+                    render: (value) => <strong>{value}</strong>,
+                }, */
         {
             title: 'Username',
             dataIndex: 'username',
@@ -82,15 +84,14 @@ export default function PageUser() {
     return (
         <>
             <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">
-                <Button
-                    className="w-full md:w-auto flex items-center gap-2"
+                <ButtonAddTable
+                    btnText="Thêm người dùng"
+                    role={role}
                     onClick={() => setIsModalCreate(true)}
-                >
-                    <CirclePlus size={20} />
-                    Thêm sinh viên
-                </Button>
-
-                <Searchbar setSearchText={handleSearch} />
+                />
+                <div className="flex justify-end w-full">
+                    <Searchbar setSearchText={handleSearch} />
+                </div>
             </div>
 
 

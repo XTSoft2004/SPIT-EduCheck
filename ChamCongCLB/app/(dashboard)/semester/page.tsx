@@ -15,8 +15,12 @@ import Searchbar from '@/components/ui/Table/Searchbar';
 import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
 import MessageAlert from '@/components/ui/Alert/MessageAlert';
+import { ButtonAddTable } from '@/components/ui/Button/ButtonAddTable';
+import { Role, useAuth } from '@/context/AuthContext';
+import { text } from 'stream/consumers';
 
 export default function SemesterPage() {
+    const { role } = useAuth();
     const columns = [
         {
             title: 'Năm bắt đầu',
@@ -33,15 +37,17 @@ export default function SemesterPage() {
             dataIndex: 'semesters_Number',
             key: 'semesters_Number',
         },
-        {
-            title: 'Thao tác',
-            key: 'action',
-            render: (_: unknown, record: ISemester) => (
-                <Space>
-                    <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
-                </Space>
-            ),
-        }
+        ...(role === Role.ADMIN ? [
+            {
+                title: 'Hành động',
+                key: 'action',
+                render: (_: unknown, record: ISemester) => (
+                    <Space>
+                        <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
+                    </Space>
+                ),
+            }
+        ] : [])
     ];
 
     const [pageIndex, setPageIndex] = useState(1);
@@ -137,15 +143,14 @@ export default function SemesterPage() {
     return (
         <>
             <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">
-                <Button
-                    className="w-full md:w-auto flex items-center gap-2"
+                <ButtonAddTable
+                    btnText="Thêm học kỳ"
+                    role={role}
                     onClick={() => setIsModalCreate(true)}
-                >
-                    <CirclePlus size={20} />
-                    Thêm học kỳ
-                </Button>
-
-                <Searchbar setSearchText={handleSearch} />
+                />
+                <div className="flex justify-end w-full">
+                    <Searchbar setSearchText={handleSearch} />
+                </div>
             </div>
 
             {isLoading ? <SpinLoading /> : (

@@ -21,11 +21,15 @@ import { EditOutlined } from '@ant-design/icons';
 import { title } from 'process';
 import { on } from 'events';
 import { render } from 'react-dom';
+import { Role, useAuth } from '@/context/AuthContext';
+import { ButtonAddTable } from '@/components/ui/Button/ButtonAddTable';
 
 export default function ClassPage() {
     const [students, setStudents] = useState<IStudent[]>([]);
     const [classes, setClasses] = useState<IClass[]>([]);
     const [isLoad, setIsLoad] = useState(true);
+
+    const { role } = useAuth();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -118,15 +122,17 @@ export default function ClassPage() {
             key: 'note',
             render: (note: string) => note.length > 50 ? `${note.slice(0, 50)}...` : note,
         },
-        {
-            title: 'Thao tác',
-            key: 'action',
-            render: (_: unknown, record: ITimesheet) => (
-                <Space>
-                    <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
-                </Space>
-            ),
-        }
+        ...(role === Role.ADMIN ? [
+            {
+                title: 'Hành động',
+                key: 'action',
+                render: (_: unknown, record: ITimesheet) => (
+                    <Space>
+                        <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
+                    </Space>
+                ),
+            }
+        ] : [])
     ];
 
     const [pageIndex, setPageIndex] = useState(1);
@@ -231,15 +237,14 @@ export default function ClassPage() {
     return (
         <>
             <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">
-                <Button
-                    className="w-full md:w-auto flex items-center gap-2"
+                <ButtonAddTable
+                    btnText="Thêm chấm công"
+                    role={role}
                     onClick={() => setIsModalCreate(true)}
-                >
-                    <CirclePlus size={20} />
-                    Thêm điểm danh
-                </Button>
-
-                <Searchbar setSearchText={handleSearch} />
+                />
+                <div className="flex justify-end w-full">
+                    <Searchbar setSearchText={handleSearch} />
+                </div>
             </div>
 
             {(isLoading || classes.length === 0 || students.length === 0) ? <SpinLoading /> : (

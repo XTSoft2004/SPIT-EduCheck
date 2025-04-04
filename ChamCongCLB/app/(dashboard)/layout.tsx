@@ -1,5 +1,5 @@
 import Dashboard from '@/layout/Dashboard';
-import { ThemeProvider } from '@/contexts/ThemeContext'
+import { ThemeProvider } from '@/context/ThemeContext'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (

@@ -3,7 +3,7 @@ import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/ico
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import { useRouter } from 'next/navigation';
-import { useTheme } from '@/contexts/ThemeContext'
+import { useTheme } from '@/context/ThemeContext'
 import { CalendarRange, CircleUserRound, School, CalendarDays, AlignVerticalDistributeEnd, Book, Computer, LayoutGrid, SquareChartGantt } from 'lucide-react'
 import SwitchSemester from '@/components/Dashboard/Semesters/SwitchSemester';
 import { useMediaQuery } from 'react-responsive';

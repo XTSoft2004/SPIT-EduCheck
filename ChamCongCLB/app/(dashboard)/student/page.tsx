@@ -14,7 +14,11 @@ import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
 import AddStudentButton from '@/components/ui/Button/AddStudentButton';
 
+import { Role, useAuth } from '@/context/AuthContext';
+import { ButtonAddTable } from '@/components/ui/Button/ButtonAddTable';
+
 export default function UserPage() {
+    const { role } = useAuth();
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
     const rowSelection = {
@@ -84,15 +88,17 @@ export default function UserPage() {
                 </div>
             ),
         },
-        {
-            title: 'Hành động',
-            key: 'action',
-            render: (_: unknown, record: IStudent) => (
-                <Space>
-                    <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
-                </Space>
-            ),
-        }
+        ...(role === Role.ADMIN ? [
+            {
+                title: 'Hành động',
+                key: 'action',
+                render: (_: unknown, record: IStudent) => (
+                    <Space>
+                        <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
+                    </Space>
+                ),
+            }
+        ] : [])
     ];
 
     const [pageIndex, setPageIndex] = useState(1);
@@ -191,28 +197,20 @@ export default function UserPage() {
     };
 
     useEffect(() => {
-        console.log(selectedRowKeys)
-    }, [selectedRowKeys])
+        console.log(role)
+    }, []);
 
     return (
         <>
             <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">
-                <Button
-                    className="w-full md:w-auto flex items-center gap-2"
+                <ButtonAddTable
+                    btnText="Thêm sinh viên"
+                    role={role}
                     onClick={() => setIsModalCreate(true)}
-                >
-                    <CirclePlus size={20} />
-                    Thêm sinh viên
-                </Button>
-
+                />
                 <div className="flex justify-end w-full">
-                    <AddStudentButton
-                        selectedKeys={selectedRowKeys}
-                        onSuccess={() => mutate(['students', searchText, pageIndex, pageSize])}
-                    />
+                    <Searchbar setSearchText={handleSearch} />
                 </div>
-
-                <Searchbar setSearchText={handleSearch} />
             </div>
 
             {isLoading ? <SpinLoading /> : (

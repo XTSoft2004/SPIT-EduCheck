@@ -4,7 +4,7 @@ import { Layout, Drawer } from 'antd';
 const { Sider } = Layout;
 import MenuSidebar from './MenuSidebar';
 import Image from 'next/image';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '@/context/ThemeContext';
 
 const siderStyle: React.CSSProperties = {
     overflow: 'auto',

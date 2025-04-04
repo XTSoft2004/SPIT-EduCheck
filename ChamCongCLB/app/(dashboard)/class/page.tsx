@@ -20,8 +20,11 @@ import SpinLoading from '@/components/ui/Loading/SpinLoading';
 import Searchbar from '@/components/ui/Table/Searchbar';
 import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
+import { Role, useAuth } from '@/context/AuthContext';
+import { ButtonAddTable } from '@/components/ui/Button/ButtonAddTable';
 
 export default function ClassPage() {
+    const { role } = useAuth();
     const [courses, setCourses] = useState<ICourse[]>([]);
     const [students, setStudents] = useState<IStudent[]>([]);
     const [lecturers, setLecturers] = useState<ILecturer[]>([]);
@@ -37,10 +40,6 @@ export default function ClassPage() {
             if (studentsRes.ok) setStudents(studentsRes.data);
             if (lecturersRes.ok) setLecturers(lecturersRes.data);
             if (coursesRes.ok) setCourses(coursesRes.data);
-
-            console.log('studentsRes', studentsRes.data);
-            console.log('lecturersRes', lecturersRes.data);
-            console.log('coursesRes', coursesRes.data);
         };
 
         fetchData();
@@ -105,15 +104,19 @@ export default function ClassPage() {
                 return course ? `${course.name}` : 'N/A';
             }
         },
-        {
-            title: 'Thao tác',
-            key: 'action',
-            render: (_: unknown, record: IClass) => (
-                <Space>
-                    <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
-                </Space>
-            ),
-        }
+        ...(role === Role.ADMIN ?
+            [
+                {
+                    title: 'Thao tác',
+                    key: 'action',
+                    render: (_: unknown, record: IClass) => (
+                        <Space>
+                            <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
+                        </Space>
+                    ),
+                }
+            ]
+            : [])
     ];
 
     const [pageIndex, setPageIndex] = useState(1);
@@ -222,15 +225,14 @@ export default function ClassPage() {
     return (
         <>
             <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">
-                <Button
-                    className="w-full md:w-auto flex items-center gap-2"
+                <ButtonAddTable
+                    btnText="Thêm lớp"
+                    role={role}
                     onClick={() => setIsModalCreate(true)}
-                >
-                    <CirclePlus size={20} />
-                    Thêm lớp
-                </Button>
-
-                <Searchbar setSearchText={handleSearch} />
+                />
+                <div className="flex justify-end w-full">
+                    <Searchbar setSearchText={handleSearch} />
+                </div>
             </div>
 
             {(isLoading || classes.length === 0 || students.length === 0 || courses.length === 0) ? <SpinLoading /> : (

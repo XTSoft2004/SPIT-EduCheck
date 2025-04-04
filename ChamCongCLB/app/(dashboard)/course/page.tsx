@@ -17,8 +17,11 @@ import Searchbar from '@/components/ui/Table/Searchbar';
 import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
 import { title } from 'process';
+import { Role, useAuth } from '@/context/AuthContext';
+import { ButtonAddTable } from '@/components/ui/Button/ButtonAddTable';
 
 export default function CoursePage() {
+    const { role } = useAuth();
     const [semesters, setSemesters] = useState<ISemester[]>([]);
 
     useEffect(() => {
@@ -55,18 +58,20 @@ export default function CoursePage() {
             key: 'semesterId',
             render: (semesterId: number) => {
                 const semester = semesters.find((sem) => sem.id === semesterId);
-                return semester ? `${semester.yearStart} - ${semester.yearEnd}.${semester.semesters_Number}` : '';
+                return semester ? `Học kỳ: ${semester.semesters_Number} - Năm học: ${semester.yearStart} - ${semester.yearEnd}` : '';
             },
         },
-        {
-            title: 'Thao tác',
-            key: 'action',
-            render: (_: unknown, record: ICourse) => (
-                <Space>
-                    <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
-                </Space>
-            ),
-        }
+        ...(role === Role.ADMIN ? [
+            {
+                title: 'Hành động',
+                key: 'action',
+                render: (_: unknown, record: ICourse) => (
+                    <Space>
+                        <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
+                    </Space>
+                ),
+            }
+        ] : [])
     ];
 
     const [pageIndex, setPageIndex] = useState(1);
@@ -162,15 +167,14 @@ export default function CoursePage() {
     return (
         <>
             <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">
-                <Button
-                    className="w-full md:w-auto flex items-center gap-2"
+                <ButtonAddTable
+                    btnText="Thêm học phần"
+                    role={role}
                     onClick={() => setIsModalCreate(true)}
-                >
-                    <CirclePlus size={20} />
-                    Thêm học phần
-                </Button>
-
-                <Searchbar setSearchText={handleSearch} />
+                />
+                <div className="flex justify-end w-full">
+                    <Searchbar setSearchText={handleSearch} />
+                </div>
             </div>
 
             {(isLoading || semesters.length === 0) ? <SpinLoading /> : (

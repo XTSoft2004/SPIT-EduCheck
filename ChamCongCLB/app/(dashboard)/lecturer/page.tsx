@@ -15,8 +15,11 @@ import Searchbar from '@/components/ui/Table/Searchbar';
 import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
 import { render } from 'react-dom';
+import { Role, useAuth } from '@/context/AuthContext';
+import { ButtonAddTable } from '@/components/ui/Button/ButtonAddTable';
 
 export default function LecturerPage() {
+    const { role } = useAuth();
     const columns = [
         {
             title: 'Tên giảng viên',
@@ -39,15 +42,17 @@ export default function LecturerPage() {
                 <span>{text || 'Chưa cập nhật'}</span>
             ),
         },
-        {
-            title: 'Thao tác',
-            key: 'action',
-            render: (_: unknown, record: ILecturer) => (
-                <Space>
-                    <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
-                </Space>
-            ),
-        }
+        ...(role === Role.ADMIN ? [
+            {
+                title: 'Hành động',
+                key: 'action',
+                render: (_: unknown, record: ILecturer) => (
+                    <Space>
+                        <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
+                    </Space>
+                ),
+            }
+        ] : [])
     ];
 
     const [pageIndex, setPageIndex] = useState(1);
@@ -140,15 +145,14 @@ export default function LecturerPage() {
     return (
         <>
             <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">
-                <Button
-                    className="w-full md:w-auto flex items-center gap-2"
+                <ButtonAddTable
+                    btnText="Thêm giảng viên"
+                    role={role}
                     onClick={() => setIsModalCreate(true)}
-                >
-                    <CirclePlus size={20} />
-                    Thêm giảng viên
-                </Button>
-
-                <Searchbar setSearchText={handleSearch} />
+                />
+                <div className="flex justify-end w-full">
+                    <Searchbar setSearchText={handleSearch} />
+                </div>
             </div>
 
             {isLoading ? <SpinLoading /> : (

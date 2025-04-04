@@ -22,6 +22,8 @@ import Snackbar from '@mui/material/Snackbar'
 import Alert from '@mui/material/Alert'
 import SnackbarAlert from '@/components/ui/Alert/SnackbarAlertProps'
 import SpinLoading from '@/components/ui/Loading/SpinLoading'
+import { useAuth } from '@/context/AuthContext'
+
 // import Button from '@mui/material/Button'
 export default function SignInForm() {
   const {
@@ -35,12 +37,13 @@ export default function SignInForm() {
   const [openMessage, setopenMessage] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
   const [typeMessage, setTypeMessage] = useState<'success' | 'error' | 'warning' | 'info'>('success')
+
+  const { role, setRole } = useAuth();
+
   const onSubmit = async (formData: ILoginForm) => {
     setLoading(true);
 
     const response = await login(formData);
-
-    console.log('Response:', response); // Kiểm tra response nhận được gì
 
     if (response.ok) {
       router.push('/');
