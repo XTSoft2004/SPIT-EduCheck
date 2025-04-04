@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,6 @@ namespace Domain.Model.Request.Extension
     {
         public string classId { get; set; }
         public string className { get; set; }
-        public string credits { get; set; }
         public string teacher { get; set; }
         public int day { get; set; }
         public string timeStart { get; set; }
@@ -21,6 +21,11 @@ namespace Domain.Model.Request.Extension
     {
         public string courseId { get; set; }
         public string courseName { get; set; }
-        public List<ClassImport> Classes { get; set; }
+        public int credits { get; set; }
+        public List<ClassImport> @class { get; set; }
+    }
+    public class ClassImportRequest
+    {
+        public IFormFile FileUpload { get; set; }
     }
 }

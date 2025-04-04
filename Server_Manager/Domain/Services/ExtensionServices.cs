@@ -13,6 +13,7 @@ using Domain.Model.Request.Class;
 using Domain.Model.Request.Course;
 using Domain.Model.Request.Extension;
 using Domain.Model.Request.Semester;
+using Domain.Model.Request.Timesheet;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Newtonsoft.Json;
 
@@ -26,16 +27,6 @@ namespace Domain.Services
         private readonly IRepositoryBase<Class> _Class;
         private readonly IRepositoryBase<Lecturer> _Lecturer;
         private readonly IRepositoryBase<Lecturer_Class> _LectureClass;
-
-        public ExtensionServices(IRepositoryBase<User> user, IRepositoryBase<Semester> semester, IRepositoryBase<Course> course, IRepositoryBase<Class> @class, IRepositoryBase<Lecturer> lecturer, IRepositoryBase<Lecturer_Class> lectureClass)
-        {
-            _User = user;
-            _Semester = semester;
-            _Course = course;
-            _Class = @class;
-            _Lecturer = lecturer;
-            _LectureClass = lectureClass;
-        }
 
         public async Task<HttpResponse> CreateAccountByStudentId(List<string> studentsMSV)
         {
@@ -102,13 +93,16 @@ namespace Domain.Services
             var readFile = File.ReadAllText(pathFile);
             CourseImport Course = JsonConvert.DeserializeObject<CourseImport>(readFile);
 
-            var ClassStr = Course.Classes?.FirstOrDefault()?.classId;
+            var ClassStr = Course.@class?.FirstOrDefault()?.classId;
+
+            var match = Regex.Match(ClassStr, @"(\d{4})-(\d{4})\.(\d+)");
             var SemesterImport = new SemesterRequest()
             {
-                YearStart = Convert.ToInt32(Regex.Match(ClassStr, "(\\d{4})-(\\d{4})\\.(\\d+)").Groups[1]),
-                YearEnd = Convert.ToInt32(Regex.Match(ClassStr, "(\\d{4})-(\\d{4})\\.(\\d+)").Groups[2]),
-                Semesters_Number = Convert.ToInt32(Regex.Match(ClassStr, "(\\d{4})-(\\d{4})\\.(\\d+)").Groups[3])
+                YearStart = Convert.ToInt32(match.Groups[1].Value),
+                YearEnd = Convert.ToInt32(match.Groups[2].Value),
+                Semesters_Number = Convert.ToInt32(match.Groups[3].Value)
             };
+
 
             var semester = _Semester.Find(f => f.YearStart == SemesterImport.YearStart
                 && f.YearEnd == SemesterImport.YearEnd
@@ -132,13 +126,14 @@ namespace Domain.Services
                 {
                     Code = Course.courseId,
                     Name = Course.courseName,
-                    SemesterId = semester.Id
+                    Credits = Course.credits,
+                    Semester = semester,
                 };
                 _Course.Insert(course);
                 await UnitOfWork.CommitAsync();
             }
 
-            foreach (var item in Course.Classes)
+            foreach (var item in Course.@class)
             {
                 var classImport = _Class.Find(f => f.Code == item.classId && f.CourseId == course.Id);
                 if (classImport == null)
@@ -151,7 +146,7 @@ namespace Domain.Services
                         TimeStart = TimeOnly.Parse(item.timeStart),
                         TimeEnd = TimeOnly.Parse(item.timeEnd),
                         CreatedDate = DateTime.Now,
-                        CourseId = course.Id,
+                        Course = course,
                     };
                     _Class.Insert(classImport);
                     await UnitOfWork.CommitAsync();
@@ -188,6 +183,28 @@ namespace Domain.Services
         public Task<HttpResponse> ImportStudents()
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<HttpResponse> UploadFile(string uploadsFolder, UploadFileRequest uploadFileRequest)
+        {
+            if (uploadFileRequest.FileUpload == null || uploadFileRequest.FileUpload.Length == 0)
+                return HttpResponse.Error("File không hợp lệ !!", System.Net.HttpStatusCode.BadRequest);
+
+            // Lấy đường dẫn thư mục lưu file
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            // Tạo tên file duy nhất
+            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(uploadFileRequest.FileUpload.FileName);
+            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            // Lưu file
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await uploadFileRequest.FileUpload.CopyToAsync(fileStream);
+            }
+
+            return HttpResponse.OK(message: "Tải file lên thành công.", data: new { FilePath = filePath });
         }
     }
 }

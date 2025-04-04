@@ -91,8 +91,8 @@ namespace Domain.Services
 
         public List<CourseResponse> GetAllInSemester(string search, int pageNumber, int pageSize, out int totalRecords)
         {
-            var query = _Course.All();
-            query = query.Where(w => w.SemesterId == SemesterId);
+            var query = _Course.All().Where(w => w.SemesterId == SemesterId);
+
             if (!string.IsNullOrEmpty(search))
             {
                 query = query.Where(f =>
@@ -100,33 +100,26 @@ namespace Domain.Services
                     f.Name.Contains(search) ||
                     f.Credits.ToString().Contains(search));
             }
-            totalRecords = query.Count(); // Đếm tổng số bản ghi
+
+            totalRecords = query.Count(); // Đếm tổng số bản ghi trước khi phân trang
+
+            query = query.OrderBy(u => u.Id);
 
             if (pageNumber != -1 && pageSize != -1)
             {
-                // Sắp xếp phân trang
-                query = query.OrderBy(u => u.Id)
-                             .Skip((pageNumber - 1) * pageSize)
-                             .Take(pageSize);
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
             }
-            else
+
+            return query.Select(f => new CourseResponse
             {
-                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
-            }
-
-            var courses = query
-                .AsEnumerable() // Chuyển sang truy vấn trên bộ nhớ
-                .Select(f => new CourseResponse()
-                {
-                    Id = f.Id,
-                    Code = f.Code,
-                    Name = f.Name,
-                    Credits = f.Credits,
-                    SemesterId = f.SemesterId
-                }).ToList();
-
-            return courses;
+                Id = f.Id,
+                Code = f.Code,
+                Name = f.Name,
+                Credits = f.Credits,
+                SemesterId = f.SemesterId
+            }).ToList();
         }
+
         public List<CourseResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _Course.All();

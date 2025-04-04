@@ -38,6 +38,7 @@ namespace Domain.Services
             IRepositoryBase<User> user,
             IRepositoryBase<Class_Student> class_Student,
             IRepositoryBase<Student> student,
+            IRepositoryBase<Lecturer_Class> lecturer_class,
             IHttpContextHelper httpContextHelper)
         {
             _Class = @class;
@@ -46,6 +47,7 @@ namespace Domain.Services
             _Course = course;
             _Class_Student = class_Student;
             _Student = student;
+            _Lecturer_Class = lecturer_class;
             _HttpContextHelper = httpContextHelper;
             SemesterId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("SemesterId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("SemesterId"));
         }
@@ -130,9 +132,9 @@ namespace Domain.Services
                 return HttpResponse.Error("Không tìm thấy lớp học.", System.Net.HttpStatusCode.NotFound);
             else if (_Class.Find(f => f.Code == request.Code && f.Id != request.Id) != null)
                 return HttpResponse.Error("Mã lớp học đã được đặt, vui lòng kiểm tra lại", System.Net.HttpStatusCode.BadRequest);
-            else if (_Lecturer.Find(f => request.LecturersId.Contains(f.Id)) == null)
+            else if (request.LecturersId.Count != 0 && _Lecturer.Find(f => request.LecturersId.Contains(f.Id)) == null)
                 return HttpResponse.Error("Không tìm thấy giảng viên.", System.Net.HttpStatusCode.NotFound);
-            else if (_Student.Find(f => request.StudentsId.Contains(f.Id)) == null)
+            else if (request.StudentsId.Count != 0 && _Student.Find(f => request.StudentsId.Contains(f.Id)) == null)
                 return HttpResponse.Error("Không tìm thấy sinh viên.", System.Net.HttpStatusCode.NotFound);
             else if (_Course.Find(f => f.Id == request.CourseId) == null)
                 return HttpResponse.Error("Không tìm thấy môn học.", System.Net.HttpStatusCode.NotFound);
@@ -145,23 +147,23 @@ namespace Domain.Services
                 _class.TimeEnd = request.TimeEnd;
                 _class.CourseId = request.CourseId;
 
-                //var class_students = _Class_Student.ListBy(f => f.ClassId == request.Id);
-                //var StudentNotClass = class_students.Where(f => !request.StudentsId.Contains(f.StudentId)).ToList();
-                //_Class_Student.DeleteRange(StudentNotClass); // Xóa tất cả sinh viên không thuộc lớp học
+                var class_students = _Class_Student.ListBy(f => f.ClassId == request.Id);
+                var StudentNotClass = class_students.Where(f => !request.StudentsId.Contains(f.StudentId)).ToList();
+                _Class_Student.DeleteRange(StudentNotClass); // Xóa tất cả sinh viên không thuộc lớp học
 
-                //var studentId_Insert = request.StudentsId.Where(f => !class_students.Select(s => s.StudentId).Contains(f)).ToList();
-                //_Class_Student.InsertRange(studentId_Insert.Select(s => new Class_Student()
-                //{
-                //    ClassId = request.Id,
-                //    StudentId = s,
-                //    CreatedDate = DateTime.Now,
-                //}));
+                var studentId_Insert = request.StudentsId.Where(f => !class_students.Select(s => s.StudentId).Contains(f)).ToList();
+                _Class_Student.InsertRange(studentId_Insert.Select(s => new Class_Student()
+                {
+                    ClassId = request.Id,
+                    StudentId = s,
+                    CreatedDate = DateTime.Now,
+                }));
 
                 var class_lecturer = _Lecturer_Class.ListBy(f => f.ClassId == request.Id);
                 var LecturerNotClass = class_lecturer.Where(f => !request.LecturersId.Contains(f.LecturerId)).ToList();
                 _Lecturer_Class.DeleteRange(LecturerNotClass); // Xóa tất cả sinh viên không thuộc lớp học
 
-                var lecturerId_Insert = request.StudentsId.Where(f => !class_lecturer.Select(s => s.LecturerId).Contains(f)).ToList();
+                var lecturerId_Insert = request.LecturersId.Where(f => !class_lecturer.Select(s => s.LecturerId).Contains(f)).ToList();
                 _Lecturer_Class.InsertRange(lecturerId_Insert.Select(s => new Lecturer_Class()
                 {
                     ClassId = request.Id,
@@ -259,6 +261,10 @@ namespace Domain.Services
             }
             totalRecords = query.Count(); // Đếm tổng số bản ghi
 
+            var c = _Course.ListBy(f => f.SemesterId == SemesterId).Select(s => s.Id).ToList();
+            query = query.Where(w => c.Contains(w.CourseId.Value));
+
+
             if (pageNumber != -1 && pageSize != -1)
             {
                 // Sắp xếp phân trang
@@ -270,12 +276,8 @@ namespace Domain.Services
             {
                 query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
             }
-            var c = _Course.ListBy(f => f.SemesterId == SemesterId).Select(s => s.Id).ToList();
 
-            var classSemester = query
-                .AsEnumerable() // Chuyển sang truy vấn trên bộ nhớ
-                .Where(w => c.Contains(w.CourseId.Value))
-                .Select(s => new ClassResponse()
+            return query.Select(s => new ClassResponse
                 {
                     Id = s.Id,
                     Code = s.Code,
@@ -283,17 +285,10 @@ namespace Domain.Services
                     Day = s.Day,
                     TimeStart = s.TimeStart,
                     TimeEnd = s.TimeEnd,
-                    LecturersId = _Lecturer_Class.ListBy(f => f.ClassId == s.Id)
-                                               .Select(s => s.LecturerId)
-                                               .ToList(), // Thực hiện trên bộ nhớ thay vì trong SQL
                     CourseId = s.CourseId,
-                    StudentsId = _Class_Student.ListBy(f => f.ClassId == s.Id)
-                                               .Select(s => s.StudentId)
-                                               .ToList() // Thực hiện trên bộ nhớ thay vì trong SQL
+                    LecturersId = s.LecturerClasses.Select(lc => lc.LecturerId).ToList(),
+                    StudentsId = s.ClassStudents.Select(cs => cs.StudentId).ToList()
                 }).ToList();
-
-
-            return classSemester;
         }
 
         public async Task<HttpResponse> ImportClassByFile(string pathFile)

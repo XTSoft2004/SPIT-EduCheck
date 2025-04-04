@@ -18,7 +18,7 @@ namespace Domain.Model.Request.Timesheet
         public long TimeId { get; set; }
         public DateOnly Date { get; set; }
         [Required]
-        public IFormFile ImageFile { get; set; }
+        public string ImageBase64 { get; set; }
         public string Status { get; set; }
         [StringLength(500)]
         public string Note { get; set; }

@@ -43,7 +43,6 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "API documentation for SPIT-EduCheck system"
     });
-
     // ✅ Cấu hình Bearer Token cho Swagger
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -72,6 +71,8 @@ builder.Services.AddSwaggerGen(options =>
     });
 
     options.OperationFilter<AuthorizeCheckOperationFilter>();
+     // Thêm cấu hình cho file upload
+    //options.MapType<IFormFile>(() => new OpenApiSchema { Type = "string", Format = "binary" });
 });
 
 // Thêm chính sách `Authorize` cho toàn bộ API (nếu cần)

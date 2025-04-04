@@ -61,36 +61,37 @@ namespace Domain.Services
         public List<SemesterResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _repository.All();
+
+            // Lọc theo từ khóa tìm kiếm nếu có
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(f => 
+                query = query.Where(f =>
                     f.Semesters_Number.ToString().Contains(search) ||
                     f.YearStart.ToString().Contains(search) ||
                     f.YearEnd.ToString().Contains(search));
             }
-            totalRecords = query.Count(); // Đếm tổng số bản ghi
+
+            // Đếm tổng số bản ghi trước khi áp dụng phân trang
+            totalRecords = query.Count();
 
             // Sắp xếp theo năm bắt đầu giảm dần, sau đó theo số kỳ giảm dần
             query = query.OrderByDescending(u => u.YearStart)
                          .ThenByDescending(u => u.Semesters_Number);
 
+            // Áp dụng phân trang nếu cần
             if (pageNumber != -1 && pageSize != -1)
             {
-                // Sắp xếp phân trang
-                query = query.Skip((pageNumber - 1) * pageSize)
-                             .Take(pageSize);
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
             }
 
-            var semesters = query
-                .Select(f => new SemesterResponse()
-                {
-                    Id = f.Id,
-                    Semesters_Number = f.Semesters_Number,
-                    YearStart = f.YearStart,
-                    YearEnd = f.YearEnd,
-                }).ToList();
-
-            return semesters;
+            // Chỉ gọi ToList() ở cuối để tối ưu hóa hiệu suất
+            return query.Select(f => new SemesterResponse
+            {
+                Id = f.Id,
+                Semesters_Number = f.Semesters_Number,
+                YearStart = f.YearStart,
+                YearEnd = f.YearEnd
+            }).ToList();
         }
 
         public async Task<HttpResponse> UpdateAsync(SemesterRequest request)

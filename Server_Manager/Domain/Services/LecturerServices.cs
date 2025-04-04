@@ -75,46 +75,36 @@ namespace Domain.Services
         public List<LecturerResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _repository.All();
+
+            // Lọc theo search nếu có
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(w => 
-                    w.FullName.Contains(search) || 
-                    w.Email.Contains(search) || 
+                query = query.Where(w =>
+                    w.FullName.Contains(search) ||
+                    w.Email.Contains(search) ||
                     w.PhoneNumber.Contains(search));
             }
-            totalRecords = query.Count(); // Đếm tổng số bản ghi
-        
+
+            // Đếm tổng số bản ghi trước khi phân trang
+            totalRecords = query.Count();
+
+            // Sắp xếp trước khi phân trang
+            query = query.OrderBy(u => u.Id);
+
+            // Áp dụng phân trang nếu cần
             if (pageNumber != -1 && pageSize != -1)
             {
-                // Sắp xếp phân trang
-                query = query.OrderBy(u => u.Id)
-                             .Skip((pageNumber - 1) * pageSize)
-                             .Take(pageSize);
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
             }
-            else
+
+            // Truy vấn dữ liệu trực tiếp từ database
+            return query.Select(s => new LecturerResponse()
             {
-                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
-            }
-
-            var lecturers = query
-                .Select(s => new LecturerResponse()
-                {
-                    Id = s.Id,
-                    FullName = s.FullName,
-                    Email = s.Email,
-                    PhoneNumber = s.PhoneNumber,
-                    //ClassResponse = s.Class.Select(s => new ClassResponse()
-                    //{
-                    //    Id = s.Id,
-                    //    Code = s.Code,
-                    //    Name = s.Name,
-                    //    TimeStart = s.TimeStart,
-                    //    TimeEnd = s.TimeEnd,
-                    //}).ToList()
-                }).ToList();
-
-            return lecturers;
+                Id = s.Id,
+                FullName = s.FullName,
+                Email = s.Email,
+                PhoneNumber = s.PhoneNumber
+            }).ToList();
         }
-
     }
 }

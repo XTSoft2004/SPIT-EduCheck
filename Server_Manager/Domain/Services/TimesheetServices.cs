@@ -39,10 +39,12 @@ namespace Domain.Services
             _ClassServices = classServices;
         }
 
-        public async Task<HttpResponse> CreateAsync(TimesheetRequest timesheetRequest, string filePath)
+        public async Task<HttpResponse> CreateAsync(TimesheetRequest timesheetRequest, string pathSave)
         {
             if (timesheetRequest == null)
                 return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
+
+
 
             //if (!EnumExtensions.IsValidDisplayName(timesheetRequest.Status, typeof(StatusTimesheet_Enum)))
             //    return HttpResponse.Error("Trạng thái điểm danh không hợp lệ.", System.Net.HttpStatusCode.BadRequest);
@@ -67,6 +69,11 @@ namespace Domain.Services
                 return HttpResponse.Error("Đã tồn tại điểm danh này trong hệ thống, vui lòng kiểm tra lại !!", System.Net.HttpStatusCode.BadRequest);
             else
             {
+
+                string filePath = Path.Combine(pathSave, $"{_class.Name}_{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.png");
+                byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64.Replace("data:image/jpeg;base64,", ""));
+                File.WriteAllBytes(filePath, imageBytes);
+
                 var Timesheet = new Timesheet()
                 {
                     ClassId = timesheetRequest.ClassId,
@@ -167,64 +174,59 @@ namespace Domain.Services
 
         public List<TimesheetResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
-            //// Lấy danh sách lớp học trong học kỳ hiện tại
-            int totalRecordsDummy = -1;
-            var ClassInSemester = _ClassServices.GetClassInSemester(string.Empty, -1, -1, out totalRecordsDummy)?
-                .Select(s => s.Id);
-            if(ClassInSemester == null)
+            // Lấy danh sách ID của lớp học trong học kỳ hiện tại
+            var classIds = _ClassServices.GetClassInSemester(string.Empty, -1, -1, out _)?
+                .Select(s => s.Id)
+                .ToList();
+
+            if (classIds == null || !classIds.Any())
             {
                 totalRecords = 0;
                 return new List<TimesheetResponse>();
             }
 
-            var query = _Timesheet.All();
-
-            query = query.Where(w => ClassInSemester.Contains(w.ClassId));
+            var query = _Timesheet.All().Where(w => classIds.Contains(w.ClassId));
 
             if (!string.IsNullOrEmpty(search))
             {
+                string searchLower = search.ToLower();
                 query = query.Where(f =>
-                    f.Class.Name.ToLower().Contains(search) ||
-                    f.Time.Name.ToLower().Contains(search) ||
-                    f.Date.ToString().Contains(search) ||
-                    f.Status.ToLower().Contains(search) ||
-                    f.Note.ToLower().Contains(search));
+                    f.Class.Name.Contains(searchLower) ||
+                    f.Time.Name.Contains(searchLower) ||
+                    f.Date.ToString().Contains(searchLower) ||
+                    f.Status.Contains(searchLower) ||
+                    f.Note.Contains(searchLower));
             }
-            totalRecords = query.Count(); // Đếm tổng số bản ghi
 
+            // Đếm số bản ghi trước khi phân trang
+            totalRecords = query.Count();
+
+            // Sắp xếp theo ID và áp dụng phân trang nếu cần
+            query = query.OrderBy(u => u.Id);
             if (pageNumber != -1 && pageSize != -1)
             {
-                // Sắp xếp phân trang
-                query = query.OrderBy(u => u.Id)
-                             .Skip((pageNumber - 1) * pageSize)
-                             .Take(pageSize);
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
             }
-            else
+
+            // Lấy danh sách tất cả studentId liên quan đến timesheet
+            var timesheetIds = query.Select(t => t.Id).ToList();
+            var studentMap = _TimesheetStudents.All()
+                .Where(ts => timesheetIds.Contains(ts.TimesheetId))
+                .GroupBy(ts => ts.TimesheetId)
+                .ToDictionary(g => g.Key, g => g.Select(s => s.StudentId).ToList());
+
+            // Chuyển đổi dữ liệu
+            return query.Select(f => new TimesheetResponse
             {
-                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
-            }
-
-            //var students = _TimesheetStudents.Find(f => f.TimesheetId == )
-
-            var timesheets = query
-                .AsEnumerable()  // Chuyển về client-side evaluation
-                .Select(f => new TimesheetResponse
-                {
-                    Id = f.Id,
-                    StudentsId = _TimesheetStudents
-                        .ListBy(t => t.TimesheetId == f.Id)
-                        .Select(s => s.StudentId)
-                        .ToList(),
-                    ClassId = f.ClassId,
-                    TimeId = f.TimeId,
-                    Date = f.Date,
-                    Image_Check = f.Image_Check,
-                    Status = f.Status,
-                    Note = f.Note,
-                }).ToList();
-
-            return timesheets;
+                Id = f.Id,
+                StudentsId = studentMap.ContainsKey(f.Id) ? studentMap[f.Id] : new List<long>(),
+                ClassId = f.ClassId,
+                TimeId = f.TimeId,
+                Date = f.Date,
+                ImageBase64 = Convert.ToBase64String(File.ReadAllBytes(f.Image_Check)),
+                Status = f.Status,
+                Note = f.Note
+            }).ToList();
         }
-
     }
 }

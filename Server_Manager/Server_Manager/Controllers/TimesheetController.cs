@@ -2,6 +2,7 @@
 using Domain.Common;
 using Domain.Common.Http;
 using Domain.Interfaces.Services;
+using Domain.Model.Request.Extension;
 using Domain.Model.Request.Timesheet;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -21,30 +22,16 @@ namespace Server_Manager.Controllers
             _services = services;
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateTimesheet([FromForm] TimesheetRequest timesheetRequest)
+        public async Task<IActionResult> CreateTimesheet([FromBody] TimesheetRequest timesheetRequest)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
 
-            if(timesheetRequest.ImageFile == null || timesheetRequest.ImageFile.Length == 0)
-                return BadRequest(new { Message = "Ảnh không được để trống !!!" });
-
-            // Lấy đường dẫn thư mục lưu file
-            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "chamcong");
+            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "Timesheet");
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
-            // Tạo tên file duy nhất
-            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(timesheetRequest.ImageFile.FileName);
-            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            // Lưu file
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                await timesheetRequest.ImageFile.CopyToAsync(fileStream);
-            }
-
-            var response = await _services.CreateAsync(timesheetRequest, filePath);
+            var response = await _services.CreateAsync(timesheetRequest, uploadsFolder);
             return response.ToActionResult();
         }
         [HttpPut("{Id}")]
@@ -52,6 +39,10 @@ namespace Server_Manager.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
+
+            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "Timesheet");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
 
             timesheetRequest.Id = Id;
             timesheetRequest.Status = !string.IsNullOrEmpty(timesheetRequest.Status) ? timesheetRequest.Status : EnumExtensions.GetDisplayName(StatusTimesheet_Enum.Pending);

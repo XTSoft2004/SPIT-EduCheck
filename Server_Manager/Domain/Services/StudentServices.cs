@@ -96,47 +96,45 @@ namespace Domain.Services
         {
             var query = _Student.All();
 
+            // Chuyển đổi `search` về lowercase để tránh gọi `ToLower()` nhiều lần trong truy vấn
             if (!string.IsNullOrEmpty(search))
             {
+                string searchLower = search.ToLower();
                 query = query.Where(s =>
-                       s.MaSinhVien.ToLower().Contains(search) ||
-                       s.FirstName.ToLower().Contains(search) ||
-                       s.LastName.ToLower().Contains(search) ||
-                       s.Email.ToLower().Contains(search) ||
-                       s.Class.ToLower().Contains(search) ||
-                       s.PhoneNumber.ToLower().Contains(search));
+                    s.MaSinhVien.Contains(searchLower) ||
+                    s.FirstName.Contains(searchLower) ||
+                    s.LastName.Contains(searchLower) ||
+                    s.Email.Contains(searchLower) ||
+                    s.Class.Contains(searchLower) ||
+                    s.PhoneNumber.Contains(searchLower));
             }
-            totalRecords = query.Count(); // Đếm tổng số bản ghi
 
+            // Đếm tổng số bản ghi trước khi áp dụng phân trang
+            totalRecords = query.Count();
+
+            // Sắp xếp theo ID tăng dần
+            query = query.OrderBy(s => s.Id);
+
+            // Áp dụng phân trang nếu có
             if (pageNumber != -1 && pageSize != -1)
             {
-                // Sắp xếp phân trang
-                query = query.OrderBy(u => u.Id)
-                             .Skip((pageNumber - 1) * pageSize)
-                             .Take(pageSize);
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
             }
 
-            query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
-
-            //if(totalRecords != query.Count())
-            //    totalRecords = query.Count();
-
-            var students = query
-                .Select(s => new StudentResponse()
-                {
-                    Id = s.Id,
-                    MaSinhVien = s.MaSinhVien,
-                    FirstName = s.FirstName,
-                    LastName = s.LastName,
-                    Class = s.Class,
-                    PhoneNumber = s.PhoneNumber,
-                    Email = s.Email,
-                    Dob = s.Dob,
-                    Gender = s.Gender,
-                    UserName = s.User.Username
-                }).ToList();
-
-            return students;
+            // Lấy dữ liệu cần thiết và chuyển sang danh sách
+            return query.Select(s => new StudentResponse
+            {
+                Id = s.Id,
+                MaSinhVien = s.MaSinhVien,
+                FirstName = s.FirstName,
+                LastName = s.LastName,
+                Class = s.Class,
+                PhoneNumber = s.PhoneNumber,
+                Email = s.Email,
+                Dob = s.Dob,
+                Gender = s.Gender,
+                UserName = s.User.Username
+            }).ToList();
         }
         public async Task<HttpResponse> AddStudentInUser(long IdUser, long IdStudent)
         {

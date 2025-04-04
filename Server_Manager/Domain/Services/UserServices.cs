@@ -89,37 +89,35 @@ namespace Domain.Services
         public List<UserResponse> GetAllUsers(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _User.All();
+
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(u => u.Username.Contains(search));
+                string searchLower = search.ToLower();
+                query = query.Where(u => u.Username.ToLower().Contains(searchLower));
             }
-            totalRecords = query.Count(); // Đếm tổng số bản ghi
+
+            // Đếm số bản ghi trước khi phân trang
+            totalRecords = query.Count();
+
+            // Sắp xếp theo ID
+            query = query.OrderBy(u => u.Id);
 
             if (pageNumber != -1 && pageSize != -1)
             {
-                // Sắp xếp phân trang
-                query = query.OrderBy(u => u.Id)
-                             .Skip((pageNumber - 1) * pageSize)
-                             .Take(pageSize);
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
             }
-            else
+
+            // Chuyển đổi sang danh sách UserResponse
+            return query.Select(s => new UserResponse()
             {
-                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
-            }
-
-            var users = query
-                .Select(s => new UserResponse()
-                {
-                    Id = s.Id,
-                    Username = s.Username,
-                    IsLocked = s.IsLocked,
-                    IsVerify = s.IsVerify,
-                    RoleName = s.Role.DisplayName,
-                    StudentName = s.Student != null ? (s.Student.LastName + " " + s.Student.FirstName) : null,
-                    SemesterId = s.SemesterId   
-                }).ToList();
-
-            return users;
+                Id = s.Id,
+                Username = s.Username,
+                IsLocked = s.IsLocked,
+                IsVerify = s.IsVerify,
+                RoleName = s.Role.DisplayName,
+                StudentName = s.Student != null ? s.Student.LastName + " " + s.Student.FirstName : null,
+                SemesterId = s.SemesterId
+            }).ToList();
         }
 
         public UserResponse GetMe()

@@ -1,4 +1,5 @@
 ﻿using Domain.Interfaces.Services;
+using Domain.Model.Request.Extension;
 using Domain.Model.Request.Timesheet;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -27,23 +28,35 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
         [HttpPost("ImportClass")]
-        public async Task<IActionResult> ImportClass([FromForm] IFormFile fileUpload)
+        [Consumes("multipart/form-data")] // Đảm bảo Swagger nhận diện đúng loại dữ liệu
+        public async Task<IActionResult> ImportClass([FromForm] ClassImportRequest classImportRequest) // Sử dụng FromForm thay vì FromBody
         {
             string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "ClassesImport");
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
             // Tạo tên file duy nhất
-            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(fileUpload.FileName);
+            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(classImportRequest.FileUpload.FileName);
             string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
             // Lưu file
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
-                await fileUpload.CopyToAsync(fileStream);
+                await classImportRequest.FileUpload.CopyToAsync(fileStream);
             }
 
             var response = await _services.ImportClass(filePath);
+            return response.ToActionResult();
+        }
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadFile([FromForm] UploadFileRequest uploadFileRequest)
+        {
+            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "Uploads");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+            // Tạo tên file duy nhất
+            var response = await _services.UploadFile(uploadsFolder, uploadFileRequest);
             return response.ToActionResult();
         }
     }
