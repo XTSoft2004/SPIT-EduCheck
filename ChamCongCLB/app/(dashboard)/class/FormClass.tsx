@@ -73,10 +73,10 @@ export default function FormClass({ form, students, lecturers, courses }: FormCl
             </Form.Item>
             <Form.Item
                 label="Giảng viên"
-                name="lecturerId"
+                name="lecturersId"
                 rules={[{ required: true, message: 'Vui lòng chọn giảng viên!' }]}
             >
-                <Select placeholder="Chọn giảng viên">
+                <Select placeholder="Chọn giảng viên" mode="multiple">
                     {lecturers.map(lecturer => (
                         <Option key={lecturer.id} value={lecturer.id}>
                             {lecturer.fullName}

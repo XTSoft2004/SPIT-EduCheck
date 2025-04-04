@@ -1,6 +1,11 @@
 'use server'
 import globalConfig from '@/app.config'
-import { IProfile, ILoginForm, ITokens } from '@/types/auth'
+import {
+  IProfile,
+  ILoginForm,
+  ITokens,
+  ICreateMutipleAccount,
+} from '@/types/auth'
 import { cookies, headers } from 'next/headers'
 
 import { IIndexResponse, IResponse, IShowResponse } from '@/types/global'
@@ -31,6 +36,41 @@ export const getProfile = async () => {
       ...data,
     },
   } as IShowResponse<IProfile>
+}
+
+export const createMutipleAccount = async (formData: string[]) => {
+  const profile = await getProfile()
+  if (!profile.ok || !profile.data) {
+    return {
+      ok: profile.ok,
+      message: profile.message,
+    } as IResponse
+  }
+
+  const response = await fetch(
+    `${globalConfig.baseUrl}/extension/CreateAccount`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:
+          headers().get('Authorization') ||
+          `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+      },
+      body: JSON.stringify(formData),
+    },
+  )
+
+  revalidateTag('user.index')
+  revalidateTag('user.show')
+
+  const data = await response.json()
+  console.log('data', data)
+  return {
+    ok: response.ok,
+    message: data.message,
+    ...data,
+  } as IResponse
 }
 
 /**

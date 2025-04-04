@@ -16,7 +16,7 @@ import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
 import { render } from 'react-dom';
 
-export default function ClassPage() {
+export default function LecturerPage() {
     const columns = [
         {
             title: 'Tên giảng viên',
@@ -102,8 +102,7 @@ export default function ClassPage() {
 
             const response = await updateLecturer(formUpdate);
             if (response.ok) {
-                setIsModalOpen(false);
-                form.resetFields();
+                handleClose();
                 setSelectedCourse(null);
 
                 mutate(['lecturers', searchText, pageIndex, pageSize]);
@@ -126,8 +125,7 @@ export default function ClassPage() {
             console.log('Form data:', formCreate);
             const response = await createLecturer(formCreate);
             if (response.ok) {
-                setIsModalOpen(false);
-                form.resetFields();
+                handleClose();
                 setSelectedCourse(null);
 
                 mutate(['lecturers', searchText, pageIndex, pageSize]);

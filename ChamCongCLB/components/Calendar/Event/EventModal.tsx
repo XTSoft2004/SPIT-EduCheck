@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Select, Input, Button, SelectProps } from "antd";
+import { Modal, Form, Select, Input, Button, SelectProps, Upload } from "antd";
 import type { Dayjs } from "dayjs";
 
 import { ITimesheet, ITimesheetCreate, ITimesheetUpdate } from "@/types/timesheet";
@@ -8,6 +8,7 @@ import { IClass } from "@/types/class";
 
 import { getAllStudents } from "@/actions/student.actions";
 import { createTimesheet, deleteTimesheet, getTimesheets, updateTimesheet } from "@/actions/timesheet.actions";
+import { UploadOutlined } from "@ant-design/icons";
 
 interface EventModalProps {
     isOpen: boolean;
@@ -56,40 +57,54 @@ const EventModal: React.FC<EventModalProps> = ({
         fetchDataStudents();
     }, []);
 
+    // ✅ Client Component (React)
+
     const handleAddEvent = async () => {
         try {
-            const values = await form.validateFields();
-            if (!selectedDate) return;
+            const values = await form.validateFields()
+            if (!selectedDate) return
+
+            const file = values.imageBase64?.[0]?.originFileObj
+            if (!file) {
+                console.error("Chưa có file hợp lệ!")
+                return
+            }
+
+            // Nếu file là File, chuyển nó thành Base64
+            const imageBase64 = await fileToBase64(file)
 
             const newTimesheet: ITimesheetCreate = {
                 studentsId: values.studentsId,
                 classId: values.classId,
                 timeId: values.timeId,
                 date: selectedDate.format("YYYY-MM-DD"),
-                image_Check: values.image_Check,
+                imageBase64: imageBase64, // Đảm bảo gửi Base64 nếu là file
+                status: 'Đang chờ duyệt',
                 note: values.note || "",
-                status: "Đang chờ duyệt"
-            };
+            }
 
-            const response = await createTimesheet(newTimesheet);
+            const response = await createTimesheet(newTimesheet)
 
             if (response.ok) {
-                const responseTimesheets = await getTimesheets();
-                if (responseTimesheets.ok)
-                    setTimesheets(responseTimesheets.data);
+                const list = await getTimesheets()
+                if (list.ok) setTimesheets(list.data)
 
-                setIsModalOpen(false);
-                form.resetFields();
+                setIsModalOpen(false)
+                form.resetFields()
             }
         } catch (error) {
-            console.error("Error adding event:", error);
+            console.error("Error adding event:", error)
         }
-    };
+    }
 
     const handleSaveEvent = async () => {
         try {
             const values = await form.validateFields();
             if (!selectedDate) return;
+            const file = values.imageBase64?.[0]?.originFileObj;
+
+            // Chuyển file thành Base64 nếu có
+            const base64Image = file ? await fileToBase64(file) : values.imageBase64;
 
             if (selectedEvent) {
                 const updatedTimesheet: ITimesheetUpdate = {
@@ -98,11 +113,10 @@ const EventModal: React.FC<EventModalProps> = ({
                     classId: values.classId,
                     timeId: values.timeId,
                     date: selectedDate.format("YYYY-MM-DD"),
-                    image_Check: values.image_Check,
+                    imageBase64: base64Image, // Dùng Base64 nếu là file
                     note: values.note || "",
                     status: selectedEvent.status,
                 };
-
                 const response = await updateTimesheet(updatedTimesheet);
 
                 if (response.ok) {
@@ -115,7 +129,7 @@ const EventModal: React.FC<EventModalProps> = ({
                     classId: values.classId,
                     timeId: values.timeId,
                     date: selectedDate.format("YYYY-MM-DD"),
-                    image_Check: values.image_Check,
+                    imageBase64: base64Image, // Dùng Base64 nếu là file
                     note: values.note || "",
                     status: "Đang chờ duyệt",
                 };
@@ -163,6 +177,44 @@ const EventModal: React.FC<EventModalProps> = ({
             label: `${student.lastName} ${student.firstName} (${student.maSinhVien})`,
         });
     });
+
+    const fileToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const renderImagePreview = () => {
+        const imageBase64 = form.getFieldValue('imageBase64');
+        if (imageBase64) {
+            return <img src={`data:image/png;base64,${imageBase64}`} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px' }} />;
+        }
+
+        return (
+            <Upload
+                name="imageBase64"
+                listType="picture"
+                accept="image/*"
+                beforeUpload={() => false} // Prevent auto upload
+                maxCount={1}
+                showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
+                onChange={(info) => {
+                    if (info.file.status === 'done') {
+                        // Handle successful upload
+                    } else if (info.file.status === 'error') {
+                        // Handle upload failure
+                    }
+                }}
+            >
+                <Button icon={<UploadOutlined />}>
+                    Tải lên hình ảnh điểm danh
+                </Button>
+            </Upload>
+        );
+    };
 
     return (
         <Modal
@@ -237,11 +289,13 @@ const EventModal: React.FC<EventModalProps> = ({
 
                 {/* Nhập đường dẫn ảnh */}
                 <Form.Item
-                    name="image_Check"
-                    label="Ảnh minh chứng"
-                    rules={[{ required: true, message: "Nhập đường dẫn ảnh minh chứng" }]}
-                >
-                    <Input placeholder="Nhập URL ảnh" />
+                    label="Hình ảnh điểm danh"
+                    name="imageBase64"
+                    valuePropName="fileList"
+                    getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+                    rules={[{ required: true, message: 'Vui lòng chọn hình ảnh điểm danh' }]}>
+
+                    {renderImagePreview()}
                 </Form.Item>
 
                 {/* Nhập chú thích */}
@@ -249,7 +303,7 @@ const EventModal: React.FC<EventModalProps> = ({
                     <Input.TextArea placeholder="Nhập chú thích (nếu có)" />
                 </Form.Item>
             </Form>
-        </Modal>
+        </Modal >
     );
 };
 

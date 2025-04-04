@@ -41,7 +41,7 @@ const EventList: React.FC<Props> = ({ value, events, timesheets, form, setIsModa
                                         studentsId: event.studentsId,
                                         classId: event.classId,
                                         timeId: event.timeId,
-                                        image_Check: event.image_Check,
+                                        imageBase64: event.imageBase64,
                                         note: event.note,
                                     });
                                     setIsModalOpen(true);

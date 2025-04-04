@@ -19,6 +19,9 @@ export interface ILoginForm {
   username: string
   password: string
 }
+export interface ICreateMutipleAccount {
+  username: string[]
+}
 
 export interface ILoginResponse {
   data: ITokens

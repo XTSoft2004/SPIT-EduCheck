@@ -1,5 +1,5 @@
 'use client'
-import { Button, Space, Form, TableProps, Table } from 'antd';
+import { Button, Space, Form, TableProps, Table, Checkbox } from 'antd';
 import React, { use, useEffect, useState } from 'react';
 import useSWR, { mutate } from 'swr';
 import DataGrid from '@/components/ui/Table/DataGrid';
@@ -13,6 +13,7 @@ import Searchbar from '@/components/ui/Table/Searchbar';
 import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
 import AddStudentButton from '@/components/ui/Button/AddStudentButton';
+import { render } from 'react-dom';
 
 export default function UserPage() {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -73,6 +74,16 @@ export default function UserPage() {
             dataIndex: 'gender',
             key: 'gender',
             render: (value: boolean) => (value ? 'Nam' : 'Nữ'),
+        },
+        {
+            title: 'Trạng thái',
+            dataIndex: 'status',
+            key: 'status',
+            render: (value: string | null) => (
+                <div className="flex justify-center">
+                    <Checkbox checked={!value} />
+                </div>
+            ),
         },
         {
             title: 'Hành động',

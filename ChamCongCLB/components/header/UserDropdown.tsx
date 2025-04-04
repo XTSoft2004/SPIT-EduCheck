@@ -60,7 +60,7 @@ export default function UserDropdown() {
       <Space className="cursor-pointer">
         <div className='mr-5 flex items-center'>
           <Avatar className='mr-2' size="large" icon={<UserOutlined />} />
-          <span className='sm:block hidden font-bold'>Admin</span> {/* fullName */}
+          <span className='sm:block hidden font-bold'>{user?.username.toUpperCase()}</span> {/* fullName */}
         </div>
         {/* <span className="dark:text-white">Admin</span> */}
       </Space>

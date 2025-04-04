@@ -57,6 +57,7 @@ export default function PageUser() {
             render: (value) => !!value ? 'Đã xác thực' : 'Chưa xác thực',
         },
     ];
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalCreate, setIsModalCreate] = useState(false);
     const [pageIndex, setPageIndex] = useState(1);

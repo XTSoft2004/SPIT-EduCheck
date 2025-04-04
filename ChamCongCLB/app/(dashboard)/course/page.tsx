@@ -18,7 +18,7 @@ import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
 import { title } from 'process';
 
-export default function ClassPage() {
+export default function CoursePage() {
     const [semesters, setSemesters] = useState<ISemester[]>([]);
 
     useEffect(() => {
@@ -173,7 +173,7 @@ export default function ClassPage() {
                 <Searchbar setSearchText={handleSearch} />
             </div>
 
-            {isLoading ? <SpinLoading /> : (
+            {(isLoading || semesters.length === 0) ? <SpinLoading /> : (
                 <>
                     <DataGrid<ICourse>
                         rowKey="id"

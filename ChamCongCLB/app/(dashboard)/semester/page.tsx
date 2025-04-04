@@ -16,7 +16,7 @@ import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
 import MessageAlert from '@/components/ui/Alert/MessageAlert';
 
-export default function ClassPage() {
+export default function SemesterPage() {
     const columns = [
         {
             title: 'Năm bắt đầu',

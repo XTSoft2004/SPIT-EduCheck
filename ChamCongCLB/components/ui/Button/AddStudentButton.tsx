@@ -1,11 +1,6 @@
-'use client';
-import { createAccount } from "@/actions/auth.actions";
-import { getUsers } from "@/actions/user.actions";
-import { ILoginForm } from "@/types/auth";
+import { createMutipleAccount } from "@/actions/auth.actions";
 import { Button, message } from "antd";
 import { CirclePlus } from "lucide-react";
-import SnackbarAlert from "../Alert/SnackbarAlertProps";
-import { useActionState, useEffect } from "react";
 
 const AddStudentButton: React.FC<{ selectedKeys: React.Key[] }> = ({ selectedKeys }) => {
     const handleCreate = async () => {
@@ -13,36 +8,22 @@ const AddStudentButton: React.FC<{ selectedKeys: React.Key[] }> = ({ selectedKey
             message.warning("Vui lòng chọn ít nhất một sinh viên!");
             return;
         }
+        const formPost = selectedKeys.map(key => key.toString());
+        const loadingMessage = message.loading('Đang tạo tài khoản ...', 0);
 
-        useEffect(() => {
-            console.log(selectedKeys);
-        }, [selectedKeys]);
-
-        // try {
-        //     const existingUsers = await getUsers();
-        //     const existingUsernames = new Set(existingUsers.data.map((user: { username: string }) => user.username));
-
-        //     const newAccounts: ILoginForm[] = selectedKeys
-        //         .map(key => ({
-        //             username: key.toString(),
-        //             password: '123'
-        //         }))
-        //         .filter(account => !existingUsernames.has(account.username));
-
-        //     if (newAccounts.length === 0) {
-        //         message.info("Tất cả tài khoản đã tồn tại!");
-        //         return;
-        //     }
-
-        //     await Promise.all(newAccounts.map(async account => {
-        //         await createAccount(account)
-        //     }));
-
-        //     message.success("Tạo tài khoản thành công!");
-        // } catch (error) {
-        //     console.error("Lỗi khi tạo tài khoản:", error);
-        //     message.error("Có lỗi xảy ra khi tạo tài khoản!");
-        // }
+        try {
+            const response = await createMutipleAccount(formPost);
+            // Tắt loading khi nhận được kết quả
+            loadingMessage();
+            if (response.ok) {
+                message.success(response.message);
+            } else {
+                message.error(response.message);
+            }
+        } catch (error) {
+            loadingMessage();
+            message.error('Đã có lỗi xảy ra!');
+        }
     };
 
     return (

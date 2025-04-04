@@ -40,7 +40,11 @@ export const getClasses = async (
   )
 
   const data = await response.json()
-
+  console.log(
+    'Classes',
+    `${globalConfig.baseUrl}/class?search=${search}&pageNumber=${page}&pageSize=${pageSize}`,
+  )
+  console.log('ClassesRes', data)
   return {
     ok: response.ok,
     status: response.status,

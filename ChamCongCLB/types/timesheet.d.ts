@@ -4,7 +4,7 @@ export interface ITimesheet {
   classId: number
   timeId: number
   date: string
-  image_Check: string
+  imageBase64: string
   status: string
   note: string
 }
@@ -19,7 +19,7 @@ export interface ITimesheetCreate {
   classId: number
   timeId: number
   date: string
-  ImageFile: File
+  imageBase64: string
   status: string
   note?: string
 }
@@ -30,7 +30,7 @@ export interface ITimesheetUpdate {
   classId?: number
   timeId?: number
   date?: string
-  image_Check?: string
+  imageBase64?: string
   status?: string
   note?: string
 }

@@ -8,6 +8,7 @@ import {
   ITimesheetUpdate,
 } from '@/types/timesheet'
 import { IIndexResponse, IResponse } from '@/types/global'
+import { revalidateTag } from 'next/cache'
 
 export const getTimesheets = async (
   search: string = '',
@@ -24,6 +25,9 @@ export const getTimesheets = async (
           headers().get('Authorization') ||
           `Bearer ${cookies().get('accessToken')?.value || ' '}`,
       },
+      next: {
+        tags: ['timesheet.index'],
+      },
     },
   )
 
@@ -38,27 +42,18 @@ export const getTimesheets = async (
 }
 
 export const createTimesheet = async (timesheet: ITimesheetCreate) => {
-  const formData = new FormData()
-
-  formData.append('studentsId', timesheet.studentsId.toString())
-  formData.append('classId', timesheet.classId.toString())
-  formData.append('timeId', timesheet.timeId.toString())
-  formData.append('date', timesheet.date)
-  formData.append('ImageFile', timesheet.ImageFile) // Upload file
-  formData.append('status', timesheet.status)
-  if (timesheet.note) {
-    formData.append('note', timesheet.note)
-  }
-
   const response = await fetch(`${globalConfig.baseUrl}/timesheet/create`, {
     method: 'POST',
     headers: {
+      'Content-Type': 'application/json',
       Authorization:
         headers().get('Authorization') ||
         `Bearer ${cookies().get('accessToken')?.value || ' '}`,
     },
-    body: formData, // Sử dụng FormData
+    body: JSON.stringify(timesheet), // Sử dụng FormData
   })
+  revalidateTag('timesheet.index')
+  revalidateTag('timesheet.show')
 
   const data = await response.json()
 
@@ -82,6 +77,8 @@ export const updateTimesheet = async (timesheet: ITimesheetUpdate) => {
       body: JSON.stringify(timesheet),
     },
   )
+  revalidateTag('timesheet.index')
+  revalidateTag('timesheet.show')
 
   const data = await response.json()
 
@@ -104,6 +101,8 @@ export const deleteTimesheet = async (timesheet: ITimesheet) => {
       },
     },
   )
+  revalidateTag('timesheet.index')
+  revalidateTag('timesheet.show')
 
   const data = await response.json()
 

@@ -37,10 +37,15 @@ export default function ClassPage() {
             if (studentsRes.ok) setStudents(studentsRes.data);
             if (lecturersRes.ok) setLecturers(lecturersRes.data);
             if (coursesRes.ok) setCourses(coursesRes.data);
+
+            console.log('studentsRes', studentsRes.data);
+            console.log('lecturersRes', lecturersRes.data);
+            console.log('coursesRes', coursesRes.data);
         };
 
         fetchData();
     }, []);
+
 
     const columns = [
         // {
@@ -78,11 +83,17 @@ export default function ClassPage() {
         },
         {
             title: 'Giảng viên',
-            dataIndex: 'lecturerId',
-            key: 'lecturerId',
-            render: (value: number) => {
-                const lecturer = lecturers.find(lecturer => lecturer.id === value);
-                return lecturer ? `${lecturer.fullName}` : 'N/A';
+            dataIndex: 'lecturersId',
+            key: 'lecturersId',
+            render: (lecturersId: number[]) => {
+                const lecturerNames = lecturersId
+                    .map(id => {
+                        const lecturer = lecturers.find(lecturer => lecturer.id === id);
+                        return lecturer ? `${lecturer.fullName}` : 'Không xác định';
+                    })
+                    .join(', ');
+
+                return lecturerNames.length > 30 ? `${lecturerNames.slice(0, 30)}...` : lecturerNames;
             }
         },
         {
@@ -136,7 +147,7 @@ export default function ClassPage() {
             day: formData.day,
             timeStart: formData.timeStart,
             timeEnd: formData.timeEnd,
-            lecturerId: formData.lecturerId,
+            lecturersId: formData.lecturersId,
             courseId: formData.courseId,
             studentsId: formData.studentsId,
         });
@@ -160,7 +171,7 @@ export default function ClassPage() {
                 day: values.day,
                 timeStart: values.timeStart,
                 timeEnd: values.timeEnd,
-                lecturerId: values.lecturerId,
+                lecturersId: values.lecturersId,
                 courseId: values.courseId,
                 studentsId: selectedClass?.studentsId || [],
             };
@@ -171,7 +182,7 @@ export default function ClassPage() {
                 form.resetFields();
                 setSelectedClass(null);
 
-                mutate(['classes', pageIndex, pageSize]);
+                mutate(['classes', searchText, pageIndex, pageSize]);
             }
         }
         catch (error) {
@@ -189,7 +200,7 @@ export default function ClassPage() {
                 day: values.day,
                 timeStart: values.timeStart,
                 timeEnd: values.timeEnd,
-                lecturerId: values.lecturerId,
+                lecturersId: values.lecturersId,
                 courseId: values.courseId,
                 studentsId: values.studentsId,
             };
@@ -200,7 +211,7 @@ export default function ClassPage() {
                 form.resetFields();
                 setSelectedClass(null);
 
-                mutate(['classes', pageIndex, pageSize]);
+                mutate(['classes', searchText, pageIndex, pageSize]);
             }
         }
         catch (error) {
@@ -222,7 +233,7 @@ export default function ClassPage() {
                 <Searchbar setSearchText={handleSearch} />
             </div>
 
-            {isLoading ? <SpinLoading /> : (
+            {(isLoading || classes.length === 0 || students.length === 0 || courses.length === 0) ? <SpinLoading /> : (
                 <>
                     <DataGrid<IClass>
                         rowKey="id"
