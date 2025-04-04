@@ -46,7 +46,7 @@ namespace Server_Manager.Controllers
 
             timesheetRequest.Id = Id;
             timesheetRequest.Status = !string.IsNullOrEmpty(timesheetRequest.Status) ? timesheetRequest.Status : EnumExtensions.GetDisplayName(StatusTimesheet_Enum.Pending);
-            var response = await _services.UpdateAsync(timesheetRequest);
+            var response = await _services.UpdateAsync(timesheetRequest, uploadsFolder);
             return response.ToActionResult();
         }
         [HttpDelete("{Id}")]

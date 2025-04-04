@@ -22,11 +22,23 @@ namespace Domain.Services
     public class ExtensionServices : BaseService, IExtensionServices
     {
         private readonly IRepositoryBase<User> _User;
+        private readonly IRepositoryBase<Student> _Student;
         private readonly IRepositoryBase<Semester> _Semester;
         private readonly IRepositoryBase<Course> _Course;
         private readonly IRepositoryBase<Class> _Class;
         private readonly IRepositoryBase<Lecturer> _Lecturer;
         private readonly IRepositoryBase<Lecturer_Class> _LectureClass;
+
+        public ExtensionServices(IRepositoryBase<User> user, IRepositoryBase<Student> student, IRepositoryBase<Semester> semester, IRepositoryBase<Course> course, IRepositoryBase<Class> @class, IRepositoryBase<Lecturer> lecturer, IRepositoryBase<Lecturer_Class> lectureClass)
+        {
+            _User = user;
+            _Student = student;
+            _Semester = semester;
+            _Course = course;
+            _Class = @class;
+            _Lecturer = lecturer;
+            _LectureClass = lectureClass;
+        }
 
         public async Task<HttpResponse> CreateAccountByStudentId(List<string> studentsMSV)
         {
@@ -51,6 +63,21 @@ namespace Domain.Services
                 success++;
             }
             await UnitOfWork.CommitAsync();
+
+            foreach (var studentMSV in studentsMSV)
+            {
+                var _user = _userAll.Where(f => f.Username == studentMSV).FirstOrDefault();
+                if (_user == null)
+                    continue;
+                var student = _Student.Find(f => f.MaSinhVien == studentMSV);
+                if (student != null)
+                {
+                    student.User = _user;
+                    _Student.Update(student);
+                }
+            }
+            await UnitOfWork.CommitAsync();
+
             return HttpResponse.OK(message: $"Tạo tài khoản {success} tài khoản thành công.");
         }
         private Semester GetSemesterNow()

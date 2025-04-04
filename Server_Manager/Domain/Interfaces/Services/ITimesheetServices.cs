@@ -13,7 +13,7 @@ namespace Domain.Interfaces.Services
     {
         List<TimesheetResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords);
         Task<HttpResponse> CreateAsync(TimesheetRequest timesheetRequest, string filePath);
-        Task<HttpResponse> UpdateAsync(TimesheetRequest timesheetRequest);
+        Task<HttpResponse> UpdateAsync(TimesheetRequest timesheetRequest, string filePath);
         Task<HttpResponse> DeleteAsync(long Id);
     }
 }

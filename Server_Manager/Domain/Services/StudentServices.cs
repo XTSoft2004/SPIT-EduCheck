@@ -133,7 +133,7 @@ namespace Domain.Services
                 Email = s.Email,
                 Dob = s.Dob,
                 Gender = s.Gender,
-                UserName = s.User.Username
+                UserName = _User.All().Where(u => u.StudentId == s.Id).Select(u => u.Username).FirstOrDefault(),
             }).ToList();
         }
         public async Task<HttpResponse> AddStudentInUser(long IdUser, long IdStudent)

@@ -69,9 +69,8 @@ namespace Domain.Services
                 return HttpResponse.Error("Đã tồn tại điểm danh này trong hệ thống, vui lòng kiểm tra lại !!", System.Net.HttpStatusCode.BadRequest);
             else
             {
-
-                string filePath = Path.Combine(pathSave, $"{_class.Name}_{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.png");
-                byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64.Replace("data:image/jpeg;base64,", ""));
+                string filePath = Path.Combine(pathSave, $"{_class.Name}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{_student.UserId}.png");
+                byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64.Split(',')[1]);
                 File.WriteAllBytes(filePath, imageBytes);
 
                 var Timesheet = new Timesheet()
@@ -101,7 +100,7 @@ namespace Domain.Services
                 return HttpResponse.OK(message: "Điểm danh thành công.");
             }
         }
-        public async Task<HttpResponse> UpdateAsync(TimesheetRequest timesheetRequest)
+        public async Task<HttpResponse> UpdateAsync(TimesheetRequest timesheetRequest, string pathSave)
         {
             if (timesheetRequest == null)
                 return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
@@ -132,6 +131,10 @@ namespace Domain.Services
                 return HttpResponse.Error("Đã tồn tại điểm danh này trong hệ thống, vui lòng kiểm tra lại !!", System.Net.HttpStatusCode.BadRequest);
             else
             {
+                string filePath = Path.Combine(pathSave, $"{_class.Name}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{_student.UserId}.png");
+                byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64);
+                File.WriteAllBytes(filePath, imageBytes);
+
                 var StudentsTimesheet = _TimesheetStudents.ListBy(l => l.TimesheetId == timesheetRequest.Id).Select(s => s.StudentId).ToList();
                 var StudentIdRemove = StudentsTimesheet.Except(timesheetRequest.StudentsId).ToList();
                 var StudentRemove = _TimesheetStudents.ListBy(l => StudentIdRemove.Contains(l.StudentId) && l.TimesheetId == timesheetRequest.Id);
@@ -148,6 +151,7 @@ namespace Domain.Services
                 _timesheet.Date = timesheetRequest.Date;
                 _timesheet.Class = _class;
                 _timesheet.Time = _time;
+                _timesheet.Image_Check = filePath;
                 //_timesheet.Image_Check = timesheetRequest.Image_Check;
                 _timesheet.Status = timesheetRequest.Status;
                 _timesheet.Note = timesheetRequest.Note;
