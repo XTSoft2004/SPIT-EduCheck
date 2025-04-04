@@ -34,14 +34,21 @@ export default function FormStudent({ form }: FormStudentProps) {
             <Form.Item
                 label="Lớp"
                 name="class"
-                rules={[{ required: true, message: 'Vui lòng nhập lớp!' }]}
+                rules={[
+                    { required: true, message: 'Vui lòng nhập lớp!' },
+                    { type: 'email', message: 'Email không hợp lệ!' },
+                    { pattern: /^[a-zA-Z0-9._%+-]+@husc\.edu\.vn$/, message: 'Email phải thuộc miền husc.edu.vn!' }
+                ]}
             >
                 <Input placeholder="VD: K46B" />
             </Form.Item>
             <Form.Item
                 label="Số điện thoại"
                 name="phoneNumber"
-                rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
+                rules={[
+                    { required: true, message: 'Vui lòng nhập số điện thoại!' },
+                    { pattern: /^0[0-9]{9}$/, message: 'Số điện thoại không hợp lệ!' }
+                ]}
             >
                 <Input placeholder="VD: 096754978" />
             </Form.Item>

@@ -3,15 +3,15 @@
 import { Form, Input, Button, message, Card } from 'antd'
 import { useState } from 'react'
 import { changePassword } from '@/actions/user.actions'
-import { IUSerUpdate } from '@/types/user'
+import { IUserUpdate } from '@/types/user'
 import { useRouter } from 'next/navigation'
 
 export default function ChangePasswordPage() {
-    const [form] = Form.useForm<IUSerUpdate>()
+    const [form] = Form.useForm<IUserUpdate>()
     const [loading, setLoading] = useState(false)
     const router = useRouter()
 
-    const onFinish = async (values: IUSerUpdate) => {
+    const onFinish = async (values: IUserUpdate) => {
         setLoading(true)
         try {
             const res = await changePassword(values)
@@ -41,11 +41,19 @@ export default function ChangePasswordPage() {
                     layout="vertical"
                     onFinish={onFinish}
                     requiredMark={false}
+                    onFieldsChange={() => {
+                        const fieldsError = form.getFieldsError();
+                        const hasError = fieldsError.some(field => field.errors.length > 0);
+                        setLoading(hasError);
+                    }}
                 >
                     <Form.Item
                         label={<span className="text-gray-800 dark:text-gray-200">Mật khẩu cũ</span>}
                         name="oldPassword"
-                        rules={[{ required: true, message: 'Vui lòng nhập mật khẩu cũ' }]}
+                        rules={[
+                            { required: true, message: 'Vui lòng nhập mật khẩu cũ' },
+                            { min: 7, message: 'Mật khẩu phải có ít nhất 7 ký tự' },
+                        ]}
                     >
                         <Input.Password placeholder="Nhập mật khẩu cũ" />
                     </Form.Item>
@@ -53,7 +61,10 @@ export default function ChangePasswordPage() {
                     <Form.Item
                         label={<span className="text-gray-800 dark:text-gray-200">Mật khẩu mới</span>}
                         name="password"
-                        rules={[{ required: true, message: 'Vui lòng nhập mật khẩu mới' }]}
+                        rules={[
+                            { required: true, message: 'Vui lòng nhập mật khẩu mới' },
+                            { min: 7, message: 'Mật khẩu phải có ít nhất 7 ký tự' },
+                        ]}
                     >
                         <Input.Password placeholder="Nhập mật khẩu mới" />
                     </Form.Item>
@@ -64,6 +75,7 @@ export default function ChangePasswordPage() {
                         dependencies={['password']}
                         rules={[
                             { required: true, message: 'Vui lòng xác nhận mật khẩu mới' },
+                            { min: 7, message: 'Mật khẩu phải có ít nhất 7 ký tự' },
                             ({ getFieldValue }) => ({
                                 validator(_, value) {
                                     if (!value || getFieldValue('password') === value) {
@@ -81,7 +93,7 @@ export default function ChangePasswordPage() {
                         <Button
                             type="primary"
                             htmlType="submit"
-                            loading={loading}
+                            disabled={loading}
                             className="w-full"
                         >
                             Đổi mật khẩu

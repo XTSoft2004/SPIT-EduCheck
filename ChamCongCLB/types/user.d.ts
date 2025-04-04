@@ -26,7 +26,7 @@ export interface IUserSearch {
   id: number
 }
 
-export interface IUSerUpdate {
+export interface IUserUpdate {
   oldPassword: string
   password: string
   confirmPassword: string
@@ -35,4 +35,9 @@ export interface IUSerUpdate {
 export interface IUserCreate {
   username: string
   password: string
+}
+
+export interface IUserChangePassword {
+  userId: number
+  passwordNew: string
 }

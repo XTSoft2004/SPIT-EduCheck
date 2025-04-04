@@ -9,8 +9,7 @@ export default function BackgroundLogin() {
     return (
         <div className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-black">
             {/* Text Layer */}
-            <div className={`absolute flex flex-col items-center text-white font-bold z-10 
-            drop-shadow-[0_0_20px_rgba(255,255,255,0.9)] animate-pulse text-center ${orbitron.className}`}>
+            <div className={`absolute flex flex-col items-center text-white font-bold z-10 drop-shadow-[0_0_20px_rgba(255,255,255,0.9)] animate-pulse text-center ${orbitron.className}`} >
                 <p className="text-5xl md:text-7xl">SPIT TEAM</p>
                 <p className="text-3xl md:text-5xl mt-2 opacity-90">SPIT here to fix</p>
             </div>

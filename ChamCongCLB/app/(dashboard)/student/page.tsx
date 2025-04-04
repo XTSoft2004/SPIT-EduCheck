@@ -196,10 +196,6 @@ export default function UserPage() {
         }
     };
 
-    useEffect(() => {
-        console.log(role)
-    }, []);
-
     return (
         <>
             <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">

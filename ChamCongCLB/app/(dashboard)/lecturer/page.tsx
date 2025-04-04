@@ -127,7 +127,7 @@ export default function LecturerPage() {
                 email: values.email ?? '',
                 phoneNumber: values.phoneNumber ?? '',
             };
-            console.log('Form data:', formCreate);
+
             const response = await createLecturer(formCreate);
             if (response.ok) {
                 handleClose();

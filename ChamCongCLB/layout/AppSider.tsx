@@ -5,6 +5,7 @@ const { Sider } = Layout;
 import MenuSidebar from './MenuSidebar';
 import Image from 'next/image';
 import { useTheme } from '@/context/ThemeContext';
+import { useRouter } from 'next/navigation';
 
 const siderStyle: React.CSSProperties = {
     overflow: 'auto',
@@ -20,6 +21,8 @@ const siderStyle: React.CSSProperties = {
 const AppSider: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapsed: boolean }> = ({ setCollapsed, collapsed }) => {
     const { theme } = useTheme();
     const [isMobile, setIsMobile] = useState(false);
+
+    const router = useRouter();
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth <= 1022);
@@ -39,14 +42,15 @@ const AppSider: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapsed
     return isMobile ? (
         <Drawer
             className='dark:bg-[var(--bg-dark-mode)] dark:text-white'
-            // title="SPIT TEAM"
             placement="left"
             closable
             onClose={() => setCollapsed(false)}
             open={collapsed}
             bodyStyle={{ padding: 0 }} // Xóa padding mặc định của Drawer
         >
-            <MenuSidebar setCollapsed={setCollapsed} />
+            <div onClick={() => router.push('/')} className="cursor-pointer">
+                <MenuSidebar setCollapsed={setCollapsed} />
+            </div>
         </Drawer>
     ) : (
         <Sider
@@ -58,7 +62,10 @@ const AppSider: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapsed
             style={{ ...siderStyle }}
         >
             <div className="flex flex-col h-full">
-                <div className="flex justify-center items-center py-3 gap-2">
+                <div
+                    className="flex justify-center items-center py-3 gap-2 cursor-pointer"
+                    onClick={() => router.push('/')}
+                >
                     <Image
                         src="/logo/logo-500x500.png"
                         alt="Logo"

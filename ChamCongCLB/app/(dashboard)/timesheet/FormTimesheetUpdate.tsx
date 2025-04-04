@@ -14,8 +14,14 @@ interface FormClassProps {
     students: IStudent[];
 }
 
-export default function FormClass({ form, classes, students }: FormClassProps) {
+export default function FormTimesheetUpdate({ form, classes, students }: FormClassProps) {
     const times = ['Sáng', 'Chiều', 'Tối'];
+
+    const statusOptions: Record<number, string> = {
+        0: 'Đang chờ duyệt',
+        1: 'Đã duyệt',
+        2: 'Không duyệt'
+    };
     return (
         <Form
             form={form}
@@ -71,23 +77,50 @@ export default function FormClass({ form, classes, students }: FormClassProps) {
             </Form.Item>
             <Form.Item
                 label="Hình ảnh điểm danh"
-                name="ImageFile"
-                rules={[{ required: true, message: 'Vui lòng chọn hình ảnh điểm danh' }]}
-            >
-                {/* <Input placeholder="VD: abc" /> */}
+                name="imageBase64"
+                valuePropName="fileList"
+                getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+                rules={[{ required: !form.getFieldValue('imageBase64'), message: 'Vui lòng chọn hình ảnh điểm danh' }]}>
+
+                {form.getFieldValue('imageBase64')?.length > 0 && (
+                    <img
+                        src={`data:image/png;base64,${form.getFieldValue('imageBase64')}`}
+                        alt="Hình ảnh điểm danh"
+                        style={{ width: "200px", height: "auto", marginBottom: "10px" }}
+                    />
+                )}
+
                 <Upload
-                    action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
+                    name="imageBase64"
                     listType="picture"
+                    accept="image/*"
+                    beforeUpload={() => false} // Prevent auto upload
                     maxCount={1}
+                    showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
+                    onChange={(info) => {
+                        if (info.file.status === 'done') {
+                            // Handle successful upload
+                        } else if (info.file.status === 'error') {
+                            // Handle upload failure
+                        }
+                    }}
                 >
-                    <Button icon={<UploadOutlined />}>Upload (Max: 1)</Button>
+                    <Button icon={<UploadOutlined />}>
+                        Tải lên hình ảnh điểm danh
+                    </Button>
                 </Upload>
             </Form.Item>
             <Form.Item
                 label="Trạng thái"
                 name="status"
             >
-                <Input value="Đang chờ duyệt" disabled />
+                <Select>
+                    {Object.entries(statusOptions).map(([key, value]) => (
+                        <Option key={key} value={value}>
+                            {value}
+                        </Option>
+                    ))}
+                </Select>
             </Form.Item>
             <Form.Item
                 label="Chú thích"

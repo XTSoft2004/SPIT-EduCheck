@@ -2,8 +2,15 @@
 import { cookies, headers } from 'next/headers'
 import globalConfig from '@/app.config'
 
-import { IUser, IUserProfile, IUserSearch, IUSerUpdate } from '@/types/user.d'
+import {
+  IUser,
+  IUserChangePassword,
+  IUserProfile,
+  IUserSearch,
+  IUserUpdate,
+} from '@/types/user.d'
 import { IIndexResponse, IShowResponse } from '@/types/global'
+import { revalidateTag } from 'next/cache'
 
 const baseUrl = globalConfig.baseUrl
 
@@ -151,9 +158,59 @@ export const setSemesterId = async (semesterId: number) => {
   } as IShowResponse<IUserProfile>
 }
 
-export const changePassword = async (formData: IUSerUpdate) => {
+export const changePassword = async (formData: IUserUpdate) => {
   const response = await fetch(`${baseUrl}/user/change-password`, {
     method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+    body: JSON.stringify(formData),
+  })
+
+  const data = await response.json()
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    message: data.message,
+    data: {
+      ...data,
+    },
+  } as IShowResponse<IUserProfile>
+}
+
+export const banUser = async (idUser: number) => {
+  const response = await fetch(
+    `${baseUrl}/user/ban-account/?IdUser=${idUser}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization:
+          headers().get('Authorization') ||
+          `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+      },
+    },
+  )
+
+  const data = await response.json()
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    message: data.message,
+    data: {
+      ...data,
+    },
+  } as IShowResponse<IUserProfile>
+}
+
+export const changePasswordByAdmin = async (formData: IUserChangePassword) => {
+  const response = await fetch(`${baseUrl}/user/change-password-admin`, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization:

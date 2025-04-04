@@ -13,16 +13,16 @@ import { IStudent } from '@/types/student';
 import { IClass } from '@/types/class';
 
 import CustomModal from '@/components/Modal/CustomModal';
-import FormTimesheet from './FormTimesheet';
 import SpinLoading from '@/components/ui/Loading/SpinLoading';
 import Searchbar from '@/components/ui/Table/Searchbar';
 import { CirclePlus, CircleX } from 'lucide-react'
 import { EditOutlined } from '@ant-design/icons';
-import { title } from 'process';
-import { on } from 'events';
-import { render } from 'react-dom';
+
 import { Role, useAuth } from '@/context/AuthContext';
 import { ButtonAddTable } from '@/components/ui/Button/ButtonAddTable';
+
+import FormTimesheetAdd from './FormTimesheetAdd';
+import FormTimesheetUpdate from './FormTimesheetUpdate';
 
 export default function ClassPage() {
     const [students, setStudents] = useState<IStudent[]>([]);
@@ -273,7 +273,7 @@ export default function ClassPage() {
                             <CircleX size={20} />Đóng</Button>
                     </Space>
                 }>
-                <FormTimesheet form={form} classes={classes} students={students} />
+                <FormTimesheetAdd form={form} classes={classes} students={students} />
             </CustomModal>
 
             <CustomModal
@@ -286,7 +286,7 @@ export default function ClassPage() {
                         <Button type="default" onClick={handleClose}>Đóng</Button>
                     </Space>
                 }>
-                <FormTimesheet form={form} classes={classes} students={students} />
+                <FormTimesheetUpdate form={form} classes={classes} students={students} />
             </CustomModal>
         </>
     )

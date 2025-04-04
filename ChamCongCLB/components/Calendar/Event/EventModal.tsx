@@ -69,7 +69,6 @@ const EventModal: React.FC<EventModalProps> = ({
                 console.error("Chưa có file hợp lệ!")
                 return
             }
-            console.log("file", file)
 
             // Nếu file là File, chuyển nó thành Base64
             const imageBase64 = await fileToBase64(file)
@@ -101,15 +100,12 @@ const EventModal: React.FC<EventModalProps> = ({
     const handleSaveEvent = async () => {
         try {
             const values = await form.validateFields();
-            console.log("Form", form)
             if (!selectedDate) return;
             // const file = values.imageBase64?.[0]?.originFileObj;
 
             // Chuyển file thành Base64 nếu có
             // const base64Image = file ? await fileToBase64(file) : values.imageBase64;
             const file = values.imageBase64?.[0]?.originFileObj
-            console.log("file", file)
-            console.log("values", values)
             // if (!file) {
             //     console.error("Chưa có file hợp lệ!")
             //     return
