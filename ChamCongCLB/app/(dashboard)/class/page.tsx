@@ -104,6 +104,21 @@ export default function ClassPage() {
                 return course ? `${course.name}` : 'N/A';
             }
         },
+        {
+            title: 'Danh sách sinh viên',
+            dataIndex: 'studentsId',
+            key: 'studentsId',
+            render: (studentsId: number[]) => {
+                const studentNames = studentsId
+                    .map(id => {
+                        const student = students.find(student => student.id === id);
+                        return student ? `${student.lastName} ${student.firstName}` : 'Không xác định';
+                    })
+                    .join(', ');
+
+                return studentNames.length > 30 ? `${studentNames.slice(0, 30)}...` : studentNames;
+            }
+        },
         ...(role === Role.ADMIN ?
             [
                 {
@@ -176,7 +191,7 @@ export default function ClassPage() {
                 timeEnd: values.timeEnd,
                 lecturersId: values.lecturersId,
                 courseId: values.courseId,
-                studentsId: selectedClass?.studentsId || [],
+                studentsId: values?.studentsId || [],
             };
 
             const response = await updateClass(formUpdate);
