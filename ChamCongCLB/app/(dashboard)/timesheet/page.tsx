@@ -63,6 +63,11 @@ export default function ClassPage() {
             title: 'Ngày điểm danh',
             dataIndex: 'date',
             key: 'date',
+            render: (date: string) => {
+                const dateObj = new Date(date);
+                const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
+                return dateObj.toLocaleDateString('vi-VN', options);
+            }
         },
         {
             title: 'Buổi',

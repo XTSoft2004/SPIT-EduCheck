@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import SpinLoading from '@/components/ui/Loading/SpinLoading';
 import Searchbar from '@/components/ui/Table/Searchbar';
 import { CirclePlus, CircleX } from 'lucide-react'
-import { EditOutlined } from '@ant-design/icons';
+import { EditOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 
 import { Role, useAuth } from '@/context/AuthContext';
 import { ButtonAddTable } from '@/components/ui/Button/ButtonAddTable';
@@ -64,12 +64,20 @@ export default function UserPage() {
                 key: 'action',
                 render: (_: unknown, record: IUser) => (
                     <Space>
-                        <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)}>Sửa</Button>
+                        <Button
+                            type="primary"
+                            icon={<EditOutlined />}
+                            onClick={() => handleEdit(record)}
+                        >
+                            Sửa
+                        </Button>
 
                         <Button
                             type="primary"
                             danger={!record.isLocked}
-                            onClick={() => handleBan(record.id)}>
+                            onClick={() => handleBan(record.id)}
+                            icon={record.isLocked ? <UnlockOutlined /> : <LockOutlined />}
+                        >
                             {record.isLocked ? 'Gỡ Ban' : 'Ban'}
                         </Button>
                     </Space >

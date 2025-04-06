@@ -41,7 +41,7 @@ const SemesterDropdown = () => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full min-w-[247px]">
       <Select
         className="w-full"
         loading={loading}

@@ -38,8 +38,6 @@ export default function SignInForm() {
   const [message, setMessage] = useState<string>('')
   const [typeMessage, setTypeMessage] = useState<'success' | 'error' | 'warning' | 'info'>('success')
 
-  const { role, setRole } = useAuth();
-
   const onSubmit = async (formData: ILoginForm) => {
     setLoading(true);
 
@@ -56,7 +54,6 @@ export default function SignInForm() {
     if (response.message) {
       setMessage(response.message); // Đảm bảo message có giá trị
       setopenMessage(true);
-
     } else {
       setMessage("Có lỗi xảy ra, vui lòng thử lại!"); // Thêm fallback message
       setopenMessage(true);

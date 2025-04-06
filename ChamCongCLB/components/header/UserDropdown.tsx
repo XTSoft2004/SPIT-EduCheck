@@ -38,9 +38,12 @@ export default function UserDropdown() {
   // Menu Dropdown
   const menu = (
     <Menu className='pt-5'>
-      {user?.studentName == "" ?
+      {user?.studentName !== "" ?
         <>
-          <Menu.Item key="profile" icon={<UserOutlined />}>
+          <Menu.Item
+            key="profile"
+            icon={<UserOutlined />}
+          >
             <span className='font-bold'>{user?.studentName}</span> {/* username */}
           </Menu.Item>
           <Menu.Divider />
