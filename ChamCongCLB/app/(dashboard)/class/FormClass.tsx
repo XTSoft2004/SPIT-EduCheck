@@ -98,10 +98,20 @@ export default function FormClass({ form, students, lecturers, courses }: FormCl
                 </Select>
             </Form.Item>
             <Form.Item label="Sinh viên" name="studentsId">
-                <Select mode="multiple" placeholder="Chọn sinh viên">
+                <Select
+                    showSearch
+                    allowClear
+                    mode="multiple"
+                    placeholder="Chọn sinh viên"
+                    optionFilterProp="label"
+                >
                     {students.map(student => (
-                        <Option key={student.id} value={student.id}>
-                            {student.lastName} {student.firstName} ({student.maSinhVien})
+                        <Option
+                            key={student.id}
+                            value={student.id}
+                            label={`${student.lastName} ${student.firstName} (${student.maSinhVien})`}
+                        >
+                            {student.lastName} {student.firstName} ({student.maSinhVien.toUpperCase()})
                         </Option>
                     ))}
                 </Select>

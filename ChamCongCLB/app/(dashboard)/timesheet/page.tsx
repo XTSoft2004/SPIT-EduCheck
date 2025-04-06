@@ -109,7 +109,7 @@ export default function ClassPage() {
                     <img
                         src={`data:image/png;base64,${imageBase64}`}
                         alt="Hình ảnh điểm danh"
-                        style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                        style={{ width: '200px', height: '150px', objectFit: 'cover' }}
                     />
                 ) : (
                     <span>Không có hình ảnh</span>

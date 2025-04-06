@@ -2,9 +2,9 @@
 import React from 'react';
 import { getStatisticClass, getStatisticInfo } from "@/actions/statistic.action";
 import CardInfo from "@/components/Dashboard/Statistics/Card/CardInfo"
-import { ChartClass } from "@/components/Dashboard/Statistics/Chart/ChartClass"
 import { IStatisticClass, IStatisticInfo } from "@/types/statistic";
 import { useEffect, useState } from "react";
+import ChartClass from '@/components/Dashboard/Statistics/Chart/ChartClass';
 
 export default function Page() {
     const [statisticClass, setstatisticClass] = useState<IStatisticClass[] | null>(null);
@@ -42,7 +42,7 @@ export default function Page() {
                 <div className="col-span-1">
                     <CardInfo statisticInfo={statisticInfo} />
                     <div className="mt-2">
-                        <ChartClass course={course || ''} classes={statisticClass || []} />
+                        <ChartClass data={statisticClass || []} course={course || ''} />
                     </div>
                 </div>
             </div>

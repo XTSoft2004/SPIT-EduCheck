@@ -71,7 +71,11 @@ const CalendarDayView: React.FC<Props> = ({
                         {selectedDate ? selectedDate.format("DD/MM/YYYY") : "Chưa chọn ngày"} <DownOutlined />
                     </button>
                 </Dropdown>
-                <Button onClick={handleNextDay} className="text-sm px-2 md:px-4">Ngày sau →</Button>
+                <div className="text-sm px-2 md:px-4 flex justify-center">
+                    {selectedDate && selectedDate.isBefore(dayjs(), 'day') && (
+                        <Button onClick={handleNextDay}>Ngày sau →</Button>
+                    )}
+                </div>
             </div>
 
             <Button onClick={() => setIsModalOpen(true)} className="w-full bg-blue-500 text-white py-2 rounded-lg shadow-md md:w-auto md:px-6">

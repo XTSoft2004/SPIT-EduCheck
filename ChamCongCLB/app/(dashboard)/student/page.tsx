@@ -204,6 +204,14 @@ export default function UserPage() {
                     role={role}
                     onClick={() => setIsModalCreate(true)}
                 />
+
+                {role === Role.ADMIN && (
+                    <AddStudentButton
+                        selectedKeys={selectedRowKeys}
+                        onSuccess={() => mutate(['students', searchText, pageIndex, pageSize])}
+                    />
+                )}
+
                 <div className="flex justify-end w-full">
                     <Searchbar setSearchText={handleSearch} />
                 </div>

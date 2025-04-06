@@ -7,7 +7,7 @@ interface FormUsertProps {
     form: FormInstance;
 }
 
-export default function FormUser({ form }: FormUsertProps) {
+export default function FormChangePassword({ form }: FormUsertProps) {
     return (
         <Form form={form} layout="vertical">
             <Form.Item

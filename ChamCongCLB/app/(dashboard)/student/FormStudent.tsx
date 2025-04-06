@@ -36,11 +36,9 @@ export default function FormStudent({ form }: FormStudentProps) {
                 name="class"
                 rules={[
                     { required: true, message: 'Vui lòng nhập lớp!' },
-                    { type: 'email', message: 'Email không hợp lệ!' },
-                    { pattern: /^[a-zA-Z0-9._%+-]+@husc\.edu\.vn$/, message: 'Email phải thuộc miền husc.edu.vn!' }
                 ]}
             >
-                <Input placeholder="VD: K46B" />
+                <Input placeholder="VD: CNTT K46B" />
             </Form.Item>
             <Form.Item
                 label="Số điện thoại"
@@ -55,9 +53,13 @@ export default function FormStudent({ form }: FormStudentProps) {
             <Form.Item
                 label="Email"
                 name="email"
-                rules={[{ required: true, message: 'Vui lòng nhập email!' }]}
+                rules={[
+                    { required: true, message: 'Vui lòng nhập email!' },
+                    { type: 'email', message: 'Email không hợp lệ!' },
+                    { pattern: /^[a-zA-Z0-9._%+-]+@husc\.edu\.vn$/, message: 'Email phải thuộc miền husc.edu.vn!' }
+                ]}
             >
-                <Input placeholder="VD: 22T1020784@gmail.com" />
+                <Input placeholder="VD: 22T1020784@husc.edu.vn" />
             </Form.Item>
             <Form.Item
                 label="Giới tính"

@@ -1,45 +1,98 @@
-'use client'
-import React, { useEffect, useState } from 'react';
-import { BarChart, ChartTooltip } from '@mantine/charts';
-import { useTheme } from '@/context/ThemeContext';
+'use client';
+
 import { IStatisticClass } from '@/types/statistic';
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+    LabelList,
+} from 'recharts';
 
-export function ChartClass({ course, classes }: { course: string, classes: IStatisticClass[] }) {
-    const { theme } = useTheme();
-    const barColor = theme === 'dark' ? 'teal.3' : 'blue.3'; // Set color based on theme
-
-    const hasData = Array.isArray(classes) && classes.length > 0;
-    const [chartHeight, setChartHeight] = useState(400);
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            setChartHeight(window.innerWidth < 640 ? 300 : 400);
-        }
-    }, []);
+export default function ChartClass({ data, course }: { course: string, data: IStatisticClass[] }) {
     return (
-        <div className="w-full overflow-x-auto px-4">
-            <h1 className="text-2xl font-bold mb-4 text-center">Biểu đồ lớp học</h1>
-            <div className="min-w-[500px] sm:min-w-full max-w-full">
-                {hasData ? (
-                    <BarChart
-                        h={chartHeight}
-                        data={classes}
-                        dataKey="ClassName"
-                        tooltipProps={{
-                            content: ({ label, payload }) => <ChartTooltip label={label} payload={payload} />,
-                        }}
-                        tooltipAnimationDuration={200}
-                        valueFormatter={(value) => new Intl.NumberFormat('en-US').format(value)}
-                        valueLabelProps={{ position: 'inside', fill: 'white', fontWeight: 700 }}
-                        withBarValueLabel
-                        xAxisLabel={course}
-                        yAxisLabel="Số lượng chấm công"
-                        withLegend
-                        series={[{ name: 'NumberTimesheet', color: barColor }]}
-                    />
-                ) : (
-                    <p className="text-center text-gray-500">Không có dữ liệu</p>
-                )}
+        <div style={{ display: 'flex', flexDirection: 'column', width: '100%', padding: '0 16px' }}>
+            <p className='text-2xl font-bold text-center'>Thống kê chấm công</p>
+            <p className='text-lg font-bold text-center text-gray-600'>{course}</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', width: '100%' }}>
+                {/* BarChart bên trái */}
+                <div style={{ flex: 1, minWidth: '300px' }}>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={data}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis
+                                dataKey="ClassName"
+                                interval={0}
+                                tick={{ fontSize: 10, fontWeight: 'bold' }}
+                                textAnchor="middle"
+                            />
+                            <YAxis />
+                            <Tooltip
+                                contentStyle={{
+                                    backgroundColor: '#333',
+                                    borderColor: '#555',
+                                    color: '#fff',
+                                }}
+                                wrapperStyle={{
+                                    transition: 'background-color 0.3s ease',
+                                }}
+                                itemStyle={{
+                                    color: '#fff',
+                                }}
+                                labelStyle={{
+                                    fontWeight: 'bold',
+                                    textAlign: 'center',
+                                }}
+                                cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
+                            />
+                            <Legend />
+                            <Bar dataKey="NumberTimesheet" fill="#82ca9d" name='Số lần chấm công (trái)' >
+                                <LabelList dataKey="NumberTimesheet" position="inside" style={{ fontWeight: 900 }} />
+                            </Bar>
+
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+
+                {/* BarChart bên phải */}
+                <div style={{ flex: 1, minWidth: '300px' }}>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={data}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis
+                                dataKey="ClassName"
+                                interval={0}
+                                tick={{ fontSize: 11 }}
+                                textAnchor="end"
+                            />
+                            <YAxis />
+                            <Tooltip
+                                contentStyle={{
+                                    backgroundColor: '#333',
+                                    borderColor: '#555',
+                                    color: '#fff',
+                                }}
+                                wrapperStyle={{
+                                    transition: 'background-color 0.3s ease',
+                                }}
+                                itemStyle={{
+                                    color: '#fff',
+                                }}
+                                labelStyle={{
+                                    fontWeight: 'bold',
+                                    textAlign: 'center',
+                                }}
+                                cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
+                            />
+                            <Legend />
+                            <Bar dataKey="NumberTimesheet" fill="#8884d8" name='Số lần chấm công (phải)' />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
         </div>
     );

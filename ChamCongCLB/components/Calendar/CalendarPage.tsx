@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Calendar, Form } from "antd";
+import { Calendar, Form, message } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 
@@ -77,6 +77,10 @@ const CalendarPage: React.FC = () => {
                                 />
                             )}
                             onSelect={(date, { source }) => {
+                                if (date.isAfter(dayjs(), "day")) {
+                                    message.error("Không thể chọn ngày trước hôm nay");
+                                    return;
+                                } // Không cho chọn ngày trước hôm nay
                                 if (source !== "date") return; // Chỉ xử lý khi chọn ngày từ lịch
                                 setSelectedDate(date);
                                 setIsModalOpen(true);

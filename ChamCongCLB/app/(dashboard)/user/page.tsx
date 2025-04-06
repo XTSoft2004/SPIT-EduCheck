@@ -8,7 +8,6 @@ import { createAccount } from '@/actions/auth.actions';
 import { IUser, IUserCreate, IUserChangePassword } from '@/types/user';
 import CustomModal from '@/components/Modal/CustomModal';
 import dayjs from 'dayjs';
-import FormUser from './FormUser';
 import SpinLoading from '@/components/ui/Loading/SpinLoading';
 import Searchbar from '@/components/ui/Table/Searchbar';
 import { CirclePlus, CircleX } from 'lucide-react'
@@ -16,6 +15,8 @@ import { EditOutlined } from '@ant-design/icons';
 
 import { Role, useAuth } from '@/context/AuthContext';
 import { ButtonAddTable } from '@/components/ui/Button/ButtonAddTable';
+import FormChangePassword from './FormChangePassword';
+import FormCreateAccount from './FormCreateAccount';
 
 export default function UserPage() {
     const { role } = useAuth();
@@ -213,7 +214,7 @@ export default function UserPage() {
                             <CircleX size={20} />Đóng</Button>
                     </Space>
                 }>
-                <FormUser form={form} />
+                <FormCreateAccount form={form} />
             </CustomModal>
 
             <CustomModal
@@ -226,7 +227,7 @@ export default function UserPage() {
                         <Button type="default" onClick={handleClose}>Đóng</Button>
                     </Space>
                 }>
-                <FormUser form={form} />
+                <FormChangePassword form={form} />
             </CustomModal>
         </>
     );

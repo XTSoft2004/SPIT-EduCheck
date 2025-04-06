@@ -7,7 +7,7 @@ export default function CardInfo({ statisticInfo }: { statisticInfo: IStatisticI
     return (
         <div className="grid grid-cols-1 gap-4">
             <Row gutter={[16, 16]} justify="center">
-                <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+                <Col xs={24} sm={12} md={6} lg={6} xl={6}>
                     <Card variant="outlined">
                         <Statistic
                             title="Số lượng thành viên"
@@ -18,7 +18,29 @@ export default function CardInfo({ statisticInfo }: { statisticInfo: IStatisticI
                         />
                     </Card>
                 </Col>
-                <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+                <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                    <Card bordered={false}>
+                        <Statistic
+                            title="Số lần chấm công"
+                            value={statisticInfo?.numberTimesheet || 0}
+                            valueStyle={{ color: '#cf1322' }}
+                            prefix={<FileSpreadsheet size={16} className="mr-1" />}
+                            suffix="lượt chấm công"
+                        />
+                    </Card>
+                </Col>
+                <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                    <Card bordered={false}>
+                        <Statistic
+                            title="Số lần chấm công"
+                            value={statisticInfo?.numberTimesheet || 0}
+                            valueStyle={{ color: '#cf1322' }}
+                            prefix={<FileSpreadsheet size={16} className="mr-1" />}
+                            suffix="lượt chấm công"
+                        />
+                    </Card>
+                </Col>
+                <Col xs={24} sm={12} md={6} lg={6} xl={6}>
                     <Card bordered={false}>
                         <Statistic
                             title="Số lần chấm công"

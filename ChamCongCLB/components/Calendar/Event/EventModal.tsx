@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Select, Input, Button, SelectProps, Upload } from "antd";
+import { Modal, Form, Select, Input, Button, SelectProps, Upload, message } from "antd";
 import type { Dayjs } from "dayjs";
 
 import { ITimesheet, ITimesheetCreate, ITimesheetUpdate } from "@/types/timesheet";
@@ -100,46 +100,37 @@ const EventModal: React.FC<EventModalProps> = ({
     const handleSaveEvent = async () => {
         try {
             const values = await form.validateFields();
+            console.log("values", values)
             if (!selectedDate) return;
-            // const file = values.imageBase64?.[0]?.originFileObj;
+            const file = values.imageBase64?.[0]?.originFileObj;
+            console.log("file", file)
+            // let imageBase64 = null;
 
-            // Chuyển file thành Base64 nếu có
-            // const base64Image = file ? await fileToBase64(file) : values.imageBase64;
-            const file = values.imageBase64?.[0]?.originFileObj
-            // if (!file) {
-            //     console.error("Chưa có file hợp lệ!")
-            //     return
+            // if (file instanceof File) {
+            //     // Nếu là File mới được upload thì chuyển sang base64
+            //     imageBase64 = await fileToBase64(file);
+            // } else {
+            //     // Nếu không có file mới, giữ nguyên ảnh cũ (nếu có)
+            //     imageBase64 = selectedEvent?.imageBase64 || '';
             // }
-            const base64Image = file ? await fileToBase64(file) : values.imageBase64;
+
+            const imageBase64 = file ? await fileToBase64(file) : selectedEvent?.imageBase64 || '';
+            // console.log("imageBase64", imageBase64)
             if (selectedEvent) {
+                console.log("selectedEvent", selectedEvent)
                 const updatedTimesheet: ITimesheetUpdate = {
                     id: selectedEvent.id,
                     studentsId: values.studentsId,
                     classId: values.classId,
                     timeId: values.timeId,
                     date: selectedDate.format("YYYY-MM-DD"),
-                    imageBase64: base64Image, // Dùng Base64 nếu là file
+                    imageBase64: imageBase64,
                     note: values.note || "",
                     status: selectedEvent.status,
                 };
+
                 const response = await updateTimesheet(updatedTimesheet);
 
-                if (response.ok) {
-                    const responseTimesheets = await getTimesheets();
-                    if (responseTimesheets.ok) setTimesheets(responseTimesheets.data);
-                }
-            } else {
-                const newTimesheet: ITimesheetCreate = {
-                    studentsId: values.studentsId,
-                    classId: values.classId,
-                    timeId: values.timeId,
-                    date: selectedDate.format("YYYY-MM-DD"),
-                    imageBase64: base64Image, // Dùng Base64 nếu là file
-                    note: values.note || "",
-                    status: "Đang chờ duyệt",
-                };
-
-                const response = await createTimesheet(newTimesheet);
                 if (response.ok) {
                     const responseTimesheets = await getTimesheets();
                     if (responseTimesheets.ok) setTimesheets(responseTimesheets.data);
@@ -275,7 +266,7 @@ const EventModal: React.FC<EventModalProps> = ({
                         <img
                             src={`data:image/png;base64,${form.getFieldValue('imageBase64')}`}
                             alt="Hình ảnh điểm danh"
-                            style={{ width: "200px", height: "auto", marginBottom: "10px" }}
+                            style={{ width: "350px", height: "auto", marginBottom: "10px" }}
                         />
                     )}
 
@@ -287,10 +278,9 @@ const EventModal: React.FC<EventModalProps> = ({
                         maxCount={1}
                         showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
                         onChange={(info) => {
-                            if (info.file.status === 'done') {
-                                // Handle successful upload
-                            } else if (info.file.status === 'error') {
-                                // Handle upload failure
+                            if (info.fileList.length > 0) {
+                                form.setFieldsValue({ imageBase64: info.fileList });
+                                message.success(`Tải lên hình ảnh thành công`);
                             }
                         }}
                     >
