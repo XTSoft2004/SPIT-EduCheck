@@ -100,10 +100,8 @@ const EventModal: React.FC<EventModalProps> = ({
     const handleSaveEvent = async () => {
         try {
             const values = await form.validateFields();
-            console.log("values", values)
             if (!selectedDate) return;
             const file = values.imageBase64?.[0]?.originFileObj;
-            console.log("file", file)
             // let imageBase64 = null;
 
             // if (file instanceof File) {
@@ -115,9 +113,7 @@ const EventModal: React.FC<EventModalProps> = ({
             // }
 
             const imageBase64 = file ? await fileToBase64(file) : selectedEvent?.imageBase64 || '';
-            // console.log("imageBase64", imageBase64)
             if (selectedEvent) {
-                console.log("selectedEvent", selectedEvent)
                 const updatedTimesheet: ITimesheetUpdate = {
                     id: selectedEvent.id,
                     studentsId: values.studentsId,

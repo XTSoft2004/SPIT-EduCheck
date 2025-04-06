@@ -16,7 +16,7 @@ import {
 export default function ChartClass({ data, course }: { course: string, data: IStatisticClass[] }) {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', width: '100%', padding: '0 16px' }}>
-            <p className='text-2xl font-bold text-center'>Thống kê chấm công</p>
+            <p className='text-2xl font-bold text-center mb-2'>Thống kê chấm công</p>
             <p className='text-lg font-bold text-center text-gray-600'>{course}</p>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', width: '100%' }}>
                 {/* BarChart bên trái */}

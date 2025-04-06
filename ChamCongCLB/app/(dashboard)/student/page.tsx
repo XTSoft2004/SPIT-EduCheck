@@ -205,7 +205,7 @@ export default function UserPage() {
                     onClick={() => setIsModalCreate(true)}
                 />
 
-                {role === Role.ADMIN && (
+                {role === Role.ADMIN && selectedRowKeys.length > 0 && (
                     <AddStudentButton
                         selectedKeys={selectedRowKeys}
                         onSuccess={() => mutate(['students', searchText, pageIndex, pageSize])}
