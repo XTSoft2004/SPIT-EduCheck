@@ -1,7 +1,12 @@
 # Stage 1: Base
-FROM node:18-alpine as base
+FROM node:18-bullseye as base
 WORKDIR /app
-RUN apk add --no-cache g++ make py3-pip libc6-compat
+
+# Cài g++ make python3-pip bằng apt (Debian)
+RUN apt-get update && \
+    apt-get install -y g++ make python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY package*.json ./
 
 # Stage 2: Builder
@@ -12,7 +17,7 @@ RUN npm install
 RUN npm run build
 
 # Stage 3: Production
-FROM node:18-alpine as prod
+FROM node:18-bullseye as prod
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -22,7 +27,9 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
-RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
+# Tạo user không quyền root
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs --ingroup nodejs
 USER nextjs
 
 EXPOSE 2222
