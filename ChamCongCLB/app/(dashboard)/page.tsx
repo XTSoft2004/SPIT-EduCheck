@@ -5,7 +5,6 @@ import CardInfo from "@/components/Dashboard/Statistics/Card/CardInfo"
 import { IStatisticClass, IStatisticInfo, IStatisticSalary } from "@/types/statistic";
 import { useEffect, useState } from "react";
 import ChartClass from '@/components/Dashboard/Statistics/Chart/ChartClass';
-import { Table } from 'antd';
 import DataGrid from "@/components/Dashboard/Statistics/DataGrid/DataGrid";
 import SpinLoading from '@/components/ui/Loading/SpinLoading';
 

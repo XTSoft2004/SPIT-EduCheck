@@ -10,7 +10,6 @@ import {
     Legend,
     ResponsiveContainer,
     LabelList,
-    Label,
 } from 'recharts';
 import { useMemo } from 'react';
 import { IStatisticClass } from '@/types/statistic';

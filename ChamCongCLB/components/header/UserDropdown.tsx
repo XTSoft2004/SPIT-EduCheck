@@ -1,9 +1,9 @@
 'use client'
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { logout } from '@/actions/auth.actions';
 import Dropdown from 'antd/es/dropdown/dropdown';
 import { Avatar, Space } from 'antd';
-import { Button, Layout, Menu, theme } from 'antd';
+import { Menu } from 'antd';
 import {
   UserOutlined,
   SettingOutlined,
