@@ -260,7 +260,7 @@ const EventModal: React.FC<EventModalProps> = ({
 
                     {form.getFieldValue('imageBase64')?.length > 0 && (
                         <img
-                            src={`data:image/png;base64,${form.getFieldValue('imageBase64')}`}
+                            src={`http://xtcoder2004.io.vn:5000/extension/image?nameFile=${form.getFieldValue('imageBase64')}`}
                             alt="Hình ảnh điểm danh"
                             style={{ width: "350px", height: "auto", marginBottom: "10px" }}
                         />
