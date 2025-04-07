@@ -191,7 +191,7 @@ export default function SignInForm() {
                   <Button
                     disabled={loading}
                     className="w-full"
-                    onClick={() => console.log('a')}
+                    onClick={() => undefined}
                   >
                     Sign in
                   </Button>
