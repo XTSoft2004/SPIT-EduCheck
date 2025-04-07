@@ -112,7 +112,7 @@ const EventModal: React.FC<EventModalProps> = ({
             //     imageBase64 = selectedEvent?.imageBase64 || '';
             // }
 
-            const imageBase64 = file ? await fileToBase64(file) : selectedEvent?.imageBase64 || '';
+            const imageBase64 = file ? await fileToBase64(file) : selectedEvent?.imageBase64;
             if (selectedEvent) {
                 const updatedTimesheet: ITimesheetUpdate = {
                     id: selectedEvent.id,

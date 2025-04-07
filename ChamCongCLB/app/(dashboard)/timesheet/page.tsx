@@ -190,7 +190,7 @@ export default function ClassPage() {
 
             const file = values.imageBase64?.[0]?.originFileObj;
 
-            const imageBase64 = file ? await fileToBase64(file) : selectedTimesheet?.imageBase64 || '';
+            const imageBase64 = file ? await fileToBase64(file) : selectedTimesheet?.imageBase64;
 
             const formUpdate: ITimesheetUpdate = {
                 id: selectedTimesheet?.id || 0,
