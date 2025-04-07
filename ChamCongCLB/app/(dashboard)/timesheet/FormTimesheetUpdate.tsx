@@ -66,7 +66,11 @@ export default function FormTimesheetUpdate({ form, classes, students }: FormCla
                 rules={[{ required: true, message: 'Vui lòng chọn danh sách sinh viên' }]}
             >
                 <Select
-                    mode="multiple" placeholder="Chọn sinh viên"
+                    showSearch
+                    allowClear
+                    optionFilterProp="children"
+                    mode="multiple"
+                    placeholder="Chọn sinh viên"
                 >
                     {students.map(student => (
                         <Option key={student.id} value={student.id}>
@@ -74,6 +78,7 @@ export default function FormTimesheetUpdate({ form, classes, students }: FormCla
                         </Option>
                     ))}
                 </Select>
+
             </Form.Item>
             <Form.Item
                 label="Hình ảnh điểm danh"

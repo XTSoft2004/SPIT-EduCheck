@@ -142,7 +142,7 @@ export default function ClassPage() {
 
     const [pageIndex, setPageIndex] = useState(1);
     const [pageSize, setPageSize] = useState(6);
-    const [selectedCourse, setSelectedCourse] = useState<ITimesheet | null>(null);
+    const [selectedTimesheet, setTimesheet] = useState<ITimesheet | null>(null);
 
     const [searchText, setSearchText] = useState('');
 
@@ -175,7 +175,7 @@ export default function ClassPage() {
             note: formData.note || '',
         });
         setIsModalOpen(true);
-        setSelectedCourse(formData);
+        setTimesheet(formData);
     };
 
     const handleClose = () => {
@@ -187,13 +187,18 @@ export default function ClassPage() {
     const handleUpdate = async () => {
         try {
             const values = await form.getFieldsValue();
+
+            const file = values.imageBase64?.[0]?.originFileObj;
+
+            const imageBase64 = file ? await fileToBase64(file) : selectedTimesheet?.imageBase64 || '';
+
             const formUpdate: ITimesheetUpdate = {
-                id: selectedCourse?.id || 0,
+                id: selectedTimesheet?.id || 0,
                 studentsId: values.studentsId,
                 classId: values.classId,
                 timeId: values.timeId,
                 date: values.date,
-                imageBase64: values.imageBase64,
+                imageBase64: imageBase64,
                 status: values.status,
                 note: values.note || '',
             };
@@ -202,7 +207,7 @@ export default function ClassPage() {
             if (response.ok) {
                 setIsModalOpen(false);
                 form.resetFields();
-                setSelectedCourse(null);
+                setTimesheet(null);
 
                 mutate(['timesheets', searchText, pageIndex, pageSize]);
             }
@@ -215,21 +220,31 @@ export default function ClassPage() {
     const handleCreate = async () => {
         try {
             const values = await form.getFieldsValue();
+
+            const file = values.imageBase64?.[0]?.originFileObj
+            if (!file) {
+                console.error("Chưa có file hợp lệ!")
+                return
+            }
+
+            // Nếu file là File, chuyển nó thành Base64
+            const imageBase64 = await fileToBase64(file)
+
+
             const formCreate: ITimesheetCreate = {
                 studentsId: values.studentsId,
                 classId: values.classId,
                 timeId: values.timeId,
                 date: values.date,
-                imageBase64: values.imageBase64,
-                status: values.status,
+                imageBase64: imageBase64,
+                status: 'Đang chờ duyệt',
                 note: values.note || '',
             };
-
             const response = await createTimesheet(formCreate);
             if (response.ok) {
                 setIsModalOpen(false);
                 form.resetFields();
-                setSelectedCourse(null);
+                setTimesheet(null);
 
                 mutate(['timesheets', searchText, pageIndex, pageSize]);
             }
@@ -238,6 +253,15 @@ export default function ClassPage() {
             console.error('Error creating timesheet:', error);
         }
     }
+
+    const fileToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    };
 
     return (
         <>
@@ -287,7 +311,7 @@ export default function ClassPage() {
                 title="Chỉnh sửa thông tin điểm danh"
                 footer={
                     <Space>
-                        <Button type="primary" onClick={() => selectedCourse && handleUpdate()}>Cập nhật</Button>
+                        <Button type="primary" onClick={() => selectedTimesheet && handleUpdate()}>Cập nhật</Button>
                         <Button type="default" onClick={handleClose}>Đóng</Button>
                     </Space>
                 }>

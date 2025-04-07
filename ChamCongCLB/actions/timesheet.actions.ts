@@ -56,7 +56,6 @@ export const createTimesheet = async (timesheet: ITimesheetCreate) => {
   revalidateTag('timesheet.show')
 
   const data = await response.json()
-
   return {
     ok: response.ok,
     ...data,
