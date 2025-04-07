@@ -12,7 +12,8 @@ import SpinLoading from '@/components/ui/Loading/SpinLoading';
 export default function Page() {
     const [statisticClass, setstatisticClass] = useState<IStatisticClass[] | null>(null);
     const [statisticInfo, setstatisticInfo] = useState<IStatisticInfo | null>(null);
-    const [statisticSalary, setstatisticSalary] = useState<IStatisticSalary[]>([]);
+    const [statisticSalary, setstatisticSalary] = useState<IStatisticSalary>();
+
     const [course, setCourse] = useState<string | null>(null);
 
     const [loading, setLoading] = useState(true);
@@ -27,9 +28,11 @@ export default function Page() {
 
             if (statisticClassRes.ok) {
                 const mappedData: IStatisticClass[] = statisticClassRes.data.map((item: any) => ({
-                    ClassName: item.className.split('-')[1].trim(),
-
-                    NumberTimesheet: item.numberTimesheet,
+                    className: item.className.split('-')[1].trim(),
+                    studentClasses: item.studentClasses.map((student: any) => ({
+                        studentName: student.studentName,
+                        numberTimesheet: student.numberTimesheet,
+                    })),
                 }));
                 setCourse(statisticClassRes.data[0].className.split('-')[0].trim());
                 setstatisticClass(mappedData)
@@ -37,7 +40,7 @@ export default function Page() {
 
             if (statisticInfoRes.ok) setstatisticInfo(statisticInfoRes);
 
-            if (statisticSalaryRes.ok) setstatisticSalary(statisticSalaryRes.data.salaryInfoStudents);
+            if (statisticSalaryRes.ok) setstatisticSalary(statisticSalaryRes.data);
             setLoading(false);
         };
 
@@ -64,6 +67,9 @@ export default function Page() {
             title: 'Tổng số tiền',
             dataIndex: 'salary',
             key: 'salary',
+            render: (value: number) => {
+                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0);
+            }
         }
     ]
 
@@ -76,14 +82,15 @@ export default function Page() {
                     {/* <h1>Dashboard</h1> */}
                     <div className="grid grid-cols-1 gap-4">
                         <div className="col-span-1">
-                            <CardInfo statisticInfo={statisticInfo} />
+                            <CardInfo statisticInfo={statisticInfo} toltalSalary={statisticSalary?.toltalSalary || 0} />
                             <div className="mt-2">
                                 <ChartClass data={statisticClass || []} course={course || ''} />
+                                {/* <ChartClass  /> */}
                             </div>
                             <div className="mt-2">
                                 <DataGrid
                                     rowKey='codeName'
-                                    data={statisticSalary || []}
+                                    data={statisticSalary?.salaryInfoStudents || []}
                                     columns={columns}
                                 />
                             </div>

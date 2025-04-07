@@ -1,14 +1,23 @@
 export interface IStatisticInfo {
   numberStudent: number
   numberTimesheet: number
+  topTimesheetStudentName: string
 }
 
 export interface IStatisticClass {
-  ClassName: string
-  NumberTimesheet: number
+  className: string
+  studentClasses: {
+    studentName: string
+    numberTimesheet: number
+  }[]
 }
 
-export interface IStatisticSalary {
+interface IStatisticSalary {
+  toltalSalary: number
+  salaryInfoStudents: SalaryInfoStudent[]
+}
+
+interface SalaryInfoStudent {
   codeName: string
   studentName: string
   day: number

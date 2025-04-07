@@ -70,14 +70,6 @@ export const getStatisticSalary = async () => {
   return {
     ok: response.ok,
     status: response.status,
-    data: {
-      totalSalary: data.totalSalary,
-      salaryInfoStudents: data.salaryInfoStudents.map((item: any) => ({
-        codeName: item.codeName,
-        studentName: item.studentName,
-        day: item.day,
-        salary: item.salary,
-      })),
-    },
+    data: data as IStatisticSalary,
   }
 }
