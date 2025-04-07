@@ -3,19 +3,33 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 80 --turbo",
+    "dev": "next dev -p 2222 --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.6.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@mantine/charts": "^7.17.3",
+    "@mantine/core": "^7.17.3",
+    "@mantine/hooks": "^7.17.3",
     "@mui/icons-material": "^6.4.6",
     "@mui/material": "^6.4.6",
+    "@mui/x-data-grid": "^7.27.2",
+    "@toolpad/core": "^0.13.0",
+    "antd": "^5.24.4",
+    "axios": "^1.8.1",
+    "lucide-react": "^0.479.0",
     "next": "14.2.24",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-hook-form": "^7.54.2",
+    "react-responsive": "^10.0.1",
+    "recharts": "^2.15.2",
+    "swr": "^2.3.3",
+    "tailwind-merge": "^3.0.2"
   },
   "devDependencies": {
     "@types/node": "^20",

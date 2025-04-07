@@ -2,3 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-dark-mode: #001529;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* Tùy chỉnh thanh cuộn */
+::-webkit-scrollbar {
+  width: 8px; /* Độ rộng thanh cuộn */
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f0f0; /* Màu nền track */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888; /* Màu thanh cuộn */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Màu khi hover */
+}
+
+.dark {
+  --mui-palette-background-paper: oklch(0.21 0.034 264.665) !important;
+}
+
+.dark input,
+.dark input::placeholder {
+  color: gray !important;
+}
+
+/* Định dạng viền trong dark mode */
+.dark .custom-textfield .MuiOutlinedInput-root {
+  border-radius: 16px;
+}
+
+.dark .css-1ll44ll-MuiOutlinedInput-notchedOutline {
+  border-color: white !important; /* Viền trắng trong dark mode */
+}
+
+.dark .css-1ll44ll-MuiOutlinedInput-notchedOutline:hovev {
+  border-color: white !important; /* Viền trắng khi hover */
+}
+
+[aria-label='Collapse menu'] {
+  display: flex;
+  align-items: center;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee linear infinite;
+}

@@ -1,0 +1,9 @@
+services:
+  nextjs:
+    container_name: nextjs
+    image: nextjs:14.2.4
+    build:
+      context: .
+      target: prod
+    ports:
+      - '2222:2222'
