@@ -35,12 +35,12 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
         [HttpGet("refresh-token")]
-        public async Task<IActionResult> Refresh_Token(string refreshToken)
+        public async Task<IActionResult> Refresh_Token()
         {
             if (!ModelState.IsValid)
                 return BadRequest(DefaultString.INVALID_MODEL);
 
-            var response = await _services.RefreshToken(refreshToken);
+            var response = await _services.RefreshToken();
             return response.ToActionResult();
         }
         [HttpGet("logout")]

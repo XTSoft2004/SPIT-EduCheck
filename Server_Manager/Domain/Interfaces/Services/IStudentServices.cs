@@ -15,11 +15,14 @@ namespace Domain.Interfaces.Services
         /// Lấy tất cả các sinh viên
         /// </summary>
         /// <returns></returns>
-        List<StudentResponse> GetAll(int pageNumber, int pageSize, out int totalRecords);
+        List<StudentResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords);
+
         /// <summary>
-        /// Tạo sinh viên
+        /// Tìm kiếm sinh viên
         /// </summary>
-        /// <param name="studentRequest"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="totalRecords"></param>
         /// <returns></returns>
         Task<HttpResponse> CreateAsync(StudentRequest studentRequest);
         /// <summary>

@@ -3,6 +3,7 @@ using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Semester;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Server_Manager.Controllers
@@ -17,6 +18,7 @@ namespace Server_Manager.Controllers
         {
             _services = services;
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateSemester([FromBody] SemesterRequest semester)
         {
@@ -26,6 +28,7 @@ namespace Server_Manager.Controllers
             var response = await _services.CreateAsync(semester);
             return response.ToActionResult();
         }
+        [Authorize(Roles = "Admin")]
         [HttpPut("{Id}")]
         public async Task<IActionResult> UpdateSemester(long Id, [FromBody] SemesterRequest semester)
         {
@@ -36,6 +39,7 @@ namespace Server_Manager.Controllers
             var response = await _services.UpdateAsync(semester);
             return response.ToActionResult();
         }
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{Id}")]
         public async Task<IActionResult> DeleteSemester(long Id)
         {
@@ -43,11 +47,11 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllSemester(int pageNumber = -1, int pageSize = -1)
+        public async Task<IActionResult> GetAllSemester(string search = "", int pageNumber = -1, int pageSize = -1)
         {
-            var semesters = _services.GetAll(pageNumber, pageSize, out int totalRecords);
+            var semesters = _services.GetAll(search, pageNumber, pageSize, out int totalRecords);
 
-            if (semesters == null || !semesters.Any())
+            if (semesters == null)
                 return BadRequest(new { Message = "Danh sách học kỳ trống !!!" });
 
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);

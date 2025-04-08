@@ -1,6 +1,7 @@
 ﻿using Domain.Base.Services;
 using Domain.Common.Http;
 using Domain.Entities;
+using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Course;
@@ -21,12 +22,15 @@ namespace Domain.Services
         private readonly IRepositoryBase<Course> _Course;
         private readonly IRepositoryBase<Semester> _Semester;
         private readonly IRepositoryBase<Class> _Class;
-
-        public CourseServices(IRepositoryBase<Course> course, IRepositoryBase<Semester> semester, IRepositoryBase<Class> @class)
+        private readonly IHttpContextHelper _HttpContextHelper;
+        private long SemesterId { set; get; }
+        public CourseServices(IRepositoryBase<Course> course, IRepositoryBase<Semester> semester, IRepositoryBase<Class> @class, IHttpContextHelper httpContextHelper)
         {
             _Course = course;
             _Semester = semester;
             _Class = @class;
+            _HttpContextHelper = httpContextHelper;
+            SemesterId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("SemesterId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("SemesterId"));
         }
 
         public async Task<HttpResponse> CreateAsync(CourseRequest courseRequest)
@@ -37,24 +41,18 @@ namespace Domain.Services
             var _semester = _Semester.Find(f => f.Id == courseRequest.SemesterId);
             if (_semester == null)
                 return HttpResponse.Error("Không tìm thấy học kỳ.", System.Net.HttpStatusCode.NotFound);
-
-            var _course = _Course.Find(f => f.Code == courseRequest.Code);
-            if (_course != null)
-                return HttpResponse.Error("Mã môn học đã tồn tại.", System.Net.HttpStatusCode.BadRequest);
-            else
+       
+            var Course = new Course()
             {
-                var Course = new Course()
-                {
-                    Code = courseRequest.Code,
-                    Name = courseRequest.Name,
-                    Credits = courseRequest.Credits,
-                    CreatedDate = DateTime.Now,
-                    SemesterId = courseRequest.SemesterId,
-                };
-                _Course.Insert(Course);
-                await UnitOfWork.CommitAsync();
-                return HttpResponse.OK(message: "Tạo môn học thành công.");
-            }
+                Code = courseRequest.Code,
+                Name = courseRequest.Name,
+                Credits = courseRequest.Credits,
+                CreatedDate = DateTime.Now,
+                SemesterId = courseRequest.SemesterId,
+            };
+            _Course.Insert(Course);
+            await UnitOfWork.CommitAsync();
+            return HttpResponse.OK(message: "Tạo môn học thành công.");
         }
 
         public async Task<HttpResponse> UpdateAsync(CourseRequest courseRequest)
@@ -69,18 +67,14 @@ namespace Domain.Services
             var course = _Course.Find(f => f.Id == courseRequest.Id);
             if (course == null)
                 return HttpResponse.Error("Không tìm thấy môn học.", System.Net.HttpStatusCode.NotFound);
-            else if (_Course.Find(f => f.Code == courseRequest.Code && f.Id != courseRequest.Id) != null)
-                return HttpResponse.Error("Mã môn học đã được đặt, vui lòng kiểm tra lại", System.Net.HttpStatusCode.BadRequest);
-            else
-            {
-                course.Code = courseRequest.Code;
-                course.Name = courseRequest.Name;
-                course.Credits = courseRequest.Credits;
-                course.SemesterId = courseRequest.SemesterId;
-                _Course.Update(course);
-                await UnitOfWork.CommitAsync();
-                return HttpResponse.OK(message: "Cập nhật môn học thành công.");
-            }
+    
+            course.Code = courseRequest.Code;
+            course.Name = courseRequest.Name;
+            course.Credits = courseRequest.Credits;
+            course.SemesterId = courseRequest.SemesterId;
+            _Course.Update(course);
+            await UnitOfWork.CommitAsync();
+            return HttpResponse.OK(message: "Cập nhật môn học thành công.");
         }
         public async Task<HttpResponse> DeleteAsync(long Id)
         {
@@ -95,9 +89,49 @@ namespace Domain.Services
             }
         }
 
-        public List<CourseResponse> GetAll(int pageNumber, int pageSize, out int totalRecords)
+        public List<CourseResponse> GetAllInSemester(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _Course.All();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                //var SemesterName = _Semester.ListBy(f => $"Năm học: {f.YearStart} - {f.YearEnd}".ToLower().Contains(search.ToLower())).Select(s => s.Id).ToList();
+                query = query.Where(f =>
+                    f.Code.Contains(search) ||
+                    f.Name.Contains(search) ||
+                    f.Credits.ToString().Contains(search) ||
+                    ($"Học kỳ: " + f.Semester!.Semesters_Number + " - Năm học: " + f.Semester!.YearStart + " - " + f.Semester!.YearEnd + "").ToLower().Contains(search));
+            }
+            query = query.Where(w => w.SemesterId == SemesterId);
+            totalRecords = query.Count(); // Đếm tổng số bản ghi trước khi phân trang
+
+            query = query.OrderBy(u => u.Id);
+
+            if (pageNumber != -1 && pageSize != -1)
+            {
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            }
+
+            return query.Select(f => new CourseResponse
+            {
+                Id = f.Id,
+                Code = f.Code,
+                Name = f.Name,
+                Credits = f.Credits,
+                SemesterId = f.SemesterId
+            }).ToList();
+        }
+
+        public List<CourseResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
+        {
+            var query = _Course.All();
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(f =>
+                    f.Code.Contains(search) ||
+                    f.Name.Contains(search) ||
+                    f.Credits.ToString().Contains(search));
+            }
             totalRecords = query.Count(); // Đếm tổng số bản ghi
 
             if (pageNumber != -1 && pageSize != -1)
@@ -120,20 +154,6 @@ namespace Domain.Services
                     Name = f.Name,
                     Credits = f.Credits,
                     SemesterId = f.SemesterId
-                    //Semester = f.SemesterId != null ? new SemesterResponse()
-                    //{
-                    //    Id = f.Semester.Id,
-                    //    Semesters_Number = f.Semester.Semesters_Number,
-                    //    Year = f.Semester.Year,
-                    //} : null,
-                    //Class = f.ClassCourses.Select(s => new ClassResponse()
-                    //{
-                    //    Id = s.Class.Id,
-                    //    Code = s.Class.Code,
-                    //    Name = s.Class.Name,
-                    //    TimeStart = s.Class.TimeStart,
-                    //    TimeEnd = s.Class.TimeEnd,
-                    //}).ToList(),
                 }).ToList();
 
             return courses;

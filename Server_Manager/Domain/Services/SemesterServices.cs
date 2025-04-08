@@ -27,7 +27,7 @@ namespace Domain.Services
             if (request == null)
                 return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
 
-            var _semester = _repository.Find(f => f.Semesters_Number == request.Semesters_Number && f.Year == request.Year);
+            var _semester = _repository.Find(f => f.Semesters_Number == request.Semesters_Number && f.YearStart == request.YearStart && f.YearEnd == request.YearEnd);
             if (_semester != null)
                 return HttpResponse.Error("Học kỳ và năm của học kỳ đã tồn tại.", System.Net.HttpStatusCode.BadRequest);
             else
@@ -35,7 +35,8 @@ namespace Domain.Services
                 var Semester = new Semester()
                 {
                     Semesters_Number = request.Semesters_Number,
-                    Year = request.Year,
+                    YearStart = request.YearStart,
+                    YearEnd = request.YearEnd,
                     CreatedDate = DateTime.Now,
                 };
                 _repository.Insert(Semester);
@@ -57,32 +58,40 @@ namespace Domain.Services
             }
         }
 
-        public List<SemesterResponse> GetAll(int pageNumber, int pageSize, out int totalRecords)
+        public List<SemesterResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _repository.All();
-            totalRecords = query.Count(); // Đếm tổng số bản ghi
-           
+
+            // Lọc theo từ khóa tìm kiếm nếu có
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(f =>
+                    f.Semesters_Number.ToString().Contains(search) ||
+                    f.YearStart.ToString().Contains(search) ||
+                    f.YearEnd.ToString().Contains(search));
+            }
+
+            // Đếm tổng số bản ghi trước khi áp dụng phân trang
+            totalRecords = query.Count();
+
+            // Sắp xếp theo năm bắt đầu giảm dần, sau đó theo số kỳ giảm dần
+            query = query.OrderByDescending(u => u.YearStart)
+                         .ThenByDescending(u => u.Semesters_Number);
+
+            // Áp dụng phân trang nếu cần
             if (pageNumber != -1 && pageSize != -1)
             {
-                // Sắp xếp phân trang
-                query = query.OrderBy(u => u.Id)
-                             .Skip((pageNumber - 1) * pageSize)
-                             .Take(pageSize);
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
             }
-            else
+
+            // Chỉ gọi ToList() ở cuối để tối ưu hóa hiệu suất
+            return query.Select(f => new SemesterResponse
             {
-                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
-            }
-
-            var semesters = query
-                .Select(f => new SemesterResponse()
-                {
-                    Id = f.Id,
-                    Semesters_Number = f.Semesters_Number,
-                    Year = f.Year,
-                }).ToList();
-
-            return semesters;
+                Id = f.Id,
+                Semesters_Number = f.Semesters_Number,
+                YearStart = f.YearStart,
+                YearEnd = f.YearEnd
+            }).ToList();
         }
 
         public async Task<HttpResponse> UpdateAsync(SemesterRequest request)
@@ -93,12 +102,13 @@ namespace Domain.Services
             var semester = _repository.Find(f => f.Id == request.Id);
             if (semester == null)
                 return HttpResponse.Error("Không tìm thấy học kỳ.", System.Net.HttpStatusCode.NotFound);
-            else if (_repository.Find(f => f.Semesters_Number == request.Semesters_Number && f.Year == request.Year && f.Id != request.Id) != null)
+            else if (_repository.Find(f => f.Semesters_Number == request.Semesters_Number && f.YearStart == request.YearStart && f.YearEnd == request.YearEnd && f.Id != request.Id) != null)
                 return HttpResponse.Error("Học kỳ và năm của học kỳ đã tồn tại.", System.Net.HttpStatusCode.BadRequest);
             else
             {
                 semester.Semesters_Number = request.Semesters_Number;
-                semester.Year = request.Year;
+                semester.YearStart = request.YearStart;
+                semester.YearEnd = request.YearEnd;
                 _repository.Update(semester);
 
                 await UnitOfWork.CommitAsync();

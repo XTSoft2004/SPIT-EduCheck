@@ -1,11 +1,15 @@
 ﻿using Domain.Base.Services;
+using Domain.Common;
 using Domain.Common.Http;
 using Domain.Entities;
+using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.DTOs;
 using Domain.Model.Request.User;
+using Domain.Model.Response.Auth;
 using Domain.Model.Response.User;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,22 +25,29 @@ namespace Domain.Services
         private readonly IRepositoryBase<User> _User;
         private readonly IRepositoryBase<Role> _Role;
         private readonly IRepositoryBase<Student> _Student;
+        private readonly IRepositoryBase<Semester> _Semester;
+        private readonly IRepositoryBase<Timesheet_Students> _TimeSheetStudets;
         private readonly ITokenServices _jwtHelper;
-        private readonly ResponseHeader.HttpContext _httpContext;
+        private readonly ITokenServices _Token;
+        private readonly IHttpContextHelper _HttpContextHelper;
         private long UserId { set; get; }
         public UserServices(
             IRepositoryBase<User> user,
             IRepositoryBase<Role> role,
+            IRepositoryBase<Semester> semester,
             IRepositoryBase<Student> student,
             ITokenServices jwtHelper,
-            ResponseHeader.IHttpContextAccessor httpContextAccessor)
+            ITokenServices token,
+            IHttpContextHelper httpContextHelper)
         {
             _User = user;
             _Role = role;
+            _Semester = semester;
             _Student = student;
             _jwtHelper = jwtHelper;
-            _httpContext = httpContextAccessor.HttpContext; // ✅ Lấy HttpContext từ HttpContextAccessor
-            UserId = _httpContext.Items["UserId"] == null ? -100 : Convert.ToInt64(_httpContext.Items["UserId"]);
+            _Token = token;
+            _HttpContextHelper = httpContextHelper;
+            UserId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("UserId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("UserId"));
         }
 
         public async Task<HttpResponse> ChangePassword(ChangePwRequest changePwRequest)
@@ -47,6 +58,10 @@ namespace Domain.Services
             if (changePwRequest.Password != changePwRequest.ConfirmPassword)
                 return HttpResponse.Error("Mật khẩu không khớp.", System.Net.HttpStatusCode.BadRequest);
 
+            if (changePwRequest.OldPassword == changePwRequest.Password)
+                return HttpResponse.Error("Vui lòng không đổi mật khẩu giống mật khẩu cũ !!", System.Net.HttpStatusCode.BadRequest);
+
+
             var user = _User.Find(x => x.Id == UserId);
             if (user != null)
             {
@@ -55,6 +70,7 @@ namespace Domain.Services
 
                 user.Password = changePwRequest.Password;
                 user.ModifiedDate = DateTime.Now;
+                user.IsVerify = true;
                 _User.Update(user);
                 await UnitOfWork.CommitAsync();
                 return HttpResponse.OK(message: "Đổi mật khẩu thành công.");
@@ -74,35 +90,59 @@ namespace Domain.Services
             else
                 return HttpResponse.OK(message: "Xóa tài khoản thành công.");
         }
+        public async Task<HttpResponse> BanAccount(long Id)
+        {
+            var user = _User.Find(x => x.Id == Id);
+            if (user == null)
+                return HttpResponse.Error("Tài khoản không tồn tại.", System.Net.HttpStatusCode.BadRequest);
+            else
+            {
+                var role = _Role.Find(x => x.Id == user.RoleId);
+                if (role.DisplayName == "Admin")
+                    return HttpResponse.Error("Không thể khóa tài khoản Admin !!", System.Net.HttpStatusCode.BadRequest);
+                user.IsLocked = !user.IsLocked;
+                user.ModifiedDate = DateTime.Now;
+                _User.Update(user);
+                await UnitOfWork.CommitAsync();
+                return HttpResponse.OK(message: user.IsLocked ? "Khóa tài khoản thành công." : "Mở khoá tài khoản thành công.");
+            }
+        }
 
-        public List<UserResponse> GetAllUsers(int pageNumber, int pageSize, out int totalRecords)
+        public List<UserResponse> GetAllUsers(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _User.All();
-            totalRecords = query.Count(); // Đếm tổng số bản ghi
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                string searchLower = search.ToLower();
+                query = query.Where(u => u.Username.ToLower().Contains(searchLower) ||
+                    u.Role!.DisplayName!.Contains(searchLower) ||
+                    (u.IsLocked ? "đã khoá" : "hoạt động").Contains(searchLower) ||
+                    (u.IsVerify ? "đã xác thực" : "chưa xác thực").Contains(searchLower));
+            }
+
+            // Đếm số bản ghi trước khi phân trang
+            totalRecords = query.Count();
+
+            // Sắp xếp theo ID
+            query = query.OrderBy(u => u.Id);
 
             if (pageNumber != -1 && pageSize != -1)
             {
-                // Sắp xếp phân trang
-                query = query.OrderBy(u => u.Id)
-                             .Skip((pageNumber - 1) * pageSize)
-                             .Take(pageSize);
-            }
-            else
-            {
-                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
             }
 
-            var users = query.Select(s => new UserResponse()
+            // Chuyển đổi sang danh sách UserResponse
+            return query.Select(s => new UserResponse()
             {
                 Id = s.Id,
                 Username = s.Username,
                 IsLocked = s.IsLocked,
                 IsVerify = s.IsVerify,
                 RoleName = s.Role.DisplayName,
-                StudentName = s.Student != null ? (s.Student.FirstName + " " + s.Student.LastName) : null
+                StudentName = s.Student != null ? s.Student.LastName + " " + s.Student.FirstName : null,
+                SemesterId = s.SemesterId
             }).ToList();
-
-            return users;
         }
 
         public UserResponse GetMe()
@@ -110,6 +150,7 @@ namespace Domain.Services
             var user = _User.Find(f => f.Id == UserId);
             if (user != null)
             {
+                var StudentName = _Student.Find(f => f.Id == user.StudentId);
                 var userResponse = new UserResponse()
                 {
                     Id = user.Id,
@@ -117,9 +158,21 @@ namespace Domain.Services
                     IsLocked = user.IsLocked,
                     IsVerify = user.IsVerify,
                     RoleName = _Role.Find(x => x.Id == user.RoleId)?.DisplayName,
-                    StudentName = _Student.Find(f => f.Id == user.StudentId) != null ? _Student.Find(f => f.Id == user.StudentId).FirstName + " " + _Student.Find(f => f.Id == user.StudentId).LastName : null
+                    StudentName = StudentName != null ? StudentName.LastName + " " + StudentName.FirstName : string.Empty,
+                    SemesterId = user.SemesterId
                 };
                 return userResponse;
+            }
+            return null;
+        }
+        public AuthToken GetProfile()
+        {
+            var token = _HttpContextHelper.GetHeader("Authorization")?.Replace("Bearer ", "");
+            if(!string.IsNullOrEmpty(token))
+            {
+                var AuthToken = _Token.GetInfoFromToken(token);
+                if(AuthToken != null)
+                    return AuthToken;
             }
             return null;
         }
@@ -136,12 +189,48 @@ namespace Domain.Services
                     IsLocked = user.IsLocked,
                     IsVerify = user.IsVerify,
                     RoleName = _Role.Find(x => x.Id == user.RoleId)?.DisplayName,
-                    StudentName = _Student.Find(f => f.Id == user.StudentId) != null ? _Student.Find(f => f.Id == user.StudentId).FirstName + " " + _Student.Find(f => f.Id == user.StudentId).LastName : null
+                    StudentName = _Student.Find(f => f.Id == user.StudentId) != null ? _Student.Find(f => f.Id == user.StudentId).FirstName + " " + _Student.Find(f => f.Id == user.StudentId).LastName : null,
+                    SemesterId = user.SemesterId
                 };
 
                 return userResponse;
             }
             return null;
+        }
+
+        public async Task<HttpResponse> SetSemesterUser(long IdSemester)
+        {
+            var User = _User.Find(f => f.Id == UserId);
+            if (User == null)
+                return HttpResponse.Error("Không tìm thấy user !!.");
+
+            var Semester = _Semester.Find(f => f.Id ==  IdSemester);
+            if (Semester == null)
+                return HttpResponse.Error("Không tìm thấy học kì !!.");
+
+            User.Semester = Semester;
+            _User.Update(User);
+
+            await UnitOfWork.CommitAsync();
+            return HttpResponse.OK(message: $"Chuyển sang học kỳ {Semester.YearStart}-{Semester.YearEnd} thành công !!.");
+        }
+
+        public async Task<HttpResponse> ChangePasswordAdmin(ChangePwAdminRequest changePwAdminRequest)
+        {
+            var user = _User.Find(x => x.Id == changePwAdminRequest.UserId);
+            if (user == null)
+                return HttpResponse.Error("Tài khoản không tồn tại.", System.Net.HttpStatusCode.BadRequest);
+            else
+            {
+                var role = _Role.Find(x => x.Id == user.RoleId);
+                if(role.DisplayName == "Admin")
+                    return HttpResponse.Error("Không thể đổi mật khẩu cho tài khoản Admin !!", System.Net.HttpStatusCode.BadRequest);   
+                user.Password = changePwAdminRequest.PasswordNew;
+                user.ModifiedDate = DateTime.Now;
+                _User.Update(user);
+                await UnitOfWork.CommitAsync();
+                return HttpResponse.OK($"Đổi mật khẩu user {user.Username} thành công !!");
+            }
         }
     }
 }

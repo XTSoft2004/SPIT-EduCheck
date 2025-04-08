@@ -13,6 +13,7 @@ namespace Domain.Entities
         public string Token { get; set; }
         public DateTime ExpiryDate { get; set; }
         public long UserId { get; set; }
+        public long? SemesterId { get; set; }
         [ForeignKey("UserId")]
         public virtual User User { get; set; }
     }

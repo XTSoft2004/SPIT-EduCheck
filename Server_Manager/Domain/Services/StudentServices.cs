@@ -5,6 +5,7 @@ using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Student;
 using Domain.Model.Response.Student;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,18 +30,18 @@ namespace Domain.Services
             if (studentRequest == null)
                 return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
 
-            var _student = _Student.Find(x => x.MaSinhVien == studentRequest.MaSinhVien);
+            var _student = _Student.Find(x => x.MaSinhVien == studentRequest.MaSinhVien.Trim());
             if (_student != null)
                 return HttpResponse.Error("Mã sinh viên đã tồn tại.", System.Net.HttpStatusCode.BadRequest);
 
-            var student = new Student() 
+            var student = new Student()
             {
-                MaSinhVien = studentRequest.MaSinhVien,
-                FirstName = studentRequest.FirstName,
-                LastName = studentRequest.LastName,
-                Class = studentRequest.Class,
-                PhoneNumber = studentRequest.PhoneNumber,
-                Email = studentRequest.Email,
+                MaSinhVien = studentRequest.MaSinhVien.Trim(),
+                FirstName = studentRequest.FirstName.Trim(),
+                LastName = studentRequest.LastName.Trim(),
+                Class = studentRequest.Class.Trim(),
+                PhoneNumber = studentRequest.PhoneNumber.Trim(),
+                Email = studentRequest.Email.Trim(),
                 Gender = studentRequest.Gender,
                 Dob = studentRequest.Dob,
                 UserId = null, // Được phép null
@@ -57,25 +58,25 @@ namespace Domain.Services
                 return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
 
             var student = _Student.Find(x => x.Id == studentRequest.Id);
-            if(student == null) 
+            if (student == null)
                 return HttpResponse.Error("Sinh viên không tồn tại.", System.Net.HttpStatusCode.BadRequest);
-            else if(_Student.Find(f => f.MaSinhVien == studentRequest.MaSinhVien && f.Id != studentRequest.Id) != null)
+            else if (_Student.Find(f => f.MaSinhVien == studentRequest.MaSinhVien.Trim() && f.Id != studentRequest.Id) != null)
                 return HttpResponse.Error("Mã sinh viên đã có người đặt, vui lòng kiểm tra lại", System.Net.HttpStatusCode.BadRequest);
             else
             {
-                student.MaSinhVien = studentRequest.MaSinhVien;
-                student.FirstName = studentRequest.FirstName;
-                student.LastName = studentRequest.LastName;
-                student.Class = studentRequest.Class;
-                student.PhoneNumber = studentRequest.PhoneNumber;
-                student.Email = studentRequest.Email;
+                student.MaSinhVien = studentRequest.MaSinhVien.Trim();
+                student.FirstName = studentRequest.FirstName.Trim();
+                student.LastName = studentRequest.LastName.Trim();
+                student.Class = studentRequest.Class.Trim();
+                student.PhoneNumber = studentRequest.PhoneNumber.Trim();
+                student.Email = studentRequest.Email.Trim();
                 student.Gender = studentRequest.Gender;
                 student.Dob = studentRequest.Dob;
                 student.ModifiedDate = DateTime.Now;
                 _Student.Update(student);
                 await UnitOfWork.CommitAsync();
                 return HttpResponse.OK(message: "Cập nhật sinh viên thành công.");
-            }    
+            }
         }
 
         public async Task<HttpResponse> DeleteAsync(long Id)
@@ -91,39 +92,51 @@ namespace Domain.Services
             }
         }
 
-        public List<StudentResponse> GetAll(int pageNumber, int pageSize, out int totalRecords)
+        public List<StudentResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _Student.All();
-            totalRecords = query.Count(); // Đếm tổng số bản ghi
 
+            // Chuyển đổi `search` về lowercase để tránh gọi `ToLower()` nhiều lần trong truy vấn
+            if (!string.IsNullOrEmpty(search))
+            {
+                string searchLower = search.ToLower();
+                query = query.Where(s =>
+                    s.MaSinhVien.Contains(searchLower) ||
+                    s.FirstName.Contains(searchLower) ||
+                    s.LastName.Contains(searchLower) ||
+                    s.Email.Contains(searchLower) ||
+                    s.Class.Contains(searchLower) ||
+                    s.PhoneNumber.Contains(searchLower) ||
+                    s.Dob.ToString()!.Contains(searchLower) ||
+                    (s.Gender == true ? "nam" : "nữ").Contains(searchLower));
+            }
+
+            // Đếm tổng số bản ghi trước khi áp dụng phân trang
+            totalRecords = query.Count();
+
+            // Sắp xếp theo ID tăng dần
+            query = query.OrderBy(s => s.Id);
+
+            // Áp dụng phân trang nếu có
             if (pageNumber != -1 && pageSize != -1)
             {
-                // Sắp xếp phân trang
-                query = query.OrderBy(u => u.Id)
-                             .Skip((pageNumber - 1) * pageSize)
-                             .Take(pageSize);
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
             }
-            else
+
+            // Lấy dữ liệu cần thiết và chuyển sang danh sách
+            return query.Select(s => new StudentResponse
             {
-                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
-            }
-
-            var students = query
-                .Select(s => new StudentResponse()
-                {
-                    Id = s.Id,
-                    MaSinhVien = s.MaSinhVien,
-                    FirstName = s.FirstName,
-                    LastName = s.LastName,
-                    Class = s.Class,
-                    PhoneNumber = s.PhoneNumber,
-                    Email = s.Email,
-                    Dob = s.Dob,
-                    Gender = s.Gender,
-                    UserName = s.User.Username
-                }).ToList();
-
-            return students;
+                Id = s.Id,
+                MaSinhVien = s.MaSinhVien,
+                FirstName = s.FirstName,
+                LastName = s.LastName,
+                Class = s.Class,
+                PhoneNumber = s.PhoneNumber,
+                Email = s.Email,
+                Dob = s.Dob,
+                Gender = s.Gender,
+                UserName = _User.All().Where(u => u.StudentId == s.Id).Select(u => u.Username).FirstOrDefault(),
+            }).ToList();
         }
         public async Task<HttpResponse> AddStudentInUser(long IdUser, long IdStudent)
         {

@@ -11,7 +11,7 @@ namespace Domain.Interfaces.Services
 {
     public interface ISemesterServices
     {
-        List<SemesterResponse> GetAll(int pageNumber, int pageSize, out int totalRecords);
+        List<SemesterResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords);
 
         Task<HttpResponse> CreateAsync(SemesterRequest request);
         Task<HttpResponse> UpdateAsync(SemesterRequest request);

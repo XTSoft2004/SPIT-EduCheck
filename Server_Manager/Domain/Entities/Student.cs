@@ -59,6 +59,6 @@ namespace Domain.Entities
         [ForeignKey(nameof(UserId))]
         public virtual User? User { get; set; }
         public ICollection<Class_Student>? ClassStudents { get; set; } = new List<Class_Student>();
-        public virtual ICollection<Timesheet> Timesheets { get; set; }
+        public ICollection<Timesheet_Students> TimesheetStudents { get; set; } = new List<Timesheet_Students>();
     }
 }

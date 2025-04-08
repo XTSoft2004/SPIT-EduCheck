@@ -11,10 +11,9 @@ namespace Domain.Interfaces.Services
 {
     public interface ITimesheetServices
     {
-        List<TimesheetResponse> GetAll(int pageNumber, int pageSize, out int totalRecords);
-
-        Task<HttpResponse> CreateAsync(CreateTimesheetRequest timesheetRequest);
-        Task<HttpResponse> UpdateAsync(TimesheetRequest timesheetRequest);
+        List<TimesheetResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords);
+        Task<HttpResponse> CreateAsync(TimesheetRequest timesheetRequest, string filePath);
+        Task<HttpResponse> UpdateAsync(TimesheetRequest timesheetRequest, string filePath);
         Task<HttpResponse> DeleteAsync(long Id);
     }
 }

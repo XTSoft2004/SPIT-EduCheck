@@ -36,12 +36,16 @@ namespace Domain.Services
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Thêm ID vào token
                 new Claim(ClaimTypes.Role, user.RoleName),
+                new Claim(ClaimTypes.GroupSid, user.SemesterId.ToString()), // Thêm SemesterId vào token
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
+                Issuer = _config["JwtSettings:Issuer"],
+                Audience = _config["JwtSettings:Audience"],
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.Now.AddDays(Convert.ToInt32(_config["JwtSettings:ExpireToken"])),
+                //Expires = DateTime.Now.AddSeconds(20),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };
 
@@ -58,10 +62,13 @@ namespace Domain.Services
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Thêm ID vào token
                 new Claim(ClaimTypes.Role, user.RoleName),
+                new Claim(ClaimTypes.GroupSid, user.SemesterId.ToString()),
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
+                Issuer = _config["JwtSettings:Issuer"],
+                Audience = _config["JwtSettings:Audience"],
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.Now.AddDays(Convert.ToInt32(_config["JwtSettings:ExpireRefreshToken"])),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
@@ -86,13 +93,14 @@ namespace Domain.Services
             var jwtToken = handler.ReadJwtToken(token);
             var claims = jwtToken.Claims;
             var IdValue = claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
-            long id = long.Parse(IdValue);
             var username = claims.FirstOrDefault(c => c.Type == "unique_name")?.Value; // hoặc "unique_name"
             var role = claims.FirstOrDefault(c => c.Type == "role")?.Value;
-            return new UserResponse() { 
-                Id = id,
+            var semesterId = claims.FirstOrDefault(c => c.Type == "groupsid")?.Value;
+            return new UserResponse() {
+                Id = !string.IsNullOrEmpty(IdValue) ? long.Parse(IdValue) : -100,
                 Username = username,
                 RoleName = role,
+                SemesterId = !string.IsNullOrEmpty(semesterId) ? long.Parse(semesterId) : -100,
             };
         }
         public AuthToken GetInfoFromToken(string token)
@@ -111,18 +119,23 @@ namespace Domain.Services
             var claims = jwtToken.Claims;
 
             var IdValue = claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
-            long id = long.Parse(IdValue);
             var username = claims.FirstOrDefault(c => c.Type == "unique_name")?.Value; // hoặc "unique_name"
             var role = claims.FirstOrDefault(c => c.Type == "role")?.Value;
+            var semesterId = claims.FirstOrDefault(c => c.Type == "groupsid")?.Value;
             var expiryDateUnix = claims.FirstOrDefault(c => c.Type == "exp")?.Value;
-            var expiryDate = expiryDateUnix != null ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiryDateUnix)).DateTime : DateTime.MinValue;
+            var expiryDate = expiryDateUnix != null
+                ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiryDateUnix))
+                    .ToOffset(TimeSpan.FromHours(7)) // Chuyển sang GMT+7
+                    .DateTime
+                : DateTime.MinValue;
 
             return new AuthToken()
             {
-                Id = id,
+                Id = !string.IsNullOrEmpty(IdValue) ? long.Parse(IdValue) : -100,
                 Username = username,
                 RoleName = role,
-                ExpiryDate = expiryDate
+                SemesterId = !string.IsNullOrEmpty(semesterId) ? long.Parse(semesterId) : -100,
+                ExpiryDate = expiryDate,
             };
         }
         public ClaimsPrincipal? ValidateToken(string token)
@@ -153,7 +166,9 @@ namespace Domain.Services
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
             var claim = jwtToken.Claims.FirstOrDefault(c => c.Type == "exp");
-            return claim != null ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(claim.Value)).DateTime : DateTime.MinValue;
+            return claim != null ? DateTimeOffset.FromUnixTimeSeconds(long.Parse(claim.Value))
+                                                    .ToOffset(TimeSpan.FromHours(7)) // Chuyển sang GMT+7
+                                                    .DateTime : DateTime.MinValue;
         }
         public string GetRefreshToken(long userId)
         {

@@ -13,25 +13,34 @@ namespace Server_Manager.Controllers
         private readonly IUserServices _services;
 
         public UserController(IUserServices services)
-        {
+        {   
             _services = services;
         }
         [HttpGet("me")]
         public async Task<IActionResult> GetMe()
         {
             var userResponse = _services.GetMe();
-            if(userResponse == null)
+            if (userResponse == null)
+                return BadRequest(new { Message = "Thông tin không tồn tại, vui lòng kiểm tra lại !!!" });
+            else
+                return Ok(userResponse);
+        }
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userResponse = _services.GetProfile();
+            if (userResponse == null)
                 return BadRequest(new { Message = "Thông tin không tồn tại, vui lòng kiểm tra lại !!!" });
             else
                 return Ok(userResponse);
         }
         [HttpGet]
         //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllUsers(int pageNumber = -1, int pageSize = -1)
+        public async Task<IActionResult> GetAllUsers(string search = "", int pageNumber = -1, int pageSize = -1)
         {
-            var users = _services.GetAllUsers(pageNumber, pageSize, out int totalRecords);
+            var users = _services.GetAllUsers(search, pageNumber, pageSize, out int totalRecords);
 
-            if (users == null || !users.Any())
+            if (users == null)
                 return BadRequest(new { Message = "Danh sách người dùng trống !!!" });
 
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
@@ -54,6 +63,36 @@ namespace Server_Manager.Controllers
                 return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
 
             var response = await _services.ChangePassword(changePwRequest);
+            return response.ToActionResult();
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpPost("ban-account")]
+        public async Task<IActionResult> BanAccount(long IdUser)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
+
+            var response = await _services.BanAccount(IdUser);
+            return response.ToActionResult();
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpPost("change-password-admin")]
+        public async Task<IActionResult> ChangeAccountAdmin([FromBody] ChangePwAdminRequest changePwAdminRequest)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
+
+            var response = await _services.ChangePasswordAdmin(changePwAdminRequest);
+            return response.ToActionResult();
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("set-semester/{Id}")]
+        public async Task<IActionResult> SetSemesterUser(long Id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
+
+            var response = await _services.SetSemesterUser(Id);
             return response.ToActionResult();
         }
     }

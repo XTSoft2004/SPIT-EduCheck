@@ -11,11 +11,10 @@ namespace Domain.Interfaces.Services
 {
     public interface IClassServices
     {
-        List<ClassResponse> GetAll(int pageNumber, int pageSize, out int totalRecords);
+        List<ClassResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords);
+        List<ClassResponse> GetClassInSemester(string search, int pageNumber, int pageSize, out int totalRecords);
         Task<HttpResponse> CreateAsync(ClassRequest request);
         Task<HttpResponse> UpdateAsync(ClassRequest request);
         Task<HttpResponse> DeleteAsync(long Id);
-        //Task<HttpResponse> Add_Lecturer_To_Class(long ClassId, long LecturerId);
-        Task<HttpResponse> Remove_Lecturer_To_Class(long ClassId);
     }
 }

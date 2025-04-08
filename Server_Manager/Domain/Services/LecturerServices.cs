@@ -26,14 +26,14 @@ namespace Domain.Services
 
         public async Task<HttpResponse> CreateAsync(LecturerRequest lecturerRequest)
         {
-            if(lecturerRequest == null)
+            if (lecturerRequest == null)
                 return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
 
             var Lecturer = new Lecturer()
             {
-                FullName = lecturerRequest.FullName,
-                Email = lecturerRequest.Email,
-                PhoneNumber = lecturerRequest.PhoneNumber,
+                FullName = lecturerRequest.FullName!.Trim(),
+                Email = lecturerRequest.Email?.Trim(),
+                PhoneNumber = lecturerRequest.PhoneNumber?.Trim(),
                 CreatedDate = DateTime.Now,
             };
             _repository.Insert(Lecturer);
@@ -43,17 +43,17 @@ namespace Domain.Services
 
         public async Task<HttpResponse> UpdateAsync(LecturerRequest lecturerRequest)
         {
-            if(lecturerRequest == null)
+            if (lecturerRequest == null)
                 return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
 
             var _lecturer = _repository.Find(f => f.Id == lecturerRequest.Id);
-            if(_lecturer == null)
+            if (_lecturer == null)
                 return HttpResponse.Error("Không tìm thấy giảng viên.", System.Net.HttpStatusCode.NotFound);
             else
             {
-                _lecturer.FullName = lecturerRequest.FullName;
-                _lecturer.Email = lecturerRequest.Email;
-                _lecturer.PhoneNumber = lecturerRequest.PhoneNumber;
+                _lecturer.FullName = lecturerRequest.FullName!.Trim();
+                _lecturer.Email = lecturerRequest.Email?.Trim();
+                _lecturer.PhoneNumber = lecturerRequest.PhoneNumber?.Trim();
                 _repository.Update(_lecturer);
                 await UnitOfWork.CommitAsync();
                 return HttpResponse.OK(message: "Cập nhật giảng viên thành công.");
@@ -72,42 +72,39 @@ namespace Domain.Services
             }
         }
 
-        public List<LecturerResponse> GetAll(int pageNumber, int pageSize, out int totalRecords)
+        public List<LecturerResponse> GetAll(string search, int pageNumber, int pageSize, out int totalRecords)
         {
             var query = _repository.All();
-            totalRecords = query.Count(); // Đếm tổng số bản ghi
-        
+
+            // Lọc theo search nếu có
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(w =>
+                    w.FullName.Contains(search) ||
+                    w.Email.Contains(search) ||
+                    w.PhoneNumber.Contains(search));
+            }
+
+            // Đếm tổng số bản ghi trước khi phân trang
+            totalRecords = query.Count();
+
+            // Sắp xếp trước khi phân trang
+            query = query.OrderBy(u => u.Id);
+
+            // Áp dụng phân trang nếu cần
             if (pageNumber != -1 && pageSize != -1)
             {
-                // Sắp xếp phân trang
-                query = query.OrderBy(u => u.Id)
-                             .Skip((pageNumber - 1) * pageSize)
-                             .Take(pageSize);
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
             }
-            else
+
+            // Truy vấn dữ liệu trực tiếp từ database
+            return query.Select(s => new LecturerResponse()
             {
-                query = query.OrderBy(u => u.Id); // Sắp xếp nếu không phân trang
-            }
-
-            var lecturers = query
-                .Select(s => new LecturerResponse()
-                {
-                    Id = s.Id,
-                    FullName = s.FullName,
-                    Email = s.Email,
-                    PhoneNumber = s.PhoneNumber,
-                    ClassResponse = s.Class.Select(s => new ClassResponse()
-                    {
-                        Id = s.Id,
-                        Code = s.Code,
-                        Name = s.Name,
-                        TimeStart = s.TimeStart,
-                        TimeEnd = s.TimeEnd,
-                    }).ToList()
-                }).ToList();
-
-            return lecturers;
+                Id = s.Id,
+                FullName = s.FullName,
+                Email = s.Email,
+                PhoneNumber = s.PhoneNumber
+            }).ToList();
         }
-
     }
 }

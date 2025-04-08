@@ -11,10 +11,6 @@ namespace Domain.Entities
 {
     public class Timesheet : EntityBase
     {
-        public long StudentId { get; set; }
-        [ForeignKey(nameof(StudentId))]
-        public virtual Student Student { get; set; }
-
         public long ClassId { get; set; }
         [ForeignKey(nameof(ClassId))]
         public virtual Class Class { get; set; }
@@ -27,5 +23,6 @@ namespace Domain.Entities
         public string Status { get; set; }
         [StringLength(500)]
         public string Note { get; set; }
+        public ICollection<Timesheet_Students> TimesheetStudents { get; set; } = new List<Timesheet_Students>();
     }
 }

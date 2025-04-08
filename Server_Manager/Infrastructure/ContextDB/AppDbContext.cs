@@ -21,8 +21,11 @@ namespace Infrastructure.ContextDB
         public DbSet<User> Users { get; set; }
         public DbSet<Timesheet> Timesheets { get; set; }
         public DbSet<Time> Times { get; set; }
+
         // DbSet cho các mối quan hệ
         public DbSet<Class_Student> ClassStudents { get; set; }
+        public DbSet<Timesheet_Students> TimesheetStudents { get; set; }
+        public DbSet<Lecturer_Class> LecturerClasses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,14 +57,20 @@ namespace Infrastructure.ContextDB
                 .HasForeignKey(u => u.SemesterId) // Course có khóa ngoại trỏ đến Semester
                 .OnDelete(DeleteBehavior.SetNull); // Khi Semester bị xóa, Course cũng bị xóa (tuỳ chọn)
 
-            modelBuilder.Entity<Class>()
-                .HasOne(c => c.Lecturer)
-                .WithMany(l => l.Class)
-                .HasForeignKey(c => c.LecturerId)
-                .OnDelete(DeleteBehavior.SetNull); // Khi Lecturer bị xóa, Class sẽ trở về null
+            //modelBuilder.Entity<Class>()
+            //    .HasOne(c => c.Lecturer)
+            //    .WithMany(l => l.Class)
+            //    .HasForeignKey(c => c.LecturerId)
+            //    .OnDelete(DeleteBehavior.SetNull); // Khi Lecturer bị xóa, Class sẽ trở về null
 
             modelBuilder.Entity<Class_Student>()
                 .HasKey(cs => new { cs.ClassId, cs.StudentId }); // Khóa chính kết hợp  
+
+            modelBuilder.Entity<Timesheet_Students>()
+                .HasKey(cs => new { cs.TimesheetId, cs.StudentId }); // Khóa chính kết hợp  
+
+            modelBuilder.Entity<Lecturer_Class>()
+                .HasKey(cs => new { cs.LecturerId, cs.ClassId }); // Khóa chính kết hợp  
 
             // Seed dữ liệu cho Role
             var roleValues = Enum.GetValues(typeof(Role_Enum)).Cast<Role_Enum>().ToArray();

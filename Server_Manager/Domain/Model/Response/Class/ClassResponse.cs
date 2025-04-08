@@ -21,8 +21,8 @@ namespace Domain.Model.Response.Class
         public TimeOnly TimeStart { get; set; }
         [Required]
         public TimeOnly TimeEnd { get; set; }
-        public long? LecturerId { get; set; }
         public long? CourseId { get; set; }
         public List<long> StudentsId { get; set; }
+        public List<long> LecturersId { get; set; }
     }
 }

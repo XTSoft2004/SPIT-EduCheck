@@ -10,11 +10,11 @@ namespace Domain.Model.Response.Timesheet
     public class TimesheetResponse
     {
         public long Id { get; set; }
-        public long StudentId { get; set; }
+        public List<long> StudentsId { get; set; }
         public long ClassId { get; set; }
         public long TimeId { get; set; }
         public DateOnly Date { get; set; }
-        public string Image_Check { get; set; }
+        public string ImageBase64 { get; set; }
         public string Status { get; set; }
         [StringLength(500)]
         public string Note { get; set; }

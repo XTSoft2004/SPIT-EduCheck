@@ -1,6 +1,7 @@
 ﻿using Domain.Common.Http;
 using Domain.Model.DTOs;
 using Domain.Model.Request.User;
+using Domain.Model.Response.Auth;
 using Domain.Model.Response.User;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace Domain.Interfaces.Services
         /// Lấy tất cả người dùng
         /// </summary>
         /// <returns></returns>
-        List<UserResponse> GetAllUsers(int pageNumber, int pageSize, out int totalRecords);
+        List<UserResponse> GetAllUsers(string search, int pageNumber, int pageSize, out int totalRecords);
         /// <summary>
         /// Lấy người dùng theo Id
         /// </summary>
@@ -40,5 +41,9 @@ namespace Domain.Interfaces.Services
         /// <param name="Id"></param>
         /// <returns></returns>
         Task<HttpResponse> DeleteAsync(long Id);
+        Task<HttpResponse> SetSemesterUser(long IdSemester);
+        AuthToken GetProfile();
+        Task<HttpResponse> BanAccount(long IdUser);
+        Task<HttpResponse> ChangePasswordAdmin(ChangePwAdminRequest changePwAdminRequest);
     }
 }
