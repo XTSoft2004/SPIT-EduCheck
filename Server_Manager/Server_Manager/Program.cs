@@ -142,12 +142,6 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    //app.UseSwagger();
-    //app.UseSwaggerUI(options =>
-    //{
-    //    options.SwaggerEndpoint("/swagger/v1/swagger.json", "SPIT-EduCheck API v1");
-    //    options.RoutePrefix = string.Empty; // Truy cập trực tiếp tại root "/"
-    //});
     app.UseSwagger();
     app.UseSwaggerUI();
 }
