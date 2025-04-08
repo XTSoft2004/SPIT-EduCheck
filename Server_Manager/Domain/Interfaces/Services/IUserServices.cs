@@ -45,5 +45,6 @@ namespace Domain.Interfaces.Services
         AuthToken GetProfile();
         Task<HttpResponse> BanAccount(long IdUser);
         Task<HttpResponse> ChangePasswordAdmin(ChangePwAdminRequest changePwAdminRequest);
+        Task<HttpResponse> SetRole(SetRoleRequest setRoleRequest);
     }
 }

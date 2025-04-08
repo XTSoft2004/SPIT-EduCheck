@@ -1,9 +1,11 @@
 ﻿using Domain.Base.Services;
 using Domain.Common.Http;
 using Domain.Entities;
+using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Lecturer;
+using Domain.Model.Response.Auth;
 using Domain.Model.Response.Class;
 using Domain.Model.Response.Lecturer;
 using System;
@@ -18,10 +20,16 @@ namespace Domain.Services
     public class LecturerServices : BaseService, ILecturerServices
     {
         private readonly IRepositoryBase<Lecturer> _repository;
-
-        public LecturerServices(IRepositoryBase<Lecturer> repository)
+        private readonly ITokenServices _TokenServices;
+        private readonly IHttpContextHelper _HttpContextHelper;
+        private AuthToken? _AuthToken;
+        public LecturerServices(IRepositoryBase<Lecturer> repository, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
         {
             _repository = repository;
+            _TokenServices = tokenServices;
+            _HttpContextHelper = httpContextHelper;
+            var authHeader = _HttpContextHelper.GetHeader("Authorization");
+            _AuthToken = !string.IsNullOrEmpty(authHeader) ? _TokenServices.GetInfoFromToken(authHeader) : null;
         }
 
         public async Task<HttpResponse> CreateAsync(LecturerRequest lecturerRequest)
@@ -35,6 +43,7 @@ namespace Domain.Services
                 Email = lecturerRequest.Email?.Trim(),
                 PhoneNumber = lecturerRequest.PhoneNumber?.Trim(),
                 CreatedDate = DateTime.Now,
+                CreatedBy = _AuthToken?.Username
             };
             _repository.Insert(Lecturer);
             await UnitOfWork.CommitAsync();
@@ -54,6 +63,9 @@ namespace Domain.Services
                 _lecturer.FullName = lecturerRequest.FullName!.Trim();
                 _lecturer.Email = lecturerRequest.Email?.Trim();
                 _lecturer.PhoneNumber = lecturerRequest.PhoneNumber?.Trim();
+
+                _lecturer.ModifiedBy = _AuthToken?.Username;
+                _lecturer.ModifiedDate = DateTime.Now;
                 _repository.Update(_lecturer);
                 await UnitOfWork.CommitAsync();
                 return HttpResponse.OK(message: "Cập nhật giảng viên thành công.");

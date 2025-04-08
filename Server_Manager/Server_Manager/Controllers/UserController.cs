@@ -95,5 +95,15 @@ namespace Server_Manager.Controllers
             var response = await _services.SetSemesterUser(Id);
             return response.ToActionResult();
         }
+        [Authorize(Roles = "Admin")]
+        [HttpPost("set-role")]
+        public async Task<IActionResult> SetRoleUser([FromBody] SetRoleRequest setRoleRequest)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
+
+            var response = await _services.SetRole(setRoleRequest);
+            return response.ToActionResult();
+        }
     }
 }
