@@ -111,7 +111,7 @@ export default function FormClass({ form, students, lecturers, courses }: FormCl
                             value={student.id}
                             label={`${student.lastName} ${student.firstName} (${student.maSinhVien})`}
                         >
-                            {student.lastName} {student.firstName} ({student.maSinhVien.toUpperCase()})
+                            {student.lastName} {student.firstName} ({student.maSinhVien?.toUpperCase()})
                         </Option>
                     ))}
                 </Select>
