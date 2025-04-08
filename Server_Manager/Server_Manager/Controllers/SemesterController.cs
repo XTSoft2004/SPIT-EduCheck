@@ -3,6 +3,7 @@ using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Semester;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Server_Manager.Controllers
@@ -17,6 +18,7 @@ namespace Server_Manager.Controllers
         {
             _services = services;
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateSemester([FromBody] SemesterRequest semester)
         {
@@ -26,6 +28,7 @@ namespace Server_Manager.Controllers
             var response = await _services.CreateAsync(semester);
             return response.ToActionResult();
         }
+        [Authorize(Roles = "Admin")]
         [HttpPut("{Id}")]
         public async Task<IActionResult> UpdateSemester(long Id, [FromBody] SemesterRequest semester)
         {
@@ -36,6 +39,7 @@ namespace Server_Manager.Controllers
             var response = await _services.UpdateAsync(semester);
             return response.ToActionResult();
         }
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{Id}")]
         public async Task<IActionResult> DeleteSemester(long Id)
         {

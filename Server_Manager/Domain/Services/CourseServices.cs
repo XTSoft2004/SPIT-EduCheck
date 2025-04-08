@@ -91,16 +91,18 @@ namespace Domain.Services
 
         public List<CourseResponse> GetAllInSemester(string search, int pageNumber, int pageSize, out int totalRecords)
         {
-            var query = _Course.All().Where(w => w.SemesterId == SemesterId);
+            var query = _Course.All();
 
             if (!string.IsNullOrEmpty(search))
             {
+                //var SemesterName = _Semester.ListBy(f => $"Năm học: {f.YearStart} - {f.YearEnd}".ToLower().Contains(search.ToLower())).Select(s => s.Id).ToList();
                 query = query.Where(f =>
                     f.Code.Contains(search) ||
                     f.Name.Contains(search) ||
-                    f.Credits.ToString().Contains(search));
+                    f.Credits.ToString().Contains(search) ||
+                    ($"Học kỳ: " + f.Semester!.Semesters_Number + " - Năm học: " + f.Semester!.YearStart + " - " + f.Semester!.YearEnd + "").ToLower().Contains(search));
             }
-
+            query = query.Where(w => w.SemesterId == SemesterId);
             totalRecords = query.Count(); // Đếm tổng số bản ghi trước khi phân trang
 
             query = query.OrderBy(u => u.Id);

@@ -23,5 +23,6 @@ namespace Domain.Entities
         public string Status { get; set; }
         [StringLength(500)]
         public string Note { get; set; }
+        public ICollection<Timesheet_Students> TimesheetStudents { get; set; } = new List<Timesheet_Students>();
     }
 }

@@ -1,11 +1,13 @@
 ﻿using Domain.Interfaces.Services;
 using Domain.Model.Request.Extension;
 using Domain.Model.Request.Timesheet;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Server_Manager.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Route("extension")]
     [ApiController]
     public class ExtensionController : Controller
@@ -47,6 +49,44 @@ namespace Server_Manager.Controllers
 
             var response = await _services.ImportClass(filePath);
             return response.ToActionResult();
+        }
+        [HttpPost("ImportTimesheet")]
+        public async Task<IActionResult> ImportTimesheet([FromBody] TimesheetUpload[] timesheetImport) // Sử dụng FromForm thay vì FromBody
+        {
+            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "Timesheet");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            var response = await _services.ImportTimesheet(timesheetImport, uploadsFolder);
+            return response.ToActionResult();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("image")]
+        public async Task<IActionResult> ShowImage(string nameFile)
+        {
+            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "Timesheet");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            byte[] imageBytes = System.IO.File.ReadAllBytes(Path.Combine(uploadsFolder, nameFile));
+            return File(imageBytes, "image/png");
+        }
+        [AllowAnonymous]
+        [HttpGet("base64")]
+        public async Task<IActionResult> GetBase64Image(string nameFile)
+        {
+            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "Timesheet");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            string pathFile = Path.Combine(uploadsFolder, nameFile);
+            if (!System.IO.File.Exists(pathFile))
+                return NotFound(new { Message = "File không tồn tại !!!" });
+
+            byte[] imageBytes = System.IO.File.ReadAllBytes(Path.Combine(uploadsFolder, nameFile));
+            string base64String = Convert.ToBase64String(imageBytes);
+            return Ok(base64String);
         }
 
         [HttpPost("upload")]

@@ -1,6 +1,7 @@
 ﻿using Domain.Common.Http;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Student;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Server_Manager.Controllers
@@ -16,6 +17,7 @@ namespace Server_Manager.Controllers
             _services = services;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateStudent([FromBody] StudentRequest studentRequest)
         {
@@ -25,6 +27,7 @@ namespace Server_Manager.Controllers
             var response = await _services.CreateAsync(studentRequest);
             return response.ToActionResult();
         }
+        [Authorize(Roles = "Admin")]
         [HttpPut("{Id}")]
         public async Task<IActionResult> UpdateStudent(long Id, [FromBody] StudentRequest studentRequest)
         {
@@ -35,6 +38,7 @@ namespace Server_Manager.Controllers
             var response = await _services.UpdateAsync(studentRequest);
             return response.ToActionResult();
         }
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{Id}")]
         public async Task<IActionResult> DeleteStudent(long Id)
         {

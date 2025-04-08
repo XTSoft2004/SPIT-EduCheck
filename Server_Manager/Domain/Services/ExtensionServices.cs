@@ -28,8 +28,8 @@ namespace Domain.Services
         private readonly IRepositoryBase<Class> _Class;
         private readonly IRepositoryBase<Lecturer> _Lecturer;
         private readonly IRepositoryBase<Lecturer_Class> _LectureClass;
-
-        public ExtensionServices(IRepositoryBase<User> user, IRepositoryBase<Student> student, IRepositoryBase<Semester> semester, IRepositoryBase<Course> course, IRepositoryBase<Class> @class, IRepositoryBase<Lecturer> lecturer, IRepositoryBase<Lecturer_Class> lectureClass)
+        private readonly ITimesheetServices timesheetServices;
+        public ExtensionServices(IRepositoryBase<User> user, IRepositoryBase<Student> student, IRepositoryBase<Semester> semester, IRepositoryBase<Course> course, IRepositoryBase<Class> @class, IRepositoryBase<Lecturer> lecturer, IRepositoryBase<Lecturer_Class> lectureClass, ITimesheetServices timesheetServices)
         {
             _User = user;
             _Student = student;
@@ -38,6 +38,7 @@ namespace Domain.Services
             _Class = @class;
             _Lecturer = lecturer;
             _LectureClass = lectureClass;
+            this.timesheetServices = timesheetServices;
         }
 
         public async Task<HttpResponse> CreateAccountByStudentId(List<string> studentsMSV)
@@ -206,32 +207,93 @@ namespace Domain.Services
 
             return HttpResponse.OK(message: "Import lớp học thành công.");
         }
+        public async Task<string> DownloadFileAsBase64(string fileUrl)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                var response = await client.GetAsync(fileUrl);
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Failed to download file.");
+                }
 
+                byte[] fileBytes = await response.Content.ReadAsByteArrayAsync();
+                return Convert.ToBase64String(fileBytes);
+            }
+        }
+        public async Task<HttpResponse> ImportTimesheet(TimesheetUpload[] timesheetImport, string pathSave)
+        {
+            foreach (TimesheetUpload timesheet in timesheetImport)
+            {
+                string base64Image = await DownloadFileAsBase64(timesheet.EvidenceImage);
+
+                DateOnly date = DateOnly.ParseExact(timesheet.AttendanceDate, "dd/MM/yyyy");
+                var match = Regex.Match(timesheet.SupportGroup, @"Nhóm (\d+) - Thứ (\d+) \[(\d+)-(\d+), (\w+)\] - (Thầy|Cô) (\w+)");
+
+                var classImport = _Class.Find(f => f.Name.Contains("nhóm " + Convert.ToInt32(match.Groups[1].Value)));
+                var studentOne = _Student.Find(f => (f.LastName + " " + f.FirstName) == timesheet.Supporter1Name);
+                var studentTwo = timesheet.Supporter2Name != null ? _Student.Find(f => (f.LastName + " " + f.FirstName) == timesheet.Supporter2Name) : null;
+                List<long> studentsId = new List<long>();
+            
+                if (studentTwo != null)
+                    studentsId.Add(studentTwo.Id);
+
+                if (studentOne != null)
+                    studentsId.Add(studentOne.Id);
+
+                await timesheetServices.CreateAsync(new TimesheetRequest()
+                {
+                    ClassId = classImport.Id,
+                    TimeId = GetTimeId(Convert.ToInt32(match.Groups[3].Value)),
+                    Date = date,
+                    StudentsId = studentsId,
+                    ImageBase64 = base64Image,
+                }, pathSave);
+            }
+
+            return HttpResponse.OK(message: "Import timesheet thành công.");
+        }
+        public int GetTimeId(int start)
+        {
+            if (start >= 1 && start <= 4)
+                return 1;
+            else if (start >= 5 && start <= 8)
+                return 2;
+            else if (start >= 9 && start <= 12)
+                return 3;
+
+            return -1;
+        }
         public Task<HttpResponse> ImportStudents()
         {
             throw new NotImplementedException();
         }
 
-        public async Task<HttpResponse> UploadFile(string uploadsFolder, UploadFileRequest uploadFileRequest)
+        private async Task<string> UploadFile(string uploadsFolder, Microsoft.AspNetCore.Http.IFormFile fileUpload)
         {
-            if (uploadFileRequest.FileUpload == null || uploadFileRequest.FileUpload.Length == 0)
-                return HttpResponse.Error("File không hợp lệ !!", System.Net.HttpStatusCode.BadRequest);
+            if (fileUpload == null || fileUpload.Length == 0)
+                return string.Empty;   
 
             // Lấy đường dẫn thư mục lưu file
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
             // Tạo tên file duy nhất
-            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(uploadFileRequest.FileUpload.FileName);
+            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(fileUpload.FileName);
             string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
             // Lưu file
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
-                await uploadFileRequest.FileUpload.CopyToAsync(fileStream);
+                await fileUpload.CopyToAsync(fileStream);
             }
 
-            return HttpResponse.OK(message: "Tải file lên thành công.", data: new { FilePath = filePath });
+            return filePath;
+        }
+
+        public Task<HttpResponse> UploadFile(string uploadsFolder, UploadFileRequest uploadFileRequest)
+        {
+            throw new NotImplementedException();
         }
     }
 }

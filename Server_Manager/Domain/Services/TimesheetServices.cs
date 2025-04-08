@@ -2,9 +2,11 @@
 using Domain.Common;
 using Domain.Common.Http;
 using Domain.Entities;
+using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Timesheet;
+using Domain.Model.Response.Auth;
 using Domain.Model.Response.Timesheet;
 using System;
 using System.Collections.Generic;
@@ -23,20 +25,23 @@ namespace Domain.Services
         private readonly IRepositoryBase<Class> _Class;
         private readonly IRepositoryBase<Time> _Time;
         private readonly IClassServices _ClassServices;
+        private readonly ITokenServices _TokenServices;
+        private readonly IHttpContextHelper _HttpContextHelper;
+        private AuthToken? _AuthToken;
 
-        public TimesheetServices(IRepositoryBase<Timesheet> timesheet, 
-            IRepositoryBase<Student> student, 
-            IRepositoryBase<Class> @class, 
-            IRepositoryBase<Time> time,
-            IRepositoryBase<Timesheet_Students> timesheetstudents,
-            IClassServices classServices)
+
+        public TimesheetServices(IRepositoryBase<Timesheet_Students> timesheetStudents, IRepositoryBase<Timesheet> timesheet, IRepositoryBase<Student> student, IRepositoryBase<Class> @class, IRepositoryBase<Time> time, IClassServices classServices, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
         {
+            _TimesheetStudents = timesheetStudents;
             _Timesheet = timesheet;
             _Student = student;
             _Class = @class;
             _Time = time;
-            _TimesheetStudents = timesheetstudents;
             _ClassServices = classServices;
+            _TokenServices = tokenServices;
+            _HttpContextHelper = httpContextHelper;
+            var authHeader = _HttpContextHelper.GetHeader("Authorization");
+            _AuthToken = !string.IsNullOrEmpty(authHeader) ? _TokenServices.GetInfoFromToken(authHeader) : null;
         }
 
         public async Task<HttpResponse> CreateAsync(TimesheetRequest timesheetRequest, string pathSave)
@@ -69,8 +74,8 @@ namespace Domain.Services
                 return HttpResponse.Error("Đã tồn tại điểm danh này trong hệ thống, vui lòng kiểm tra lại !!", System.Net.HttpStatusCode.BadRequest);
             else
             {
-                string filePath = Path.Combine(pathSave, $"{_class.Name}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{_student.UserId}.png");
-                byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64.Split(',')[1]);
+                string filePath = Path.Combine(pathSave, $"{_class.Name.Replace(" ", "_")}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{(_student.UserId == null ? "Unknow" : _student.UserId)}.png");
+                byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64.Contains("data:image") ? timesheetRequest.ImageBase64.Split(',')[1] : timesheetRequest.ImageBase64);
                 File.WriteAllBytes(filePath, imageBytes);
 
                 var Timesheet = new Timesheet()
@@ -80,8 +85,9 @@ namespace Domain.Services
                     Date = timesheetRequest.Date,
                     Image_Check = filePath,
                     Status = EnumExtensions.GetDisplayName(StatusTimesheet_Enum.Pending),
-                    Note = timesheetRequest.Note,
+                    Note = timesheetRequest.Note ?? string.Empty,
                     CreatedDate = DateTime.Now,
+                    CreatedBy = _AuthToken?.Username,
                 };
                 _Timesheet.Insert(Timesheet);
                 await UnitOfWork.CommitAsync();
@@ -131,9 +137,13 @@ namespace Domain.Services
                 return HttpResponse.Error("Đã tồn tại điểm danh này trong hệ thống, vui lòng kiểm tra lại !!", System.Net.HttpStatusCode.BadRequest);
             else
             {
-                string filePath = Path.Combine(pathSave, $"{_class.Name}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{_student.UserId}.png");
-                byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64);
-                File.WriteAllBytes(filePath, imageBytes);
+                if (timesheetRequest.ImageBase64.Contains("data:image"))
+                {
+                    string filePath = Path.Combine(pathSave, $"{_class.Name.Replace(" ", "_")}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{(_student.UserId == null ? "Unknow" : _student.UserId)}.png");
+                    byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64.Contains("data:image") ? timesheetRequest.ImageBase64.Split(',')[1] : timesheetRequest.ImageBase64);
+                    File.WriteAllBytes(filePath, imageBytes);
+                    _timesheet.Image_Check = filePath;
+                }
 
                 var StudentsTimesheet = _TimesheetStudents.ListBy(l => l.TimesheetId == timesheetRequest.Id).Select(s => s.StudentId).ToList();
                 var StudentIdRemove = StudentsTimesheet.Except(timesheetRequest.StudentsId).ToList();
@@ -151,12 +161,12 @@ namespace Domain.Services
                 _timesheet.Date = timesheetRequest.Date;
                 _timesheet.Class = _class;
                 _timesheet.Time = _time;
-                _timesheet.Image_Check = filePath;
                 //_timesheet.Image_Check = timesheetRequest.Image_Check;
                 _timesheet.Status = timesheetRequest.Status;
                 _timesheet.Note = timesheetRequest.Note;
 
                 _timesheet.ModifiedDate = DateTime.Now;
+                _timesheet.ModifiedBy = _AuthToken?.Username;
                 _Timesheet.Update(_timesheet);
                 await UnitOfWork.CommitAsync();
                 return HttpResponse.OK(message: "Cập nhật điểm danh thành công.");
@@ -194,12 +204,14 @@ namespace Domain.Services
             if (!string.IsNullOrEmpty(search))
             {
                 string searchLower = search.ToLower();
+                var StudentName = _Student.ListBy(f => (f.LastName + " " + f.FirstName).ToLower().Contains(search.ToLower())).Select(s => s.Id).ToList();
                 query = query.Where(f =>
                     f.Class.Name.Contains(searchLower) ||
                     f.Time.Name.Contains(searchLower) ||
                     f.Date.ToString().Contains(searchLower) ||
                     f.Status.Contains(searchLower) ||
-                    f.Note.Contains(searchLower));
+                    f.Note.Contains(searchLower) ||
+                    f.TimesheetStudents.Any(lc => StudentName.Contains(lc.StudentId)));
             }
 
             // Đếm số bản ghi trước khi phân trang
@@ -227,7 +239,7 @@ namespace Domain.Services
                 ClassId = f.ClassId,
                 TimeId = f.TimeId,
                 Date = f.Date,
-                ImageBase64 = Convert.ToBase64String(File.ReadAllBytes(f.Image_Check)),
+                ImageBase64 = Path.GetFileName(f.Image_Check),
                 Status = f.Status,
                 Note = f.Note
             }).ToList();

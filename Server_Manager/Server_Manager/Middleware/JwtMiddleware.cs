@@ -33,6 +33,8 @@ namespace Server_Manager.Middleware
                 "/auth/sign-up",
                 "/auth/refresh-token",
                 "/extension/upload",
+                "/extension/image",
+                "/extension/base64",
             };
 
             if (bypassRoutes.Contains(context.Request.Path.Value.ToLower()))

@@ -30,18 +30,18 @@ namespace Domain.Services
             if (studentRequest == null)
                 return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
 
-            var _student = _Student.Find(x => x.MaSinhVien == studentRequest.MaSinhVien);
+            var _student = _Student.Find(x => x.MaSinhVien == studentRequest.MaSinhVien.Trim());
             if (_student != null)
                 return HttpResponse.Error("Mã sinh viên đã tồn tại.", System.Net.HttpStatusCode.BadRequest);
 
-            var student = new Student() 
+            var student = new Student()
             {
-                MaSinhVien = studentRequest.MaSinhVien,
-                FirstName = studentRequest.FirstName,
-                LastName = studentRequest.LastName,
-                Class = studentRequest.Class,
-                PhoneNumber = studentRequest.PhoneNumber,
-                Email = studentRequest.Email,
+                MaSinhVien = studentRequest.MaSinhVien.Trim(),
+                FirstName = studentRequest.FirstName.Trim(),
+                LastName = studentRequest.LastName.Trim(),
+                Class = studentRequest.Class.Trim(),
+                PhoneNumber = studentRequest.PhoneNumber.Trim(),
+                Email = studentRequest.Email.Trim(),
                 Gender = studentRequest.Gender,
                 Dob = studentRequest.Dob,
                 UserId = null, // Được phép null
@@ -58,25 +58,25 @@ namespace Domain.Services
                 return HttpResponse.Error("Có lỗi xảy ra.", System.Net.HttpStatusCode.BadRequest);
 
             var student = _Student.Find(x => x.Id == studentRequest.Id);
-            if(student == null) 
+            if (student == null)
                 return HttpResponse.Error("Sinh viên không tồn tại.", System.Net.HttpStatusCode.BadRequest);
-            else if(_Student.Find(f => f.MaSinhVien == studentRequest.MaSinhVien && f.Id != studentRequest.Id) != null)
+            else if (_Student.Find(f => f.MaSinhVien == studentRequest.MaSinhVien.Trim() && f.Id != studentRequest.Id) != null)
                 return HttpResponse.Error("Mã sinh viên đã có người đặt, vui lòng kiểm tra lại", System.Net.HttpStatusCode.BadRequest);
             else
             {
-                student.MaSinhVien = studentRequest.MaSinhVien;
-                student.FirstName = studentRequest.FirstName;
-                student.LastName = studentRequest.LastName;
-                student.Class = studentRequest.Class;
-                student.PhoneNumber = studentRequest.PhoneNumber;
-                student.Email = studentRequest.Email;
+                student.MaSinhVien = studentRequest.MaSinhVien.Trim();
+                student.FirstName = studentRequest.FirstName.Trim();
+                student.LastName = studentRequest.LastName.Trim();
+                student.Class = studentRequest.Class.Trim();
+                student.PhoneNumber = studentRequest.PhoneNumber.Trim();
+                student.Email = studentRequest.Email.Trim();
                 student.Gender = studentRequest.Gender;
                 student.Dob = studentRequest.Dob;
                 student.ModifiedDate = DateTime.Now;
                 _Student.Update(student);
                 await UnitOfWork.CommitAsync();
                 return HttpResponse.OK(message: "Cập nhật sinh viên thành công.");
-            }    
+            }
         }
 
         public async Task<HttpResponse> DeleteAsync(long Id)
@@ -106,7 +106,9 @@ namespace Domain.Services
                     s.LastName.Contains(searchLower) ||
                     s.Email.Contains(searchLower) ||
                     s.Class.Contains(searchLower) ||
-                    s.PhoneNumber.Contains(searchLower));
+                    s.PhoneNumber.Contains(searchLower) ||
+                    s.Dob.ToString()!.Contains(searchLower) ||
+                    (s.Gender == true ? "nam" : "nữ").Contains(searchLower));
             }
 
             // Đếm tổng số bản ghi trước khi áp dụng phân trang

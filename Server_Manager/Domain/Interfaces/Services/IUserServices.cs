@@ -43,5 +43,7 @@ namespace Domain.Interfaces.Services
         Task<HttpResponse> DeleteAsync(long Id);
         Task<HttpResponse> SetSemesterUser(long IdSemester);
         AuthToken GetProfile();
+        Task<HttpResponse> BanAccount(long IdUser);
+        Task<HttpResponse> ChangePasswordAdmin(ChangePwAdminRequest changePwAdminRequest);
     }
 }

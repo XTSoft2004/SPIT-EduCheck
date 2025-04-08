@@ -58,6 +58,10 @@ namespace Domain.Services
             if (changePwRequest.Password != changePwRequest.ConfirmPassword)
                 return HttpResponse.Error("Mật khẩu không khớp.", System.Net.HttpStatusCode.BadRequest);
 
+            if (changePwRequest.OldPassword == changePwRequest.Password)
+                return HttpResponse.Error("Vui lòng không đổi mật khẩu giống mật khẩu cũ !!", System.Net.HttpStatusCode.BadRequest);
+
+
             var user = _User.Find(x => x.Id == UserId);
             if (user != null)
             {
@@ -66,6 +70,7 @@ namespace Domain.Services
 
                 user.Password = changePwRequest.Password;
                 user.ModifiedDate = DateTime.Now;
+                user.IsVerify = true;
                 _User.Update(user);
                 await UnitOfWork.CommitAsync();
                 return HttpResponse.OK(message: "Đổi mật khẩu thành công.");
@@ -85,6 +90,23 @@ namespace Domain.Services
             else
                 return HttpResponse.OK(message: "Xóa tài khoản thành công.");
         }
+        public async Task<HttpResponse> BanAccount(long Id)
+        {
+            var user = _User.Find(x => x.Id == Id);
+            if (user == null)
+                return HttpResponse.Error("Tài khoản không tồn tại.", System.Net.HttpStatusCode.BadRequest);
+            else
+            {
+                var role = _Role.Find(x => x.Id == user.RoleId);
+                if (role.DisplayName == "Admin")
+                    return HttpResponse.Error("Không thể khóa tài khoản Admin !!", System.Net.HttpStatusCode.BadRequest);
+                user.IsLocked = !user.IsLocked;
+                user.ModifiedDate = DateTime.Now;
+                _User.Update(user);
+                await UnitOfWork.CommitAsync();
+                return HttpResponse.OK(message: user.IsLocked ? "Khóa tài khoản thành công." : "Mở khoá tài khoản thành công.");
+            }
+        }
 
         public List<UserResponse> GetAllUsers(string search, int pageNumber, int pageSize, out int totalRecords)
         {
@@ -93,7 +115,10 @@ namespace Domain.Services
             if (!string.IsNullOrEmpty(search))
             {
                 string searchLower = search.ToLower();
-                query = query.Where(u => u.Username.ToLower().Contains(searchLower));
+                query = query.Where(u => u.Username.ToLower().Contains(searchLower) ||
+                    u.Role!.DisplayName!.Contains(searchLower) ||
+                    (u.IsLocked ? "đã khoá" : "hoạt động").Contains(searchLower) ||
+                    (u.IsVerify ? "đã xác thực" : "chưa xác thực").Contains(searchLower));
             }
 
             // Đếm số bản ghi trước khi phân trang
@@ -125,6 +150,7 @@ namespace Domain.Services
             var user = _User.Find(f => f.Id == UserId);
             if (user != null)
             {
+                var StudentName = _Student.Find(f => f.Id == user.StudentId);
                 var userResponse = new UserResponse()
                 {
                     Id = user.Id,
@@ -132,7 +158,7 @@ namespace Domain.Services
                     IsLocked = user.IsLocked,
                     IsVerify = user.IsVerify,
                     RoleName = _Role.Find(x => x.Id == user.RoleId)?.DisplayName,
-                    StudentName = _Student.Find(f => f.Id == user.StudentId) != null ? _Student.Find(f => f.Id == user.StudentId).FirstName + " " + _Student.Find(f => f.Id == user.StudentId).LastName : null,
+                    StudentName = StudentName != null ? StudentName.LastName + " " + StudentName.FirstName : string.Empty,
                     SemesterId = user.SemesterId
                 };
                 return userResponse;
@@ -187,6 +213,24 @@ namespace Domain.Services
 
             await UnitOfWork.CommitAsync();
             return HttpResponse.OK(message: $"Chuyển sang học kỳ {Semester.YearStart}-{Semester.YearEnd} thành công !!.");
+        }
+
+        public async Task<HttpResponse> ChangePasswordAdmin(ChangePwAdminRequest changePwAdminRequest)
+        {
+            var user = _User.Find(x => x.Id == changePwAdminRequest.UserId);
+            if (user == null)
+                return HttpResponse.Error("Tài khoản không tồn tại.", System.Net.HttpStatusCode.BadRequest);
+            else
+            {
+                var role = _Role.Find(x => x.Id == user.RoleId);
+                if(role.DisplayName == "Admin")
+                    return HttpResponse.Error("Không thể đổi mật khẩu cho tài khoản Admin !!", System.Net.HttpStatusCode.BadRequest);   
+                user.Password = changePwAdminRequest.PasswordNew;
+                user.ModifiedDate = DateTime.Now;
+                _User.Update(user);
+                await UnitOfWork.CommitAsync();
+                return HttpResponse.OK($"Đổi mật khẩu user {user.Username} thành công !!");
+            }
         }
     }
 }

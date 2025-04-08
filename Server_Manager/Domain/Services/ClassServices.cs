@@ -249,21 +249,22 @@ namespace Domain.Services
             if (!string.IsNullOrEmpty(search))
             {
                 var LerturerName = _Lecturer.ListBy(f => f.FullName.ToLower().Contains(search.ToLower())).Select(s => s.Id).ToList();
-                var StudentName = _Student.ListBy(f => ($"{f.LastName} {f.FirstName}").ToLower().Contains(search.ToLower())).Select(s => s.Id).ToList();
+                var StudentName = _Student.ListBy(f => (f.LastName + " " + f.FirstName).ToLower().Contains(search.ToLower())).Select(s => s.Id).ToList();
                 query = query.Where(s =>
                        s.Code.ToLower().Contains(search) ||
                        s.Name.ToLower().Contains(search) ||
                        s.TimeStart.ToString().Contains(search) ||
+                       ("thứ " + s.Day.ToString()).Contains(search) ||
                        s.TimeEnd.ToString().Contains(search) ||
                        s.CourseId.ToString().Contains(search) ||
                        s.LecturerClasses.Any(lc => LerturerName.Contains(lc.LecturerId)) ||
                        s.ClassStudents.Any(lc => StudentName.Contains(lc.StudentId)));
             }
-            totalRecords = query.Count(); // Đếm tổng số bản ghi
 
             var c = _Course.ListBy(f => f.SemesterId == SemesterId).Select(s => s.Id).ToList();
             query = query.Where(w => c.Contains(w.CourseId.Value));
 
+            totalRecords = query.Count(); // Đếm tổng số bản ghi
 
             if (pageNumber != -1 && pageSize != -1)
             {
