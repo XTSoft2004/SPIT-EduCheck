@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Domain.Base.Services;
 using Domain.Common.Http;
 using Domain.Entities;
+using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Class;
@@ -14,6 +15,7 @@ using Domain.Model.Request.Course;
 using Domain.Model.Request.Extension;
 using Domain.Model.Request.Semester;
 using Domain.Model.Request.Timesheet;
+using Domain.Model.Response.Auth;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Newtonsoft.Json;
 
@@ -29,7 +31,10 @@ namespace Domain.Services
         private readonly IRepositoryBase<Lecturer> _Lecturer;
         private readonly IRepositoryBase<Lecturer_Class> _LectureClass;
         private readonly ITimesheetServices timesheetServices;
-        public ExtensionServices(IRepositoryBase<User> user, IRepositoryBase<Student> student, IRepositoryBase<Semester> semester, IRepositoryBase<Course> course, IRepositoryBase<Class> @class, IRepositoryBase<Lecturer> lecturer, IRepositoryBase<Lecturer_Class> lectureClass, ITimesheetServices timesheetServices)
+        private readonly ITokenServices _TokenServices;
+        private readonly IHttpContextHelper _HttpContextHelper;
+        private AuthToken? _AuthToken;
+        public ExtensionServices(IRepositoryBase<User> user, IRepositoryBase<Student> student, IRepositoryBase<Semester> semester, IRepositoryBase<Course> course, IRepositoryBase<Class> @class, IRepositoryBase<Lecturer> lecturer, IRepositoryBase<Lecturer_Class> lectureClass, ITimesheetServices timesheetServices, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
         {
             _User = user;
             _Student = student;
@@ -39,6 +44,10 @@ namespace Domain.Services
             _Lecturer = lecturer;
             _LectureClass = lectureClass;
             this.timesheetServices = timesheetServices;
+            _TokenServices = tokenServices;
+            _HttpContextHelper = httpContextHelper;
+            var authHeader = _HttpContextHelper.GetHeader("Authorization");
+            _AuthToken = !string.IsNullOrEmpty(authHeader) ? _TokenServices.GetInfoFromToken(authHeader) : null;
         }
 
         public async Task<HttpResponse> CreateAccountByStudentId(List<string> studentsMSV)
@@ -57,8 +66,9 @@ namespace Domain.Services
                     Username = studentMSV,
                     Password = "123456",
                     RoleId = -2,
-                    CreatedDate = DateTime.Now,
                     Semester = GetSemesterNow(),
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = _AuthToken?.Username,
                 };
                 _User.Insert(user);
                 success++;

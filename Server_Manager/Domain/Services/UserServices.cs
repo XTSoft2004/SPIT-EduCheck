@@ -28,26 +28,21 @@ namespace Domain.Services
         private readonly IRepositoryBase<Semester> _Semester;
         private readonly IRepositoryBase<Timesheet_Students> _TimeSheetStudets;
         private readonly ITokenServices _jwtHelper;
-        private readonly ITokenServices _Token;
         private readonly IHttpContextHelper _HttpContextHelper;
-        private long UserId { set; get; }
-        public UserServices(
-            IRepositoryBase<User> user,
-            IRepositoryBase<Role> role,
-            IRepositoryBase<Semester> semester,
-            IRepositoryBase<Student> student,
-            ITokenServices jwtHelper,
-            ITokenServices token,
-            IHttpContextHelper httpContextHelper)
+        private readonly ITokenServices _TokenServices;
+        private AuthToken? _AuthToken;
+        public UserServices(IRepositoryBase<User> user, IRepositoryBase<Role> role, IRepositoryBase<Student> student, IRepositoryBase<Semester> semester, IRepositoryBase<Timesheet_Students> timeSheetStudets, ITokenServices jwtHelper, IHttpContextHelper httpContextHelper, ITokenServices tokenServices)
         {
             _User = user;
             _Role = role;
-            _Semester = semester;
             _Student = student;
+            _Semester = semester;
+            _TimeSheetStudets = timeSheetStudets;
             _jwtHelper = jwtHelper;
-            _Token = token;
             _HttpContextHelper = httpContextHelper;
-            UserId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("UserId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("UserId"));
+            _TokenServices = tokenServices;
+            var authHeader = _HttpContextHelper.GetHeader("Authorization");
+            _AuthToken = !string.IsNullOrEmpty(authHeader) ? _TokenServices.GetInfoFromToken(authHeader) : null;
         }
 
         public async Task<HttpResponse> ChangePassword(ChangePwRequest changePwRequest)
@@ -62,7 +57,7 @@ namespace Domain.Services
                 return HttpResponse.Error("Vui lòng không đổi mật khẩu giống mật khẩu cũ !!", System.Net.HttpStatusCode.BadRequest);
 
 
-            var user = _User.Find(x => x.Id == UserId);
+            var user = _User.Find(x => x.Id == _AuthToken!.Id);
             if (user != null)
             {
                 if (user.Password != changePwRequest.OldPassword)
@@ -101,6 +96,26 @@ namespace Domain.Services
                 if (role.DisplayName == "Admin")
                     return HttpResponse.Error("Không thể khóa tài khoản Admin !!", System.Net.HttpStatusCode.BadRequest);
                 user.IsLocked = !user.IsLocked;
+                user.ModifiedDate = DateTime.Now;
+                _User.Update(user);
+                await UnitOfWork.CommitAsync();
+                return HttpResponse.OK(message: user.IsLocked ? "Khóa tài khoản thành công." : "Mở khoá tài khoản thành công.");
+            }
+        }
+        public async Task<HttpResponse> SetRole(SetRoleRequest setRoleRequest)
+        {
+            var user = _User.Find(x => x.Id == setRoleRequest.UserId);
+            if (user == null)
+                return HttpResponse.Error("Tài khoản không tồn tại.", System.Net.HttpStatusCode.BadRequest);
+            else
+            {
+                var role = _Role.Find(x => x.Id == setRoleRequest.RoleId);
+                if(role == null)
+                    return HttpResponse.Error("Không tìm thấy quyền !!", System.Net.HttpStatusCode.BadRequest);
+
+                user.Role = role;
+                user.IsLocked = !user.IsLocked;
+                user.ModifiedBy = _AuthToken?.Username;
                 user.ModifiedDate = DateTime.Now;
                 _User.Update(user);
                 await UnitOfWork.CommitAsync();
@@ -147,7 +162,7 @@ namespace Domain.Services
 
         public UserResponse GetMe()
         {
-            var user = _User.Find(f => f.Id == UserId);
+            var user = _User.Find(f => f.Id == _AuthToken!.Id);
             if (user != null)
             {
                 var StudentName = _Student.Find(f => f.Id == user.StudentId);
@@ -170,7 +185,7 @@ namespace Domain.Services
             var token = _HttpContextHelper.GetHeader("Authorization")?.Replace("Bearer ", "");
             if(!string.IsNullOrEmpty(token))
             {
-                var AuthToken = _Token.GetInfoFromToken(token);
+                var AuthToken = _TokenServices.GetInfoFromToken(token);
                 if(AuthToken != null)
                     return AuthToken;
             }
@@ -200,7 +215,7 @@ namespace Domain.Services
 
         public async Task<HttpResponse> SetSemesterUser(long IdSemester)
         {
-            var User = _User.Find(f => f.Id == UserId);
+            var User = _User.Find(f => f.Id == _AuthToken!.Id);
             if (User == null)
                 return HttpResponse.Error("Không tìm thấy user !!.");
 

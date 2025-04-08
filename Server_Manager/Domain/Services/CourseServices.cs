@@ -5,6 +5,7 @@ using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Course;
+using Domain.Model.Response.Auth;
 using Domain.Model.Response.Class;
 using Domain.Model.Response.Course;
 using Domain.Model.Response.Semester;
@@ -23,14 +24,17 @@ namespace Domain.Services
         private readonly IRepositoryBase<Semester> _Semester;
         private readonly IRepositoryBase<Class> _Class;
         private readonly IHttpContextHelper _HttpContextHelper;
-        private long SemesterId { set; get; }
-        public CourseServices(IRepositoryBase<Course> course, IRepositoryBase<Semester> semester, IRepositoryBase<Class> @class, IHttpContextHelper httpContextHelper)
+        private readonly ITokenServices _TokenServices;
+        private AuthToken? _AuthToken;
+        public CourseServices(IRepositoryBase<Course> course, IRepositoryBase<Semester> semester, IRepositoryBase<Class> @class, IHttpContextHelper httpContextHelper, ITokenServices tokenServices)
         {
             _Course = course;
             _Semester = semester;
             _Class = @class;
             _HttpContextHelper = httpContextHelper;
-            SemesterId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("SemesterId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("SemesterId"));
+            _TokenServices = tokenServices;
+            var authHeader = _HttpContextHelper.GetHeader("Authorization");
+            _AuthToken = !string.IsNullOrEmpty(authHeader) ? _TokenServices.GetInfoFromToken(authHeader) : null;
         }
 
         public async Task<HttpResponse> CreateAsync(CourseRequest courseRequest)
@@ -49,6 +53,7 @@ namespace Domain.Services
                 Credits = courseRequest.Credits,
                 CreatedDate = DateTime.Now,
                 SemesterId = courseRequest.SemesterId,
+                CreatedBy = _AuthToken?.Username,
             };
             _Course.Insert(Course);
             await UnitOfWork.CommitAsync();
@@ -72,6 +77,9 @@ namespace Domain.Services
             course.Name = courseRequest.Name;
             course.Credits = courseRequest.Credits;
             course.SemesterId = courseRequest.SemesterId;
+
+            course.ModifiedBy = _AuthToken?.Username;
+            course.ModifiedDate = DateTime.Now;
             _Course.Update(course);
             await UnitOfWork.CommitAsync();
             return HttpResponse.OK(message: "Cập nhật môn học thành công.");
@@ -102,7 +110,7 @@ namespace Domain.Services
                     f.Credits.ToString().Contains(search) ||
                     ($"Học kỳ: " + f.Semester!.Semesters_Number + " - Năm học: " + f.Semester!.YearStart + " - " + f.Semester!.YearEnd + "").ToLower().Contains(search));
             }
-            query = query.Where(w => w.SemesterId == SemesterId);
+            query = query.Where(w => w.SemesterId == _AuthToken.SemesterId);
             totalRecords = query.Count(); // Đếm tổng số bản ghi trước khi phân trang
 
             query = query.OrderBy(u => u.Id);

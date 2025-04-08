@@ -1,9 +1,11 @@
 ﻿using Domain.Base.Services;
 using Domain.Common.Http;
 using Domain.Entities;
+using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Student;
+using Domain.Model.Response.Auth;
 using Domain.Model.Response.Student;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -18,11 +20,17 @@ namespace Domain.Services
     {
         private readonly IRepositoryBase<Student> _Student;
         private readonly IRepositoryBase<User> _User;
-
-        public StudentServices(IRepositoryBase<Student> student, IRepositoryBase<User> user)
+        private readonly ITokenServices _TokenServices;
+        private readonly IHttpContextHelper _HttpContextHelper;
+        private AuthToken? _AuthToken;
+        public StudentServices(IRepositoryBase<Student> student, IRepositoryBase<User> user, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
         {
             _Student = student;
             _User = user;
+            _TokenServices = tokenServices;
+            _HttpContextHelper = httpContextHelper;
+            var authHeader = _HttpContextHelper.GetHeader("Authorization");
+            _AuthToken = !string.IsNullOrEmpty(authHeader) ? _TokenServices.GetInfoFromToken(authHeader) : null;
         }
 
         public async Task<HttpResponse> CreateAsync(StudentRequest studentRequest)
@@ -46,6 +54,7 @@ namespace Domain.Services
                 Dob = studentRequest.Dob,
                 UserId = null, // Được phép null
                 CreatedDate = DateTime.Now,
+                CreatedBy = _AuthToken?.Username,
             };
 
             _Student.Insert(student);
@@ -72,6 +81,8 @@ namespace Domain.Services
                 student.Email = studentRequest.Email.Trim();
                 student.Gender = studentRequest.Gender;
                 student.Dob = studentRequest.Dob;
+
+                student.ModifiedBy = _AuthToken?.Username;
                 student.ModifiedDate = DateTime.Now;
                 _Student.Update(student);
                 await UnitOfWork.CommitAsync();
