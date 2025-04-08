@@ -74,7 +74,7 @@ export default function Page() {
 
     return (
         <>
-            {(loading) ? (
+            {(loading || statisticClass?.length == 0 || statisticInfo == null || statisticSalary == null) ? (
                 <SpinLoading />
             ) : (
                 <>

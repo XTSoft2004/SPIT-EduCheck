@@ -268,7 +268,7 @@ export default function ClassPage() {
             <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 mb-2">
                 <ButtonAddTable
                     btnText="Thêm chấm công"
-                    role={role}
+                    role={Role.ADMIN}
                     onClick={() => setIsModalCreate(true)}
                 />
                 <div className="flex justify-end w-full">

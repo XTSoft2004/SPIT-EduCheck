@@ -11,8 +11,10 @@ import UserDropdown from '@/components/header/UserDropdown';
 import { ThemeToggleButton } from '@/components/common/ThemeToggleButton';
 import SwitchSemester from '@/components/Dashboard/Semesters/SwitchSemester';
 import SemesterDropdown from '@/components/ui/dropdown/SemesterDropdown';
+import { useRouter } from 'next/navigation';
 
 const AppHeader: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapsed: boolean }> = ({ setCollapsed, collapsed }) => {
+    const router = useRouter();
     return (
         <Header className="p-0 flex items-center justify-between bg-white dark:bg-[var(--bg-dark-mode)] border-b-[1px] dark:border-gray-800">
             <Button
@@ -30,7 +32,7 @@ const AppHeader: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapse
                     height: 64,
                 }}
             />
-            <div className='flex justify-center items-center py-3 gap-2 sm:hidden'>
+            <div className='flex justify-center items-center py-3 gap-2 sm:hidden' onClick={() => router.push('/')}>
                 <Image src='/logo/logo-500x500.png' alt="Logo" width={40} height={40} loading="lazy" />
                 <p className='dark:text-white font-bold text-xl'>SPIT TEAM</p>
             </div>

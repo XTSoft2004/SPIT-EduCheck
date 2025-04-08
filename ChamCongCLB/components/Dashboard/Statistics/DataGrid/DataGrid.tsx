@@ -8,25 +8,24 @@ const DataGrid = ({ columns, data, rowKey }: any) => {
             dataIndex: 'stt',
             key: 'stt',
             render: (_: any, __: any, index: number) => index + 1,
-            width: '15%',
+            width: 100,
         },
         ...columns,
     ];
 
     return (
         <>
-            <div className='w-fullshadow-md p-4'>
+            <div className='w-full shadow-md p-4 overflow-x-auto'>
                 <h1 className='text-2xl font-bold text-center mb-5'>Thống kê lương hỗ trợ các lớp trong kì này</h1>
                 <Table
                     columns={enhancedColumns}
                     dataSource={data}
                     rowKey={rowKey}
-                    scroll={{ y: 300 }}
+                    scroll={{ x: 'max-content', y: 300 }}
                     pagination={false}
                     rowClassName={(record, index) =>
                         index % 2 === 0 ? 'dark:bg-[#1E2636] bg-gray-100' : 'dark:bg-[#242f45]'
                     }
-                // title={() => }
                 />
             </div>
         </>
