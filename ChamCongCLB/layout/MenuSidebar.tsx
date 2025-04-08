@@ -8,6 +8,8 @@ import { CalendarRange, CircleUserRound, School, CalendarDays, AlignVerticalDist
 import SwitchSemester from '@/components/Dashboard/Semesters/SwitchSemester';
 import { useMediaQuery } from 'react-responsive';
 import SemesterDropdown from '@/components/ui/dropdown/SemesterDropdown';
+import SpinLoading from '@/components/ui/Loading/SpinLoading';
+import LoadingScreen from '@/components/ui/Loading/LoadingScreen';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -32,8 +34,7 @@ const getLevelKeys = (items1: LevelKeysProps[]) => {
     return key;
 };
 
-const MenuSidebar: React.FC<{ setCollapsed: (collapsed: boolean) => void }> = ({ setCollapsed }) => {
-
+const MenuSidebar: React.FC<{ setIsLoading: (isLoading: boolean) => void, setCollapsed: (collapsed: boolean) => void }> = ({ setIsLoading, setCollapsed }) => {
     const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
     // Cập nhật kích thước màn hình khi resize
     useEffect(() => {
@@ -107,7 +108,12 @@ const MenuSidebar: React.FC<{ setCollapsed: (collapsed: boolean) => void }> = ({
                 openKeys={stateOpenKeys}
                 onOpenChange={onOpenChange}
                 items={items}
-                onClick={({ key }) => { router.push(key); setCollapsed(false); }}
+                onClick={async ({ key }) => {
+                    setCollapsed(false);
+                    setIsLoading(true);
+                    await router.push(key);
+                    setIsLoading(false);
+                }}
             />
         </>
 

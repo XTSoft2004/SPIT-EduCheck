@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Spin } from 'antd';
 
-const LoadingScreen: React.FC = () => {
+const SpinLoading: React.FC = () => {
     const [spinning, setSpinning] = useState(true);
     const [percent, setPercent] = useState(0);
 
@@ -22,4 +22,4 @@ const LoadingScreen: React.FC = () => {
     return <Spin spinning={spinning} percent={percent} fullscreen />;
 };
 
-export default LoadingScreen;
+export default SpinLoading;

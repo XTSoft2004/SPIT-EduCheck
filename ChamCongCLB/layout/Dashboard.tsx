@@ -1,11 +1,12 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Breadcrumb, Button, Layout, Menu, theme, Drawer } from 'antd';
 
 const { Header, Sider, Content } = Layout;
 
 import AppHeader from './AppHeader';
 import AppSider from './AppSider';
+import LoadingScreen from '@/components/ui/Loading/LoadingScreen';
 
 export default function Dashboard({
     children,
@@ -13,12 +14,15 @@ export default function Dashboard({
     children: React.ReactNode
 }) {
     const [collapsed, setCollapsed] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        console.log('isLoading', isLoading);
+    }, [isLoading])
 
     return (
         <Layout style={{ height: '100vh' }}>
-
-
-            <AppSider setCollapsed={setCollapsed} collapsed={collapsed} />
+            <AppSider setIsLoading={setIsLoading} setCollapsed={setCollapsed} collapsed={collapsed} />
 
             <Layout style={{ height: '100vh' }}>
                 <AppHeader setCollapsed={setCollapsed} collapsed={collapsed} />
@@ -39,7 +43,9 @@ export default function Dashboard({
                         flex: 1,
                         overflow: 'auto'
                     }}
-                > {children}
+                >
+                    {isLoading && <LoadingScreen spinning={isLoading} />}
+                    {children}
                 </div>
             </Layout>
         </Layout >

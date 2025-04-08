@@ -18,7 +18,7 @@ const siderStyle: React.CSSProperties = {
     scrollbarGutter: 'stable',
 };
 
-const AppSider: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapsed: boolean }> = ({ setCollapsed, collapsed }) => {
+const AppSider: React.FC<{ setIsLoading: (isLoading: boolean) => void, setCollapsed: (collapsed: boolean) => void, collapsed: boolean }> = ({ setIsLoading, setCollapsed, collapsed }) => {
     const { theme } = useTheme();
     const [isMobile, setIsMobile] = useState(false);
 
@@ -48,9 +48,10 @@ const AppSider: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapsed
             open={collapsed}
             bodyStyle={{ padding: 0 }} // Xóa padding mặc định của Drawer
         >
-            <div onClick={() => router.push('/')} className="cursor-pointer">
-                <MenuSidebar setCollapsed={setCollapsed} />
-            </div>
+            {/* <div onClick={() => router.push('/')} className="cursor-pointer">
+               
+            </div> */}
+            <MenuSidebar setIsLoading={setIsLoading} setCollapsed={setCollapsed} />
         </Drawer>
     ) : (
         <Sider
@@ -75,7 +76,7 @@ const AppSider: React.FC<{ setCollapsed: (collapsed: boolean) => void, collapsed
                     />
                     {!collapsed && <p className="dark:text-white font-bold">SPIT TEAM</p>}
                 </div>
-                <MenuSidebar setCollapsed={setCollapsed} />
+                <MenuSidebar setIsLoading={setIsLoading} setCollapsed={setCollapsed} />
             </div>
         </Sider>
     );

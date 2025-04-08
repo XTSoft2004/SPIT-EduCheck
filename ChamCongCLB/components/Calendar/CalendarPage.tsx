@@ -65,17 +65,22 @@ const CalendarPage: React.FC = () => {
                     <div className="hidden sm:block">
                         <Calendar
                             value={calendarDate} // Giữ nguyên ngày hiển thị
-                            dateCellRender={(value) => (
-                                <EventList
-                                    timesheets={timesheets}
-                                    value={value}
-                                    events={events}
-                                    form={form}
-                                    setIsModalOpen={setIsModalOpen}
-                                    setSelectedEvent={setSelectedEvent}
-                                    setSelectedDate={setSelectedDate}
-                                />
-                            )}
+                            cellRender={(currentDate, info) => {
+                                if (info.type === "date") {
+                                    return (
+                                        <EventList
+                                            timesheets={timesheets}
+                                            value={currentDate}
+                                            events={events}
+                                            form={form}
+                                            setIsModalOpen={setIsModalOpen}
+                                            setSelectedEvent={setSelectedEvent}
+                                            setSelectedDate={setSelectedDate}
+                                        />
+                                    );
+                                }
+                                return info.originNode;
+                            }}
                             onSelect={(date, { source }) => {
                                 if (date.isAfter(dayjs(), "day")) {
                                     message.error("Không thể chọn ngày trước hôm nay");
