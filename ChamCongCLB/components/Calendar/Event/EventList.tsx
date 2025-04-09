@@ -18,14 +18,13 @@ const EventList: React.FC<Props> = ({ value, events, timesheets, form, setIsModa
     const dateStr = value.format("DD/MM/YYYY");
     return (
         <div className={styles.events}>
-            {events[dateStr]?.map((item, index) => {
+            {events[dateStr]?.map((item) => {
                 // Lấy thông tin sự kiện từ timesheets dựa trên id
                 const event = timesheets.find((t) => t.id === item.id);
 
                 return (
-                    <>
+                    <React.Fragment key={item.id}>
                         <Button
-                            key={index}
                             className={`${styles.eventButton} dark:text-white border-l-4 pl-4 sm:pl-5 md:pl-6 w-full text-left truncate`}
                             style={{
                                 borderLeftColor:
@@ -53,7 +52,7 @@ const EventList: React.FC<Props> = ({ value, events, timesheets, form, setIsModa
                                 {item.content.split(" - ")[1] + " - " + item.content.split(" - ")[0]}
                             </span>
                         </Button>
-                    </>
+                    </React.Fragment>
                 )
             })}
         </div>
