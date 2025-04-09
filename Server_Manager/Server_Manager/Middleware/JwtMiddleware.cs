@@ -70,7 +70,7 @@ namespace Server_Manager.Middleware
                 if (AuthInfo.ExpiryDate < dateTimeNow)
                 {
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    await context.Response.WriteAsJsonAsync(new { Message = "Token không hợp lệ hoặc đã hết hạn" });
+                    await context.Response.WriteAsJsonAsync(new { Message = "Token không hợp lệ hoặc đã hết hạn, vui lòng kiểm tra lại" });
                     return;
                 }
 

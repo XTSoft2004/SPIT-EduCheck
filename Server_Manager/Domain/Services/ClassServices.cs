@@ -6,6 +6,7 @@ using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Class;
+using Domain.Model.Response.Auth;
 using Domain.Model.Response.Class;
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.IdentityModel.Tokens;
@@ -30,26 +31,22 @@ namespace Domain.Services
         private readonly IRepositoryBase<Student> _Student;
         private readonly IRepositoryBase<User> _User;
         private readonly IHttpContextHelper _HttpContextHelper;
-        private long SemesterId { set; get; }
+        private readonly ITokenServices _TokenServices;
 
-        public ClassServices(IRepositoryBase<Class> @class,
-            IRepositoryBase<Lecturer> lecturer,
-            IRepositoryBase<Course> course,
-            IRepositoryBase<User> user,
-            IRepositoryBase<Class_Student> class_Student,
-            IRepositoryBase<Student> student,
-            IRepositoryBase<Lecturer_Class> lecturer_class,
-            IHttpContextHelper httpContextHelper)
+        private AuthToken? _AuthToken;
+        public ClassServices(IRepositoryBase<Class> @class, IRepositoryBase<Lecturer> lecturer, IRepositoryBase<Course> course, IRepositoryBase<Class_Student> class_Student, IRepositoryBase<Lecturer_Class> lecturer_Class, IRepositoryBase<Student> student, IRepositoryBase<User> user, IHttpContextHelper httpContextHelper, ITokenServices tokenServices)
         {
             _Class = @class;
             _Lecturer = lecturer;
-            _User = user;
             _Course = course;
             _Class_Student = class_Student;
+            _Lecturer_Class = lecturer_Class;
             _Student = student;
-            _Lecturer_Class = lecturer_class;
+            _User = user;
             _HttpContextHelper = httpContextHelper;
-            SemesterId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("SemesterId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("SemesterId"));
+            _TokenServices = tokenServices;
+            var authHeader = _HttpContextHelper.GetHeader("Authorization");
+            _AuthToken = !string.IsNullOrEmpty(authHeader) ? _TokenServices.GetInfoFromToken(authHeader) : null;
         }
 
         public async Task<HttpResponse> CreateAsync(ClassRequest request)
@@ -81,8 +78,9 @@ namespace Domain.Services
                 Day = request.Day,
                 TimeStart = request.TimeStart,
                 TimeEnd = request.TimeEnd,
-                CreatedDate = DateTime.Now,
                 CourseId = request.CourseId,
+                CreatedBy = _AuthToken?.Username,
+                CreatedDate = DateTime.Now,
             };
 
             _Class.Insert(Class);
@@ -171,6 +169,7 @@ namespace Domain.Services
                     CreatedDate = DateTime.Now,
                 }));
 
+                _class.ModifiedBy = _AuthToken?.Username;
                 _class.ModifiedDate = DateTime.Now;
                 _Class.Update(_class);
                 await UnitOfWork.CommitAsync();
@@ -261,7 +260,7 @@ namespace Domain.Services
                        s.ClassStudents.Any(lc => StudentName.Contains(lc.StudentId)));
             }
 
-            var c = _Course.ListBy(f => f.SemesterId == SemesterId).Select(s => s.Id).ToList();
+            var c = _Course.ListBy(f => f.SemesterId == _AuthToken!.SemesterId).Select(s => s.Id).ToList();
             query = query.Where(w => c.Contains(w.CourseId.Value));
 
             totalRecords = query.Count(); // Đếm tổng số bản ghi

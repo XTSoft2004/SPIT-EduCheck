@@ -1,9 +1,11 @@
 ﻿using Domain.Base.Services;
 using Domain.Common.Http;
 using Domain.Entities;
+using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Semester;
+using Domain.Model.Response.Auth;
 using Domain.Model.Response.Semester;
 using System;
 using System.Collections.Generic;
@@ -16,10 +18,16 @@ namespace Domain.Services
     public class SemesterServices : BaseService, ISemesterServices
     {
         private readonly IRepositoryBase<Semester> _repository;
-
-        public SemesterServices(IRepositoryBase<Semester> repository)
+        private readonly ITokenServices _TokenServices;
+        private readonly IHttpContextHelper _HttpContextHelper;
+        private AuthToken? _AuthToken;
+        public SemesterServices(IRepositoryBase<Semester> repository, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
         {
             _repository = repository;
+            _TokenServices = tokenServices;
+            _HttpContextHelper = httpContextHelper;
+            var authHeader = _HttpContextHelper.GetHeader("Authorization");
+            _AuthToken = !string.IsNullOrEmpty(authHeader) ? _TokenServices.GetInfoFromToken(authHeader) : null;
         }
 
         public async Task<HttpResponse> CreateAsync(SemesterRequest request)
@@ -38,6 +46,7 @@ namespace Domain.Services
                     YearStart = request.YearStart,
                     YearEnd = request.YearEnd,
                     CreatedDate = DateTime.Now,
+                    CreatedBy = _AuthToken?.Username
                 };
                 _repository.Insert(Semester);
                 await UnitOfWork.CommitAsync();
@@ -109,6 +118,9 @@ namespace Domain.Services
                 semester.Semesters_Number = request.Semesters_Number;
                 semester.YearStart = request.YearStart;
                 semester.YearEnd = request.YearEnd;
+
+                semester.ModifiedBy = _AuthToken?.Username;
+                semester.ModifiedDate = DateTime.Now;
                 _repository.Update(semester);
 
                 await UnitOfWork.CommitAsync();

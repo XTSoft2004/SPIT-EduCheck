@@ -166,7 +166,7 @@ const EventModal: React.FC<EventModalProps> = ({
     students.forEach((student) => {
         options.push({
             value: student.id,
-            label: `${student.lastName} ${student.firstName} (${student.maSinhVien.toUpperCase()})`,
+            label: `${student.lastName} ${student.firstName} (${student.maSinhVien?.toUpperCase()})`,
         });
     });
 
