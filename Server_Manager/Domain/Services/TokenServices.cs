@@ -107,7 +107,7 @@ namespace Domain.Services
         {
             if (String.IsNullOrEmpty(token))
                 return null;
-
+            token = token.Replace("Bearer ", "");
             var handler = new JwtSecurityTokenHandler();
             JwtSecurityToken jwtToken = null;
             try
