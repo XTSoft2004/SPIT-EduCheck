@@ -47,33 +47,37 @@ const CalendarDayView: React.FC<Props> = ({
 
     return (
         <div className="flex flex-col items-center space-y-4 w-full max-w-md md:max-w-lg lg:max-w-2xl mx-auto">
-            <div className="flex justify-between items-center w-full gap-2 md:gap-4">
-                <Button onClick={handlePrevDay} className="text-sm px-2 md:px-4">← Ngày trước</Button>
-                <Dropdown
-                    open={isCalendarOpen}
-                    onOpenChange={setIsCalendarOpen}
-                    overlay={
-                        <div className="w-72 bg-white shadow-lg rounded-lg">
-                            <Calendar
-                                fullscreen={false}
-                                onSelect={(date, { source }) => {
-                                    if (source !== "date") return;
-                                    setSelectedDate(date);
-                                    setIsCalendarOpen(false);
-                                }}
-                            />
-                        </div>
-                    }
-                    trigger={["click"]}
-                    placement="bottomCenter"
-                >
-                    <button className="text-sm font-semibold flex items-center gap-1 px-2 py-1 md:px-4 md:py-2 border rounded-md" onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
-                        {selectedDate ? selectedDate.format("DD/MM/YYYY") : "Chưa chọn ngày"} <DownOutlined />
-                    </button>
-                </Dropdown>
-                <div className="text-sm px-2 md:px-4 flex justify-center">
+            <div className="flex justify-between items-center w-full">
+                <div className="flex-1 flex justify-center">
+                    <Button onClick={handlePrevDay} className="text-sm px-2 md:px-4">← Ngày trước</Button>
+                </div>
+                <div className="flex-1 flex justify-center">
+                    <Dropdown
+                        open={isCalendarOpen}
+                        onOpenChange={setIsCalendarOpen}
+                        overlay={
+                            <div className="w-72 bg-white shadow-lg rounded-lg">
+                                <Calendar
+                                    fullscreen={false}
+                                    onSelect={(date, { source }) => {
+                                        if (source !== "date") return;
+                                        setSelectedDate(date);
+                                        setIsCalendarOpen(false);
+                                    }}
+                                />
+                            </div>
+                        }
+                        trigger={["click"]}
+                        placement="bottomCenter"
+                    >
+                        <button className={`text-sm font-semibold flex items-center gap-1 px-2 py-1 md:px-4 md:py-2 border rounded-md ${isCalendarOpen ? 'md:absolute md:left-0' : ''}`} onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
+                            {selectedDate ? selectedDate.format("DD/MM/YYYY") : "Chưa chọn ngày"} <DownOutlined />
+                        </button>
+                    </Dropdown>
+                </div>
+                <div className="flex-1 flex justify-center">
                     {selectedDate && selectedDate.isBefore(dayjs(), 'day') && (
-                        <Button onClick={handleNextDay}>Ngày sau →</Button>
+                        <Button onClick={handleNextDay} className="text-sm px-3 md:px-4">Ngày sau →</Button>
                     )}
                 </div>
             </div>

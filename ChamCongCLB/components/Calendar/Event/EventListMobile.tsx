@@ -25,7 +25,7 @@ const EventListMobile: React.FC<Props> = ({ value, events, timesheets, form, set
                     return (
                         <Button
                             key={index}
-                            className={`${styles.eventButton} dark:bg-[#242f45] dark:text-white border-l-4 w-full text-left text-2xl py-4 px-6 rounded-lg shadow-md shadow-gray-700 transition-transform active:scale-95`}
+                            className={`${styles.eventButton} mb-3 dark:bg-[#242f45] dark:text-white border-l-4 w-full text-left text-2xl py-4 px-6 rounded-lg shadow-md shadow-gray-700 transition-transform active:scale-95`}
                             style={{
                                 borderLeftColor:
                                     item.type === "success" ? "#52c41a" :

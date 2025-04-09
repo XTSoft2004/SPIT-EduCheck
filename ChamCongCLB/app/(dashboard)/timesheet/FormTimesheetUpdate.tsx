@@ -84,7 +84,7 @@ export default function FormTimesheetUpdate({ form, classes, students }: FormCla
                 label="Hình ảnh điểm danh"
                 name="imageBase64"
                 valuePropName="fileList"
-                getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
+                getValueFromEvent={(e) => (e?.fileList ? [...e.fileList] : [])}
                 rules={[{ required: !form.getFieldValue('imageBase64'), message: 'Vui lòng chọn hình ảnh điểm danh' }]}>
 
                 {form.getFieldValue('imageBase64')?.length > 0 && (
