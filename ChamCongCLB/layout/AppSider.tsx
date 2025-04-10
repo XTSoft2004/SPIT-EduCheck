@@ -25,17 +25,23 @@ const AppSider: React.FC<{ setIsLoading: (isLoading: boolean) => void, setCollap
     const router = useRouter();
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth <= 1022);
+            if (typeof window !== "undefined") {
+                setIsMobile(window.innerWidth <= 1022);
+            }
+
         };
 
         // Gọi một lần khi component mount
         handleResize();
 
-        // Lắng nghe sự kiện thay đổi kích thước màn hình
-        window.addEventListener('resize', handleResize);
-
+        if (typeof window !== "undefined") {
+            // Lắng nghe sự kiện thay đổi kích thước màn hình
+            window.addEventListener('resize', handleResize);
+        }
         return () => {
-            window.removeEventListener('resize', handleResize);
+            if (typeof window !== "undefined") {
+                window.removeEventListener("resize", handleResize);
+            }
         };
     }, []);
 

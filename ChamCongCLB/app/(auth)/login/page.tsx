@@ -163,20 +163,17 @@ export default function SignInForm() {
                       Keep me logged in
                     </span>
                   </div>
-                  <a
-                    href="/reset-password"
-                    className="text-sm hover:text-dark dark:text-white !important border-none !import"
-                    onClick={() => (
-                      <SnackbarAlert
-                        open={true}
-                        onClose={handleClose}
-                        severity="error"
-                        message="Bạn vui lòng liên hệ với quản trị viên để được hỗ trợ!"
-                      />
-                    )}
+                  <button
+                    className="text-sm hover:text-dark dark:text-white !important border-none !important"
+                    type="button"
+                    onClick={() => {
+                      setMessage("Bạn vui lòng liên hệ với quản trị viên để được hỗ trợ!");
+                      setTypeMessage("error");
+                      setopenMessage(true);
+                    }}
                   >
                     Forgot password?
-                  </a>
+                  </button>
                 </div>
                 <div>
                   <Button

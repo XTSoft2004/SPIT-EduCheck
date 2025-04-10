@@ -38,10 +38,12 @@ const MenuSidebar: React.FC<{ setIsLoading: (isLoading: boolean) => void, setCol
     const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
     // Cập nhật kích thước màn hình khi resize
     useEffect(() => {
-        const handleResize = () => setIsSmallScreen(window.innerWidth <= 640);
-        handleResize(); // Gọi ngay khi component mount
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        if (typeof window !== "undefined") {
+            const handleResize = () => setIsSmallScreen(window.innerWidth <= 640);
+            handleResize(); // Gọi ngay khi component mount
+            window.addEventListener('resize', handleResize);
+            return () => window.removeEventListener('resize', handleResize);
+        }
     }, []);
 
     const items: MenuItem[] = [
@@ -108,10 +110,10 @@ const MenuSidebar: React.FC<{ setIsLoading: (isLoading: boolean) => void, setCol
                 openKeys={stateOpenKeys}
                 onOpenChange={onOpenChange}
                 items={items}
-                onClick={async ({ key }) => {
+                onClick={({ key }) => {
                     setCollapsed(false);
                     setIsLoading(true);
-                    await router.push(key);
+                    router.push(key);
                     setIsLoading(false);
                 }}
             />

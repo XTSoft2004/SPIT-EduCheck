@@ -78,7 +78,7 @@ export default function FormTimesheetAdd({ form, classes, students }: FormClassP
                 label="Hình ảnh điểm danh"
                 name="imageBase64"
                 valuePropName="fileList"
-                getValueFromEvent={(e) => (e?.fileList ? [...e.fileList] : [])}
+                getValueFromEvent={(e) => Array.isArray(e?.fileList) ? e.fileList : []}
                 rules={[{ required: !form.getFieldValue('imageBase64'), message: 'Vui lòng chọn hình ảnh điểm danh' }]}>
 
                 {form.getFieldValue('imageBase64')?.length > 0 && (
@@ -86,6 +86,7 @@ export default function FormTimesheetAdd({ form, classes, students }: FormClassP
                         src={`http://xtcoder2004.io.vn:5000/extension/image?nameFile=${form.getFieldValue('imageBase64')}`}
                         alt="Hình ảnh điểm danh"
                         style={{ width: "200px", height: "auto", marginBottom: "10px" }}
+                        loading="lazy"
                     />
                 )}
 

@@ -115,6 +115,7 @@ export default function ClassPage() {
                         src={`http://xtcoder2004.io.vn:5000/extension/image?nameFile=${imageBase64}`}
                         alt="Hình ảnh điểm danh"
                         style={{ width: '200px', height: '150px', objectFit: 'cover' }}
+                        loading="lazy"
                     />
                 ) : (
                     <span>Không có hình ảnh</span>

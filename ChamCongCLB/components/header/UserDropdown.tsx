@@ -14,18 +14,24 @@ import {
 import { getMe } from '@/actions/user.actions'
 
 import { IUser } from '@/types/user';
+import { useRouter } from 'next/navigation'
 
-const handleLogout = async () => {
-  await logout()
-  window.location.href = '/login'
-}
-
-const handleChangePassword = async () => {
-  window.location.href = '/change-password'
-}
 
 export default function UserDropdown() {
   const [user, setUser] = useState<IUser | null>(null)
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await logout()
+    // window.location.href = '/login'
+    router.push('/')
+  }
+
+  const handleChangePassword = async () => {
+    // window.location.href = '/change-password'
+    router.push('/change-password')
+  }
+
 
   useEffect(() => {
     const fetchUser = async () => {

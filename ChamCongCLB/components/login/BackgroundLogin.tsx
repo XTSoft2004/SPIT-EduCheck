@@ -15,7 +15,7 @@ export default function BackgroundLogin() {
             </div>
 
             {/* Marquee Images */}
-            <div className="relative w-full h-[100vh] flex flex-col items-center justify-between">
+            <div className="relative w-full h-[85vh] flex flex-col items-center justify-between">
                 {[...Array(3)].map((_, i) => (
                     <div
                         key={i}
