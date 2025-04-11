@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Select, Input, Button, SelectProps, Upload, message } from "antd";
 import type { Dayjs } from "dayjs";
@@ -10,6 +11,7 @@ import { createTimesheet, deleteTimesheet, getTimesheets, updateTimesheet } from
 import { UploadOutlined } from "@ant-design/icons";
 import heic2any from "heic2any";
 import LoadingScreen from "@/components/ui/Loading/LoadingScreen";
+import { fileToBase64 } from "./ConvertBase64";
 
 interface EventModalProps {
     isOpen: boolean;
@@ -72,8 +74,12 @@ const EventModal: React.FC<EventModalProps> = ({
                 return
             }
 
-            // Nếu file là File, chuyển nó thành Base64
-            const imageBase64 = await fileToBase64(file)
+            let imageBase64 = "";
+            if (typeof window !== 'undefined') {
+                // chỉ gọi khi đã chắc chắn đang chạy trên trình duyệt
+                // Nếu file là File, chuyển nó thành Base64
+                imageBase64 = await fileToBase64(file);
+            }
 
             const newTimesheet: ITimesheetCreate = {
                 studentsId: values.studentsId,
@@ -113,17 +119,14 @@ const EventModal: React.FC<EventModalProps> = ({
             const values = await form.validateFields();
             if (!selectedDate) return;
             const file = values.imageBase64?.[0]?.originFileObj;
-            // let imageBase64 = null;
 
-            // if (file instanceof File) {
-            //     // Nếu là File mới được upload thì chuyển sang base64
-            //     imageBase64 = await fileToBase64(file);
-            // } else {
-            //     // Nếu không có file mới, giữ nguyên ảnh cũ (nếu có)
-            //     imageBase64 = selectedEvent?.imageBase64 || '';
-            // }
+            let imageBase64 = selectedEvent?.imageBase64;
+            if (typeof window !== 'undefined' && file) {
+                // chỉ gọi khi đã chắc chắn đang chạy trên trình duyệt
+                imageBase64 = await fileToBase64(file);
+            }
 
-            const imageBase64 = file ? await fileToBase64(file) : selectedEvent?.imageBase64;
+
             if (selectedEvent) {
                 const updatedTimesheet: ITimesheetUpdate = {
                     id: selectedEvent.id,
@@ -186,69 +189,40 @@ const EventModal: React.FC<EventModalProps> = ({
     students.forEach((student) => {
         options.push({
             value: student.id,
-            label: `${student.lastName} ${student.firstName} (${student.maSinhVien?.toUpperCase()})`,
+            label: `${student.lastName} ${student.firstName} (${student.maSinhVien})`,
         });
     });
 
-    const fileToBase64 = async (file: File): Promise<string> => {
-        let finalFile = file;
+    // const fileToBase64 = async (file: File): Promise<string> => {
+    //     let finalFile = file;
 
-        // 1. Convert HEIC → JPEG nếu cần
-        if (file.name.toLowerCase().endsWith('.heic')) {
-            const converted = await heic2any({
-                blob: file,
-                toType: "image/jpeg",
-                quality: 0.8,
-            });
-            finalFile = converted as File;
-        }
+    //     // 1. Convert HEIC → JPEG nếu cần
+    //     if (file.name.toLowerCase().endsWith('.heic')) {
+    //         const converted = await heic2any({
+    //             blob: file,
+    //             toType: "image/jpeg",
+    //             quality: 0.8,
+    //         });
 
-        // 2. Resize & Compress ảnh nếu kích thước lớn hơn 1MB
-        // const compressedBlob = await compressImageToUnder1MB(finalFile);
-        // finalFile = new File([compressedBlob], finalFile.name, { type: compressedBlob.type });
+    //         // Ensure it's a Blob, convert to File if needed
+    //         if (Array.isArray(converted)) {
+    //             finalFile = new File([converted[0]], file.name.replace(/\.heic$/i, ".jpg"), {
+    //                 type: "image/jpeg",
+    //             });
+    //         } else {
+    //             finalFile = new File([converted], file.name.replace(/\.heic$/i, ".jpg"), {
+    //                 type: "image/jpeg",
+    //             });
+    //         }
+    //     }
 
-        // 3. Convert to Base64
-        return await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(finalFile);
-        });
-    };
-
-    // const compressImageToUnder1MB = async (file: File): Promise<Blob> => {
-    //     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-    //         const image = new Image();
-    //         image.onload = () => resolve(image);
-    //         image.onerror = reject;
-    //         image.src = URL.createObjectURL(file);
+    //     // 2. Convert to Base64
+    //     return await new Promise((resolve, reject) => {
+    //         const reader = new FileReader();
+    //         reader.onloadend = () => resolve(reader.result as string);
+    //         reader.onerror = reject;
+    //         reader.readAsDataURL(finalFile);
     //     });
-
-    //     const canvas = document.createElement('canvas');
-    //     const MAX_WIDTH = 1024;
-
-    //     const scale = Math.min(1, MAX_WIDTH / img.width);
-    //     canvas.width = img.width * scale;
-    //     canvas.height = img.height * scale;
-
-    //     const ctx = canvas.getContext('2d');
-    //     ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-    //     let quality = 0.9;
-    //     let blob: Blob | null = null;
-
-    //     do {
-    //         blob = await new Promise(resolve =>
-    //             canvas.toBlob(
-    //                 b => resolve(b),
-    //                 'image/jpeg',
-    //                 quality,
-    //             ),
-    //         );
-    //         quality -= 0.05;
-    //     } while (blob && blob.size > 1024 * 1024 && quality > 0.1);
-
-    //     return blob!;
     // };
 
 
@@ -329,11 +303,12 @@ const EventModal: React.FC<EventModalProps> = ({
 
                     {/* Nhập đường dẫn ảnh */}
                     <Form.Item
-                        label="Hình ảnh điểm danh"
                         name="imageBase64"
+                        label="Ảnh chấm công"
                         valuePropName="fileList"
-                        // getValueFromEvent={(e) => Array.isArray(e?.fileList) ? e.fileList : []}
-                        rules={[{ required: !form.getFieldValue('imageBase64'), message: 'Vui lòng chọn hình ảnh điểm danh' }]}>
+                        getValueFromEvent={(e) => Array.isArray(e) ? e : e?.fileList}
+                        rules={[{ required: !selectedEvent, message: "Chọn ảnh" }]}
+                    >
 
                         {form.getFieldValue('imageBase64')?.length > 0 && (
                             <div style={{ position: 'relative', width: '350px', height: 'auto' }}>
@@ -350,7 +325,7 @@ const EventModal: React.FC<EventModalProps> = ({
                             name="imageBase64"
                             listType="picture"
                             accept="image/*"
-                            beforeUpload={() => false} // Prevent auto upload
+                            beforeUpload={() => false} // Không upload lên server
                             maxCount={1}
                             showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
                             onChange={(info) => {

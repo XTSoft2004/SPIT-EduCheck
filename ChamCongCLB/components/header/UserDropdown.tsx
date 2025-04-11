@@ -23,12 +23,10 @@ export default function UserDropdown() {
 
   const handleLogout = async () => {
     await logout()
-    // window.location.href = '/login'
     router.push('/')
   }
 
   const handleChangePassword = async () => {
-    // window.location.href = '/change-password'
     router.push('/change-password')
   }
 

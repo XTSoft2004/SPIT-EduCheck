@@ -1,3 +1,4 @@
+'use client';
 import React from "react";
 import { Button } from "antd";
 import styles from "./EventList.module.css";
