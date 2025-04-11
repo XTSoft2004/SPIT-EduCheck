@@ -108,7 +108,7 @@ const EventModal: React.FC<EventModalProps> = ({
         } catch (error) {
             loadingMessage();
             console.error("Error adding event:", error)
-            message.error("Có lỗi xảy ra khi thêm mới chấm công!")
+            message.error("Có lỗi xảy ra khi thêm mới chấm công!\nError: " + error)
         }
     }
 
@@ -158,7 +158,7 @@ const EventModal: React.FC<EventModalProps> = ({
         } catch (error) {
             loadingMessage();
             console.error("Error saving event:", error);
-            message.error("Có lỗi xảy ra khi lưu chấm công!");
+            message.error("Có lỗi xảy ra khi lưu chấm công!\nError: " + error);
         }
     };
 
