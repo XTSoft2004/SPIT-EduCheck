@@ -4,6 +4,8 @@ using Domain.Model.Request.Timesheet;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace Server_Manager.Controllers
 {
@@ -69,9 +71,28 @@ namespace Server_Manager.Controllers
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
-            byte[] imageBytes = System.IO.File.ReadAllBytes(Path.Combine(uploadsFolder, nameFile));
-            return File(imageBytes, "image/png");
+            string filePath = Path.Combine(uploadsFolder, nameFile);
+            if (!System.IO.File.Exists(filePath))
+                return NotFound(new { Message = "File không tồn tại !!!" });
+
+            using (var image = new Bitmap(filePath))
+            {
+                var qualityParam = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 50L);
+                var encoderParams = new EncoderParameters(1);
+                encoderParams.Param[0] = qualityParam;
+
+                var codec = ImageCodecInfo.GetImageDecoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                if (codec == null)
+                    return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Codec không tồn tại !!!" });
+
+                using (var ms = new MemoryStream())
+                {
+                    image.Save(ms, codec, encoderParams);
+                    return File(ms.ToArray(), "image/jpeg");
+                }
+            }
         }
+
         [AllowAnonymous]
         [HttpGet("base64")]
         public async Task<IActionResult> GetBase64Image(string nameFile)

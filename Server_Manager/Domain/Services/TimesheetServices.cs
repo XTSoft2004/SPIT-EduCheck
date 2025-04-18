@@ -74,21 +74,25 @@ namespace Domain.Services
                 return HttpResponse.Error("Đã tồn tại điểm danh này trong hệ thống, vui lòng kiểm tra lại !!", System.Net.HttpStatusCode.BadRequest);
             else
             {
-                string filePath = Path.Combine(pathSave, $"{_class.Name.Replace(" ", "_")}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{(_student.UserId == null ? "Unknow" : _student.UserId)}.png");
-                byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64.Contains("data:image") ? timesheetRequest.ImageBase64.Split(',')[1] : timesheetRequest.ImageBase64);
-                File.WriteAllBytes(filePath, imageBytes);
 
                 var Timesheet = new Timesheet()
                 {
                     ClassId = timesheetRequest.ClassId,
                     TimeId = timesheetRequest.TimeId,
                     Date = timesheetRequest.Date,
-                    Image_Check = filePath,
                     Status = EnumExtensions.GetDisplayName(StatusTimesheet_Enum.Pending),
                     Note = timesheetRequest.Note ?? string.Empty,
                     CreatedDate = DateTime.Now,
                     CreatedBy = _AuthToken?.Username,
                 };
+                if (timesheetRequest.ImageBase64.Contains("data:"))
+                {
+                    string filePath = Path.Combine(pathSave, $"{_class.Name.Trim().Replace(" ", "_")}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{(_student.UserId == null ? "Unknow" : _student.UserId)}.png");
+                    byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64.Contains("data:") ? timesheetRequest.ImageBase64.Split(',')[1] : timesheetRequest.ImageBase64);
+                    File.WriteAllBytes(filePath, imageBytes);
+                    Timesheet.Image_Check = filePath;
+                }
+
                 _Timesheet.Insert(Timesheet);
                 await UnitOfWork.CommitAsync();
 
@@ -137,10 +141,10 @@ namespace Domain.Services
                 return HttpResponse.Error("Đã tồn tại điểm danh này trong hệ thống, vui lòng kiểm tra lại !!", System.Net.HttpStatusCode.BadRequest);
             else
             {
-                if (timesheetRequest.ImageBase64.Contains("data:image"))
+                if (timesheetRequest.ImageBase64.Contains("data:"))
                 {
-                    string filePath = Path.Combine(pathSave, $"{_class.Name.Replace(" ", "_")}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{(_student.UserId == null ? "Unknow" : _student.UserId)}.png");
-                    byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64.Contains("data:image") ? timesheetRequest.ImageBase64.Split(',')[1] : timesheetRequest.ImageBase64);
+                    string filePath = Path.Combine(pathSave, $"{_class.Name.Trim().Replace(" ", "_")}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{(_student.UserId == null ? "Unknow" : _student.UserId)}.png");
+                    byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64.Contains("data:") ? timesheetRequest.ImageBase64.Split(',')[1] : timesheetRequest.ImageBase64);
                     File.WriteAllBytes(filePath, imageBytes);
                     _timesheet.Image_Check = filePath;
                 }
@@ -218,7 +222,7 @@ namespace Domain.Services
             totalRecords = query.Count();
 
             // Sắp xếp theo ID và áp dụng phân trang nếu cần
-            query = query.OrderBy(u => u.Id);
+            query = query.OrderByDescending(s => s.Date);
             if (pageNumber != -1 && pageSize != -1)
             {
                 query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
