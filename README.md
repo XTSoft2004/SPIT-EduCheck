@@ -1,36 +1,35 @@
-# SPIT EduCheck - Hệ thống điểm danh hỗ trợ lớp học
+# SPIT EduCheck - Attendance System for Class Support
 
-## 📌 Giới thiệu
-SPIT EduCheck là hệ thống quản lý điểm danh đơn giản dành cho sinh viên đi hỗ trợ các lớp học. Hệ thống cho phép ghi nhận sự tham gia thông qua việc upload ảnh làm bằng chứng sau mỗi buổi hỗ trợ.
+## 📌 Introduction
+**SPIT EduCheck** is a simple attendance management system designed for students who assist with classroom support. The system allows participants to record their attendance by uploading proof images after each support session.
 
-## ✨ Tính năng nổi bật
-### Đối với sinh viên đi hỗ trợ
-- 📸 Upload ảnh sau khi hoàn thành hỗ trợ
-- 📋 Xem lịch sử các buổi đã tham gia
-- 🕒 Theo dõi thời gian hỗ trợ
+## ✨ Key Features
 
-### Đối với quản trị viên
-- 👥 Quản lý danh sách sinh viên
-- 👥 Quản lý danh sách lớp học
-- ✅ Xác minh các buổi hỗ trợ
-- 📊 Xuất báo cáo thống kê
-- 🗓️ Quản lý lịch hỗ trợ
+### For Supporting Students
+- 📸 Upload proof images after completing class support
+- 📋 View history of participated sessions
+- 🕒 Track support time
 
-## 🌟 Tính năng chính
+### For Administrators
+- 👥 Manage student list
+- 👥 Manage class list
+- ✅ Verify support sessions
+- 📊 Export statistical reports
+- 🗓️ Manage support schedules
 
-- 📸 **Upload ảnh sau khi hỗ trợ lớp học**: Tình nguyện viên có thể tải lên ảnh của mình sau khi hoàn thành công việc hỗ trợ.
-- 📅 **Quản lý lịch sử hỗ trợ theo ngày**: Quản trị viên có thể theo dõi các lần hỗ trợ của tình nguyện viên.
-- 👥 **Phân quyền người dùng**: Bao gồm quyền truy cập của quản trị viên và tình nguyện viên.
-- 📊 **Thống kê số lần hỗ trợ**: Hiển thị thống kê về số lần hỗ trợ của từng tình nguyện viên.
-- 🔍 **Tìm kiếm và kiểm tra thông tin hỗ trợ**: Quản trị viên có thể tìm kiếm và xác minh các thông tin hỗ trợ đã được ghi nhận.
+## 🌟 Main Functionalities
+
+- 📸 **Upload images after class support**: Volunteers can upload their photos after completing a support session.
+- 📅 **Manage support history by date**: Admins can track each support activity of volunteers.
+- 👥 **User role management**: Includes admin and volunteer access rights.
+- 📊 **Support statistics**: Display the number of times each volunteer has participated.
+- 🔍 **Search and verify support info**: Admins can search and verify the recorded support data.
 
 ---
 
-## 🛠️ Cài đặt
+## 🛠️ Installation
 
-### 1. Clone repository
-
-Đầu tiên, bạn cần clone repository này về máy tính của mình:
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/XTSoft2004/SPIT-EduCheck.git
@@ -38,9 +37,8 @@ cd SPIT-EduCheck
 ```
 
 
-### 2. Thiết lập `appsettings.json` ở Server_Manager
-
-Để cấu hình kết nối cơ sở dữ liệu, logging, JWT settings và các cấu hình khác cho ứng dụng, bạn có thể sử dụng file `appsettings.json`. Dưới đây là cấu hình mẫu:
+### 2. Configure `appsettings.json` in Server_Manager
+To configure database connection, logging, JWT settings, and other configurations for your app, you can use the `appsettings.json` file. Here is a sample configuration:
 
 ```json
 {
@@ -73,7 +71,7 @@ cd SPIT-EduCheck
 
 
 ---
-### 3. Cài đặt ChamCongCLB
+### 3. Install ChamCongCLB
 
 ```bash
 npm install
@@ -82,14 +80,13 @@ yarn install
 ```
 
 ---
-### 4. Chạy ở chế độ development
-
+### 4. Run in development mode
 ```bash
 npm run dev
 # hoặc
 yarn dev
 ```
-Truy cập tại: http://localhost:3000
+Visit: http://localhost:3000
 
 ---
 ## 📦 Build production
@@ -100,62 +97,61 @@ npm start
 ```
 
 
-### 📝 Hướng dẫn sử dụng
+## 📝 User Guide
+- Log in with your provided account.
+- Choose "Attendance Check" after completing a support session.
+- Upload a proof image.
+- Confirm the attendance information.
+- Admins can review attendance records in the management section.
 
-- Đăng nhập vào hệ thống bằng tài khoản được cấp.
-- Chọn "Điểm danh hỗ trợ" sau khi hoàn thành công việc hỗ trợ.
-- Upload ảnh chứng minh đã hỗ trợ.
-- Xác nhận thông tin điểm danh.
-- Quản trị viên có thể kiểm tra danh sách hỗ trợ trong phần quản lý.
-
-### 🛠️ Công nghệ sử dụng
+### 🛠️ Technology Stack
 
 - **Frontend**: NextJS, Tailwind
 - **Backend**: ASP.NET Core API
 - **Database**: SQL Server
 
-## 🌐 Link demo
+## 🌐 Demo Website Link
 
 📍 **Truy cập tại:**  
 👉 [http://chamcong.spit-husc.io.vn/](http://chamcong.spit-husc.io.vn/)
 
-## 🤝 Đóng góp
+## 🤝 Contributing
 
-Chúng tôi luôn chào đón những đóng góp từ cộng đồng! 💪  
-Hãy làm theo các bước sau để đóng góp vào dự án:
+We always welcome contributions from the community! 💪
+Follow these steps to contribute to the project:
 
-1. 🍴 **Fork** dự án về tài khoản của bạn  
-2. 🌱 **Tạo branch mới** để phát triển tính năng:
+1. 🍴 **Fork** the project to your GitHub account
+2. 🌱 **Create a new branch** for your feature:
    ```bash
-   git checkout -b feature/ten-tinh-nang
+   git checkout -b feature/feature-name
    ```
-3. 💾 **Commit thay đổi của bạn:**
+3. 💾 **Commit your changes:**
     ```bash
     git commit -m "Thêm tính năng mới"
     ```
-4. 🚀 **Push lên GitHub:**
+4. 🚀 **Push to GitHub:**
     ```bash
-    git push origin feature/ten-tinh-nang
+    git push origin feature/feature-name
     ```
-5. 📥 **Tạo một Pull Request để được review và merge**
-🙌 Đừng quên mô tả rõ ràng thay đổi của bạn trong phần mô tả PR để giúp việc review dễ dàng hơn nhé!
+5. 📥 **Create a Pull Request for review and merge**
+🙌 Don’t forget to clearly describe your changes in the PR to make reviewing easier!
 
-## 👥 Thành viên phát triển
+## 👥 Development Team
 
-| Tên                    | Vai trò                                  |
+| Name                    | Role                                  |
 |------------------------|-------------------------------------------|
-| **Trần Xuân Trường**         | Phát triển Frontend, Backend, Nội dung      |
-| **Trương Đình Phúc** | Phát triển Frontend, Nội dung        |
+| **Trần Xuân Trường**         | 	Frontend & Backend Developer, Content      |
+| **Trương Đình Phúc** | Frontend Developer, Content        |
 
 ---
 
-## 📄 Giấy phép
+## 📄 License
 
-Dự án được phát hành theo giấy phép [MIT License](LICENSE).
+This project is released under the [MIT License](LICENSE).
 
 ---
 
-## 📬 Liên hệ
+## 📬 Contact
 
 - 💻 **Facebook**: [Trần Xuân Trường](https://www.facebook.com/xuantruong.war.clone.code)  
 - ✉️ **Email**: tranxuantruong420@gmail.com
