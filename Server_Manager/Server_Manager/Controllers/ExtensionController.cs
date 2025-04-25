@@ -14,6 +14,7 @@ namespace Server_Manager.Controllers
     {
         private readonly IExtensionServices _services;
         private readonly IWebHostEnvironment _webHostEnvironment;
+
         public ExtensionController(IExtensionServices services, IWebHostEnvironment webHostEnvironment)
         {
             _services = services;

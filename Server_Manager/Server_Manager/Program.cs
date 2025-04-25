@@ -1,4 +1,5 @@
-﻿using Domain.Common.Http;
+﻿using Domain.Common.GoogleDriver.Services;
+using Domain.Common.Http;
 using Domain.Entities;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
@@ -132,7 +133,7 @@ builder.Services.AddSwaggerGen();
 //builder.Services.AddScoped<IRepositoryBase<RefreshToken>, RepositoryBase<RefreshToken>>();
 
 
-
+builder.Services.AddScoped<IGoogleDriverServices, GoogleDriverSevices>();
 builder.Services.AddScoped(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
 
 builder.Services.AddHttpContextAccessor();
