@@ -8,8 +8,9 @@ namespace Domain.Common.GoogleDriver.Model.Response
 {
     public class UploadFileResponse
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string MimeType { get; set; }
+        public string kind { get; set; }
+        public string id { get; set; }
+        public string name { get; set; }
+        public string mimeType { get; set; }
     }
 }

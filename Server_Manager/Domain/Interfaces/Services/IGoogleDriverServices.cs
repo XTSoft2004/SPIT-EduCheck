@@ -11,6 +11,8 @@ namespace Domain.Interfaces.Services
 {
     public interface IGoogleDriverServices
     {
-        Task<UploadFileResponse> UploadFile(UploadFileRequest uploadFileRequest);
+        Task<string> UploadImage(UploadFileRequest uploadFileRequest);
+        Task<string> GetAccessToken();
+        Task<string> PreviewFile(string fileId);
     }
 }

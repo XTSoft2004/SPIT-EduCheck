@@ -19,12 +19,30 @@ namespace Server_Manager.Controllers
             if (uploadFileRequest.fileUpload == null || uploadFileRequest.fileUpload.Length == 0)
                 return BadRequest(new { Message = "File không hợp lệ !!!" });
 
-            var response = await googleDriver.UploadFile(uploadFileRequest);
+            var imageUrl = await googleDriver.UploadImage(uploadFileRequest);
 
-            if(response == null)
+            if (imageUrl == null)
                 return BadRequest(new { Message = "Lỗi khi upload file !!!" });
-            else
-                return Ok(new { Message = "Upload thành công !!!", Data = response });
+
+            using (var httpClient = new HttpClient())
+            {
+                var imageStream = await httpClient.GetStreamAsync(imageUrl);
+                return File(imageStream, "image/jpeg"); // hoặc image/png tùy định dạng
+            }
+        }
+        [HttpGet("preview")]
+        public async Task<IActionResult> PreviewImage(string fileId)
+        {
+            var imageUrl = $"https://drive.google.com/uc?export=view&id={fileId}";
+
+            if (imageUrl == null)
+                return BadRequest(new { Message = "Lỗi khi preview file !!!" });
+
+            using (var httpClient = new HttpClient())
+            {
+                var imageStream = await httpClient.GetStreamAsync(imageUrl);
+                return File(imageStream, "image/jpeg"); // hoặc image/png tùy định dạng
+            }
         }
     }
 }
