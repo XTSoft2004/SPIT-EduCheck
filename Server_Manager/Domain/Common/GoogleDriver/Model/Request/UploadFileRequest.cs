@@ -10,6 +10,7 @@ namespace Domain.Common.GoogleDriver.Model.Request
     public class UploadFileRequest
     {
         public string FileName { get; set; } = string.Empty;
-        public IFormFile? fileUpload { get; set; }
+        public byte[] imageBytes { get; set; }
+        //public IFormFile? fileUpload { get; set; }
     }
 }

@@ -9,7 +9,12 @@ const nextConfig = {
         protocol: 'http',
         hostname: 'xtcoder2004.io.vn',
         port: '5000',
-        pathname: '/extension/image',
+        pathname: '/extension/image/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'drive.google.com',
+        pathname: '/thumbnails/**',
       },
     ],
   },

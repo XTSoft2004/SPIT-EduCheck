@@ -20,12 +20,10 @@
 
   <ItemGroup>
     <Reference Include="HelperHttpClient">
-      <HintPath>..\..\..\..\..\..\ASP.NET\HelperHttpClient\HelperHttpClient\bin\Debug\net7.0-windows\HelperHttpClient.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\..\HelperHttpClient.dll</HintPath>
     </Reference>
     <Reference Include="ModelsHelper">
-      <HintPath>..\..\..\..\..\..\ASP.NET\HelperHttpClient\HelperHttpClient\bin\Debug\net7.0-windows\ModelsHelper.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\..\ModelsHelper.dll</HintPath>
     </Reference>
   </ItemGroup>
 

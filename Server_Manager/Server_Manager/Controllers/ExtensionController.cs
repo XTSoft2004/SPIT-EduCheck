@@ -20,6 +20,12 @@ namespace Server_Manager.Controllers
             _services = services;
             _webHostEnvironment = webHostEnvironment;
         }
+        [HttpGet("ConvertImage")]
+        public async Task<IActionResult> ConvertImage()
+        {
+            var response = await _services.ConvertImageToLink();
+            return response.ToActionResult();
+        }
 
         [HttpPost("CreateAccount")]
         public async Task<IActionResult> CreateAccountByStudentId([FromBody] List<string> studentsMSV)

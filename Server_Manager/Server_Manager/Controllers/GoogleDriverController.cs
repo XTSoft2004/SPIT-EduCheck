@@ -16,7 +16,7 @@ namespace Server_Manager.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile(UploadFileRequest uploadFileRequest)
         {
-            if (uploadFileRequest.fileUpload == null || uploadFileRequest.fileUpload.Length == 0)
+            if (uploadFileRequest.imageBytes == null || uploadFileRequest.imageBytes.Length == 0)
                 return BadRequest(new { Message = "File không hợp lệ !!!" });
 
             var imageUrl = await googleDriver.UploadImage(uploadFileRequest);

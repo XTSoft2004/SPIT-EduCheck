@@ -34,7 +34,7 @@ namespace Domain.Common.GoogleDriver.Services
             if (uploadResponse != null)
             {
                 //string thumbnailLink = await PreviewFile(uploadResponse);
-                string urlFile = $"https://drive.google.com/uc?export=view&id={uploadResponse.id}";
+                string urlFile = $"https://drive.google.com/thumbnail?id={uploadResponse.id}&sz=w1000";
                 return urlFile;
             }
             return string.Empty;
@@ -43,8 +43,6 @@ namespace Domain.Common.GoogleDriver.Services
         {
             string accessToken = await GetAccessToken();
             string folderId = "1wgJUXMO3gX1iO1IP_agCteEoR82s1IZm";
-
-            string fileName = Path.GetFileName(uploadFileRequest.fileUpload.FileName);
 
             string metadataJson = $@"{{
                 ""name"": ""{uploadFileRequest.FileName}"",
@@ -59,15 +57,11 @@ namespace Domain.Common.GoogleDriver.Services
 
             var multipartContent = new MultipartContent("related", boundary);
             multipartContent.Add(new StringContent(metadataJson, Encoding.UTF8, "application/json"));
-            using (var memoryStream = new MemoryStream())
-            {
-                await uploadFileRequest.fileUpload.CopyToAsync(memoryStream);
-                byte[] fileBytes = memoryStream.ToArray();
-                multipartContent.Add(new ByteArrayContent(fileBytes)
-                {
-                    Headers = { ContentType = new MediaTypeHeaderValue("image/jpeg") }
-                });
-            }
+
+            // Thêm nội dung file từ imageBytes
+            var fileContent = new ByteArrayContent(uploadFileRequest.imageBytes);
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+            multipartContent.Add(fileContent);
 
             var response = await client.PostAsync(
                 "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
@@ -84,7 +78,6 @@ namespace Domain.Common.GoogleDriver.Services
                 var jsonData = System.Text.Json.JsonSerializer.Deserialize<UploadFileResponse>(responseText);
                 return jsonData;
             }
-
             else
             {
                 Console.WriteLine("❌ Upload thất bại:");
@@ -92,6 +85,7 @@ namespace Domain.Common.GoogleDriver.Services
                 return null;
             }
         }
+
         public async Task<string> GetAccessToken()
         {
             TokenInfoGoogleResponse InfoToken = await GetInfoToken(TokenDriverStore.Access_Token);
