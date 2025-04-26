@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Domain.Base.Services;
+using Domain.Common.GoogleDriver.Model.Request;
 using Domain.Common.Http;
 using Domain.Entities;
 using Domain.Interfaces.Repositories;
@@ -51,14 +52,18 @@ namespace Domain.Services
             foreach (var timesheet in listTimesheet)
             {
                 byte[] imageBytes = File.ReadAllBytes(timesheet.Image_Check);
-                var urlImage = await googleDriverServices.UploadImage(new Common.GoogleDriver.Model.Request.UploadFileRequest()
+                var uploadData = new Common.GoogleDriver.Model.Request.UploadFileRequest()
                 {
-                    FileName = timesheet.Image_Check.Split("/").Last(),
+                    FileName = Path.GetFileName(timesheet.Image_Check),
                     imageBytes = imageBytes,
-                });
-                timesheet.Image_Check = urlImage;
-                _Timesheet.Update(timesheet);
-                await UnitOfWork.CommitAsync();
+                };
+                var urlImage = await googleDriverServices.UploadImage(uploadData);
+                if (!string.IsNullOrEmpty(urlImage))
+                {
+                    timesheet.Image_Check = urlImage;
+                    _Timesheet.Update(timesheet);
+                    await UnitOfWork.CommitAsync();
+                }
             }
             return HttpResponse.OK(message: "Chuyển đổi thành công.");
         }
@@ -311,7 +316,7 @@ namespace Domain.Services
 
             return filePath;
         }
-        public Task<HttpResponse> UploadFile(string uploadsFolder, UploadFileRequest uploadFileRequest)
+        public Task<HttpResponse> UploadFile(string uploadsFolder, Model.Request.Extension.UploadFileRequest uploadFileRequest)
         {
             throw new NotImplementedException();
         }
