@@ -10,6 +10,7 @@ namespace Domain.Interfaces.Services
 {
     public interface IExtensionServices
     {
+        Task<HttpResponse> ConvertImageToLink();
         Task<HttpResponse> CreateAccountByStudentId(List<string> studentsMSV);
         Task<HttpResponse> ImportClass(string pathFile);
         Task<HttpResponse> ImportStudents();

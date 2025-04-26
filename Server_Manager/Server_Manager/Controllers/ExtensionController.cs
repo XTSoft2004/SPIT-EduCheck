@@ -16,10 +16,17 @@ namespace Server_Manager.Controllers
     {
         private readonly IExtensionServices _services;
         private readonly IWebHostEnvironment _webHostEnvironment;
+
         public ExtensionController(IExtensionServices services, IWebHostEnvironment webHostEnvironment)
         {
             _services = services;
             _webHostEnvironment = webHostEnvironment;
+        }
+        [HttpGet("ConvertImage")]
+        public async Task<IActionResult> ConvertImage()
+        {
+            var response = await _services.ConvertImageToLink();
+            return response.ToActionResult();
         }
 
         [HttpPost("CreateAccount")]

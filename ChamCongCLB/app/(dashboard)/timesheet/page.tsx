@@ -112,7 +112,8 @@ export default function ClassPage() {
             render: (imageBase64: string) => {
                 return imageBase64 ? (
                     <img
-                        src={`http://xtcoder2004.io.vn:5000/extension/image?nameFile=${imageBase64}`}
+                        // src={`http://xtcoder2004.io.vn:5000/extension/image?nameFile=${imageBase64}`}
+                        src={imageBase64}
                         alt="Hình ảnh điểm danh"
                         style={{ width: '200px', height: '150px', objectFit: 'cover' }}
                         loading="lazy"

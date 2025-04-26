@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Domain.Base.Services;
+using Domain.Common.GoogleDriver.Model.Request;
 using Domain.Common.Http;
 using Domain.Entities;
 using Domain.Interfaces.Common;
@@ -30,11 +30,11 @@ namespace Domain.Services
         private readonly IRepositoryBase<Class> _Class;
         private readonly IRepositoryBase<Lecturer> _Lecturer;
         private readonly IRepositoryBase<Lecturer_Class> _LectureClass;
+        private readonly IRepositoryBase<Timesheet> _Timesheet;
         private readonly ITimesheetServices timesheetServices;
-        private readonly ITokenServices _TokenServices;
-        private readonly IHttpContextHelper _HttpContextHelper;
-        private AuthToken? _AuthToken;
-        public ExtensionServices(IRepositoryBase<User> user, IRepositoryBase<Student> student, IRepositoryBase<Semester> semester, IRepositoryBase<Course> course, IRepositoryBase<Class> @class, IRepositoryBase<Lecturer> lecturer, IRepositoryBase<Lecturer_Class> lectureClass, ITimesheetServices timesheetServices, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
+        private readonly IGoogleDriverServices googleDriverServices;
+
+        public ExtensionServices(IRepositoryBase<User> user, IRepositoryBase<Student> student, IRepositoryBase<Semester> semester, IRepositoryBase<Course> course, IRepositoryBase<Class> @class, IRepositoryBase<Lecturer> lecturer, IRepositoryBase<Lecturer_Class> lectureClass, IRepositoryBase<Timesheet> timesheet, ITimesheetServices timesheetServices, IGoogleDriverServices googleDriverServices)
         {
             _User = user;
             _Student = student;
@@ -43,13 +43,36 @@ namespace Domain.Services
             _Class = @class;
             _Lecturer = lecturer;
             _LectureClass = lectureClass;
+            _Timesheet = timesheet;
             this.timesheetServices = timesheetServices;
             _TokenServices = tokenServices;
             _HttpContextHelper = httpContextHelper;
             var authHeader = _HttpContextHelper.GetHeader("Authorization");
             _AuthToken = !string.IsNullOrEmpty(authHeader) ? _TokenServices.GetInfoFromToken(authHeader) : null;
+            this.googleDriverServices = googleDriverServices;
         }
 
+        public async Task<HttpResponse> ConvertImageToLink()
+        {
+            var listTimesheet = _Timesheet.All();
+            foreach (var timesheet in listTimesheet)
+            {
+                byte[] imageBytes = File.ReadAllBytes(timesheet.Image_Check);
+                var uploadData = new Common.GoogleDriver.Model.Request.UploadFileRequest()
+                {
+                    FileName = Path.GetFileName(timesheet.Image_Check),
+                    imageBytes = imageBytes,
+                };
+                var urlImage = await googleDriverServices.UploadImage(uploadData);
+                if (!string.IsNullOrEmpty(urlImage))
+                {
+                    timesheet.Image_Check = urlImage;
+                    _Timesheet.Update(timesheet);
+                    await UnitOfWork.CommitAsync();
+                }
+            }
+            return HttpResponse.OK(message: "Chuyển đổi thành công.");
+        }
         public async Task<HttpResponse> CreateAccountByStudentId(List<string> studentsMSV)
         {
             if (studentsMSV == null || studentsMSV.Count == 0)
@@ -300,8 +323,7 @@ namespace Domain.Services
 
             return filePath;
         }
-
-        public Task<HttpResponse> UploadFile(string uploadsFolder, UploadFileRequest uploadFileRequest)
+        public Task<HttpResponse> UploadFile(string uploadsFolder, Model.Request.Extension.UploadFileRequest uploadFileRequest)
         {
             throw new NotImplementedException();
         }
