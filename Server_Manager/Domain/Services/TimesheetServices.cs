@@ -1,5 +1,7 @@
 ﻿using Domain.Base.Services;
 using Domain.Common;
+using Domain.Common.GoogleDriver.Model.Request;
+using Domain.Common.GoogleDriver.Services;
 using Domain.Common.Http;
 using Domain.Entities;
 using Domain.Interfaces.Common;
@@ -27,10 +29,11 @@ namespace Domain.Services
         private readonly IClassServices _ClassServices;
         private readonly ITokenServices _TokenServices;
         private readonly IHttpContextHelper _HttpContextHelper;
+        private readonly IGoogleDriverServices _GoogleDriverServices;
         private AuthToken? _AuthToken;
 
 
-        public TimesheetServices(IRepositoryBase<Timesheet_Students> timesheetStudents, IRepositoryBase<Timesheet> timesheet, IRepositoryBase<Student> student, IRepositoryBase<Class> @class, IRepositoryBase<Time> time, IClassServices classServices, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
+        public TimesheetServices(IRepositoryBase<Timesheet_Students> timesheetStudents, IRepositoryBase<Timesheet> timesheet, IRepositoryBase<Student> student, IRepositoryBase<Class> @class, IRepositoryBase<Time> time, IClassServices classServices, ITokenServices tokenServices, IHttpContextHelper httpContextHelper, IGoogleDriverServices googleDriverServices)
         {
             _TimesheetStudents = timesheetStudents;
             _Timesheet = timesheet;
@@ -40,6 +43,7 @@ namespace Domain.Services
             _ClassServices = classServices;
             _TokenServices = tokenServices;
             _HttpContextHelper = httpContextHelper;
+            _GoogleDriverServices = googleDriverServices;
             var authHeader = _HttpContextHelper.GetHeader("Authorization");
             _AuthToken = !string.IsNullOrEmpty(authHeader) ? _TokenServices.GetInfoFromToken(authHeader) : null;
         }
@@ -74,16 +78,20 @@ namespace Domain.Services
                 return HttpResponse.Error("Đã tồn tại điểm danh này trong hệ thống, vui lòng kiểm tra lại !!", System.Net.HttpStatusCode.BadRequest);
             else
             {
-                string filePath = Path.Combine(pathSave, $"{_class.Name.Replace(" ", "_")}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{(_student.UserId == null ? "Unknow" : _student.UserId)}.png");
+                string filePath = $"{_class.Name.Replace(" ", "_")}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{(_student.UserId == null ? "Unknow" : _student.UserId)}.png";
                 byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64.Contains("data:image") ? timesheetRequest.ImageBase64.Split(',')[1] : timesheetRequest.ImageBase64);
-                File.WriteAllBytes(filePath, imageBytes);
+                var urlImage = await _GoogleDriverServices.UploadImage(new UploadFileRequest()
+                {
+                    FileName = filePath,
+                    imageBytes = imageBytes,
+                });
 
                 var Timesheet = new Timesheet()
                 {
                     ClassId = timesheetRequest.ClassId,
                     TimeId = timesheetRequest.TimeId,
                     Date = timesheetRequest.Date,
-                    Image_Check = filePath,
+                    Image_Check = urlImage,
                     Status = EnumExtensions.GetDisplayName(StatusTimesheet_Enum.Pending),
                     Note = timesheetRequest.Note ?? string.Empty,
                     CreatedDate = DateTime.Now,
@@ -141,8 +149,13 @@ namespace Domain.Services
                 {
                     string filePath = Path.Combine(pathSave, $"{_class.Name.Replace(" ", "_")}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{(_student.UserId == null ? "Unknow" : _student.UserId)}.png");
                     byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64.Contains("data:image") ? timesheetRequest.ImageBase64.Split(',')[1] : timesheetRequest.ImageBase64);
-                    File.WriteAllBytes(filePath, imageBytes);
-                    _timesheet.Image_Check = filePath;
+                    var urlImage = await _GoogleDriverServices.UploadImage(new UploadFileRequest()
+                    {
+                        FileName = filePath,
+                        imageBytes = imageBytes,
+                    });
+
+                    _timesheet.Image_Check = urlImage;
                 }
 
                 var StudentsTimesheet = _TimesheetStudents.ListBy(l => l.TimesheetId == timesheetRequest.Id).Select(s => s.StudentId).ToList();
@@ -239,7 +252,7 @@ namespace Domain.Services
                 ClassId = f.ClassId,
                 TimeId = f.TimeId,
                 Date = f.Date,
-                ImageBase64 = Path.GetFileName(f.Image_Check),
+                ImageBase64 = f.Image_Check,
                 Status = f.Status,
                 Note = f.Note
             }).ToList();
