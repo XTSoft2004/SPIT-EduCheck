@@ -1,0 +1,37 @@
+name: chamcongspit_flutter
+description: "A new Flutter project."
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.8.0+1
+  flutter_secure_storage: ^9.2.4
+  permission_handler: ^12.0.0+1
+  get: ^4.6.6
+  shared_preferences: ^2.5.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png" # Đảm bảo đường dẫn đúng
+  android_icon_size: 192 # Kích thước icon cho Android (tăng nếu cần)
+  ios_icon_size: 180 # Kích thước icon cho iOS (tăng nếu cần)
+  adaptive_icon: true # Kích hoạt adaptive icon (nếu bạn sử dụng Android 8.0 trở lên)
+  android_adaptive_icon_background: "#FFFFFF" # Đặt nền cho adaptive icon
+  android_adaptive_icon_foreground: "assets/icons/app_icon.png" # Đặt icon nền
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icons/
