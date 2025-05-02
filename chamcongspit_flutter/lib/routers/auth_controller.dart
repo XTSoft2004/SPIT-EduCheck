@@ -6,7 +6,7 @@ class AuthController extends GetxController {
   final UserRespositories userRespositories = UserRespositories();
 
   Future<void> checkLoginStatus() async {
-    final response = await userRespositories.Profile();
+    final response = await userRespositories.profile();
     final currentRoute = Get.currentRoute;
 
     if (response.expiryDate == null ||

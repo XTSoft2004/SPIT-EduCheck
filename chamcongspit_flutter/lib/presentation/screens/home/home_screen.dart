@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void loadUserProfile() async {
     final response =
-        await userRespositories.Me(); // Không cần ép kiểu nếu hàm trả đúng loại
+        await userRespositories.me(); // Không cần ép kiểu nếu hàm trả đúng loại
     setState(() {
       userProfileResponse = response;
     });

@@ -8,13 +8,13 @@ class UserRespositories {
   late UserServices userServices = UserServices();
   final SecureStorageService storage = SecureStorageService();
 
-  Future<UserMeResponse> Me() async {
-    UserMeResponse userResponse = await userServices.Me();
+  Future<UserMeResponse> me() async {
+    UserMeResponse userResponse = await userServices.me();
     return userResponse;
   }
 
-  Future<UserProfileResponse> Profile() async {
-    UserProfileResponse userResponse = await userServices.Profile();
+  Future<UserProfileResponse> profile() async {
+    UserProfileResponse userResponse = await userServices.profile();
     if (userResponse.id != null) {
       storage.setValue('idUser', userResponse.id.toString());
       storage.setValue('roleName', userResponse.roleName.toString());

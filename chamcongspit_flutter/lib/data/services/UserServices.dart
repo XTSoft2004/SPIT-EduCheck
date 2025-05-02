@@ -2,18 +2,18 @@ import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
 import 'package:chamcongspit_flutter/data/models/user/UserMeResponse.dart';
 import 'package:chamcongspit_flutter/data/models/user/UserProfileResponse.dart';
 import 'package:dio/dio.dart';
-import 'package:chamcongspit_flutter/global.dart';
+import 'package:chamcongspit_flutter/config/app_config.dart';
 
 class UserServices {
   final Dio dio = Dio();
   final SecureStorageService storage = SecureStorageService();
-  String BaseUrl = Global.BaseUrl;
+  String baseUrl = AppConfig.baseUrl;
 
-  Future<UserMeResponse> Me() async {
+  Future<UserMeResponse> me() async {
     String? token = await storage.getValue('accessToken');
 
     final response = await dio.get(
-      '$BaseUrl/user/me',
+      '$baseUrl/user/me',
       options: Options(
         headers: {'Authorization': 'Bearer $token'},
         validateStatus: (_) => true,
@@ -25,10 +25,10 @@ class UserServices {
     return user;
   }
 
-  Future<UserProfileResponse> Profile() async {
+  Future<UserProfileResponse> profile() async {
     String? token = await storage.getValue('accessToken');
     final response = await dio.get(
-      '$BaseUrl/user/profile',
+      '$baseUrl/user/profile',
       options: Options(
         headers: {'Authorization': 'Bearer $token'},
         validateStatus: (_) => true,
