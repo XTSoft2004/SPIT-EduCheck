@@ -18,24 +18,13 @@ export const config = {
   ],
 }
 
-const checkConnect = async () => {
-  try {
-    const response = await fetch(`${baseUrl}/`, {
-      method: 'GET',
-    })
-    return response.status
-  } catch (error) {
-    return false
-  }
-}
-
 /**
  * Get the profile of the user
  * @param accessToken - The access token of the user
  * @returns The profile of the user
  * @throws Error if the request fails
  */
-const getProfile = async (accessToken: string): Promise<IProfile> => {
+const getMe = async (accessToken: string): Promise<IProfile> => {
   const response = await fetch(`${baseUrl}/user/me`, {
     method: 'GET',
     headers: {
@@ -49,8 +38,8 @@ const getProfile = async (accessToken: string): Promise<IProfile> => {
   const data = await response.json()
 
   return {
-    ...data
-  } as IProfile;
+    ...data,
+  } as IProfile
 }
 
 const refresh = async (accessToken: string): Promise<ITokens> => {
@@ -92,7 +81,21 @@ const redirectChangePassword = (request: NextRequest) => {
     request.nextUrl.search === ''
 
   if (!isChangePasswordPage) {
-    const response = NextResponse.redirect(new URL('/change-password', request.url))
+    const response = NextResponse.redirect(
+      new URL('/change-password', request.url),
+    )
+    return response
+  }
+
+  return NextResponse.next()
+}
+
+const redirectLocked = (request: NextRequest) => {
+  const isLockedPage =
+    request.nextUrl.pathname === '/locked' && request.nextUrl.search === ''
+
+  if (!isLockedPage) {
+    const response = NextResponse.redirect(new URL('/locked', request.url))
     return response
   }
 
@@ -102,28 +105,24 @@ const redirectChangePassword = (request: NextRequest) => {
 export async function middleware(request: NextRequest) {
   console.log('server >> middleware', request.nextUrl.pathname)
 
-  if ((await checkConnect()) === 500)
-    return NextResponse.redirect(new URL('/500', request.url))
-
-  const isLoginPage =
-    request.nextUrl.pathname === '/login' && request.nextUrl.search === ''
-
-  if (isLoginPage) return NextResponse.next()
-
   const globalResponse = NextResponse.next()
 
   try {
     // Kiểm tra profile xem còn hợp lệ hay không
     const accessToken = request.cookies.get('accessToken')?.value ?? ' '
+
+    // Nếu không có accessToken thì chuyển hướng về trang login
     if (!accessToken) return redirectLogin(request)
 
-    const profile = await getProfile(accessToken)
+    const profile = await getMe(accessToken)
+
+    // Nếu profile.isVerify là true hoặc !isLocked thì chuyển hướng về trang dashboard
+    if ((profile.isVerify && request.nextUrl.pathname === '/login') || (!profile.isLocked && request.nextUrl.pathname === '/locked'))
+      return NextResponse.redirect(new URL('/', request.url))
 
     // Kiểm tra nếu profile.isVerify là false, chuyển hướng về trang change-password
-    if (!profile.isVerify && request.nextUrl.pathname !== '/change-password') {
+    if (!profile.isVerify && request.nextUrl.pathname !== '/change-password')
       return redirectChangePassword(request)
-    }
-
   } catch (error) {
     const response = error as Response
 
@@ -137,8 +136,6 @@ export async function middleware(request: NextRequest) {
       try {
         // Nếu token hết hạn thì gọi api refresh token
         const newToken = await refresh(refreshToken)
-        // console.log('server >> middleware New Token', newToken.accessToken)
-        // console.log('server >> middleware Refresh Token', newToken.refreshToken)
 
         // Set lại token vào cookie
         globalResponse.cookies.set('accessToken', newToken.accessToken)
@@ -156,6 +153,11 @@ export async function middleware(request: NextRequest) {
 
         return redirectLogin(request)
       }
+    }
+
+    if (response.status === 423) {
+      // Nếu token không có quyền truy cập thì redirect về trang locked
+      return redirectLocked(request)
     }
   }
   return globalResponse

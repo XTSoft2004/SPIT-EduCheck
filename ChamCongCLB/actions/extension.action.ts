@@ -19,6 +19,5 @@ export const getBase64Image = async (nameFile: string) => {
   )
 
   const data = await response.text()
-  console.log('Base64 Image:', data) // Log the base64 image string
   return data
 }

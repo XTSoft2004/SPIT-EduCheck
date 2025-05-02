@@ -14,7 +14,6 @@ export default function Searchbar({ setSearchText }: SearchBarProps) {
             await formSearch.validateFields();
             setSearchText(formSearch.getFieldValue("search"));
         } catch (error) {
-            // console.log("Lỗi nhập liệu:", error);
             message.error("Vui lòng nhập từ khóa tìm kiếm!");
         }
     };

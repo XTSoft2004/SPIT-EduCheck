@@ -16,10 +16,6 @@ export default function Dashboard({
     const [collapsed, setCollapsed] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        console.log('isLoading', isLoading);
-    }, [isLoading])
-
     return (
         <Layout style={{ height: '100vh' }}>
             <AppSider setIsLoading={setIsLoading} setCollapsed={setCollapsed} collapsed={collapsed} />
