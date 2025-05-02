@@ -77,12 +77,12 @@ const redirectLogin = (request: NextRequest) => {
 
 const redirectChangePassword = (request: NextRequest) => {
   const isChangePasswordPage =
-    request.nextUrl.pathname === '/change-password' &&
+    request.nextUrl.pathname === '/profile/change-password' &&
     request.nextUrl.search === ''
 
   if (!isChangePasswordPage) {
     const response = NextResponse.redirect(
-      new URL('/change-password', request.url),
+      new URL('/profile/change-password', request.url),
     )
     return response
   }
@@ -121,7 +121,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url))
 
     // Kiểm tra nếu profile.isVerify là false, chuyển hướng về trang change-password
-    if (!profile.isVerify && request.nextUrl.pathname !== '/change-password')
+    if (!profile.isVerify && request.nextUrl.pathname !== '/profile/change-password')
       return redirectChangePassword(request)
   } catch (error) {
     const response = error as Response
