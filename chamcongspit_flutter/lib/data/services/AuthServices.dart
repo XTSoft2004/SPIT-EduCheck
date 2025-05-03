@@ -28,4 +28,20 @@ class AuthServices {
 
     return login;
   }
+
+  Future<bool> logout() async {
+    try {
+      final response = await dio.post(
+        '$baseUrl/auth/logout',
+        options: Options(
+          validateStatus: (status) {
+            return true; // Cho phép tất cả status codes, kể cả lỗi
+          },
+        ),
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
 }

@@ -22,4 +22,12 @@ class UserRespositories {
     }
     return userResponse;
   }
+
+  Future<bool> setSemester(String semesterId) async {
+    bool result = await userServices.setSemester(semesterId);
+    if (result) {
+      storage.setValue('semesterId', semesterId);
+    }
+    return result;
+  }
 }

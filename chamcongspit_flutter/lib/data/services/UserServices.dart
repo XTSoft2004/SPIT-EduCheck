@@ -41,4 +41,16 @@ class UserServices {
 
     return user;
   }
+
+  Future<bool> setSemester(String semesterId) async {
+    String? token = await storage.getValue('accessToken');
+    final response = await dio.get(
+      '$baseUrl/user/set-semester/$semesterId',
+      options: Options(
+        headers: {'Authorization': 'Bearer $token'},
+        validateStatus: (_) => true,
+      ),
+    );
+    return response.statusCode == 200;
+  }
 }

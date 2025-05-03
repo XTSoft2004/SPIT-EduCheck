@@ -27,4 +27,14 @@ class AuthRespositories {
 
     return loginResponse;
   }
+
+  Future<void> logout() async {
+    // Gọi API Đăng xuất
+    await loginServices.logout();
+
+    // Xóa token khỏi Secure Storage
+    final storage = const FlutterSecureStorage();
+    await storage.delete(key: 'accessToken');
+    await storage.delete(key: 'refreshToken');
+  }
 }

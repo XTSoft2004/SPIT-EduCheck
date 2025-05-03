@@ -13,11 +13,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     // Trì hoãn lâu hơn một chút, ví dụ 1 giây
     Future.delayed(Duration(seconds: 1), () {
       SlideAlert.show(
@@ -26,6 +21,11 @@ class _LoginScreenState extends State<LoginScreen> {
         type: SlideAlertType.warning,
       );
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
       body: Container(
