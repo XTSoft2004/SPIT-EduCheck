@@ -1,6 +1,7 @@
 import 'package:chamcongspit_flutter/data/models/user/UserMeResponse.dart';
 import 'package:chamcongspit_flutter/data/repositories/UserRespositories.dart';
 import 'package:chamcongspit_flutter/presentation/screens/calendar/calendar_screen.dart';
+import 'package:chamcongspit_flutter/presentation/screens/timesheet/timesheet_form.dart';
 import 'package:chamcongspit_flutter/presentation/screens/timesheet/timesheet_screen.dart';
 import 'package:chamcongspit_flutter/presentation/widgets/app-drawer.dart';
 import 'package:chamcongspit_flutter/presentation/widgets/app-header.dart';
@@ -113,7 +114,7 @@ class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => HomeScreen(screen: TimesheetScreen()),
+                builder: (context) => HomeScreen(screen: TimesheetFormScreen()),
               ),
             );
           } else if (index == 2) {

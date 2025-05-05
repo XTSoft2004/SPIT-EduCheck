@@ -19,6 +19,7 @@ dependencies:
   curved_navigation_bar: ^1.0.6
   circle_nav_bar: ^2.2.0
   syncfusion_flutter_calendar: ^29.1.40
+  animated_custom_dropdown: 3.1.1
 
 dev_dependencies:
   flutter_test:
