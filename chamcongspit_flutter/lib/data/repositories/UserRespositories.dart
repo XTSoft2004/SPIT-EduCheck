@@ -2,12 +2,13 @@ import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
 import 'package:chamcongspit_flutter/cores/models/global_interface.dart';
 import 'package:chamcongspit_flutter/data/models/user/UserMeResponse.dart';
 import 'package:chamcongspit_flutter/data/models/user/UserProfileResponse.dart';
+import 'package:chamcongspit_flutter/data/repositories/AuthRespositories.dart';
 import 'package:chamcongspit_flutter/data/services/UserServices.dart';
 
 class UserRespositories {
   late UserServices userServices = UserServices();
   final SecureStorageService storage = SecureStorageService();
-
+  AuthRespositories authRespositories = AuthRespositories();
   Future<UserMeResponse> me() async {
     UserMeResponse userResponse = await userServices.me();
     return userResponse;
@@ -26,7 +27,7 @@ class UserRespositories {
   Future<bool> setSemester(String semesterId) async {
     bool result = await userServices.setSemester(semesterId);
     if (result) {
-      storage.setValue('semesterId', semesterId);
+      await authRespositories.refreshToken();
     }
     return result;
   }

@@ -6,15 +6,18 @@ class AuthController extends GetxController {
   final UserRespositories userRespositories = UserRespositories();
 
   Future<void> checkLoginStatus() async {
-    final response = await userRespositories.profile();
     final currentRoute = Get.currentRoute;
-
-    if (response.expiryDate == null ||
-        (response.expiryDate != null &&
-            DateTime.parse(response.expiryDate!).isBefore(DateTime.now()))) {
-      if (currentRoute != '/login' && currentRoute != '/resetpass') {
-        Get.offAllNamed('/login');
+    if (currentRoute == '/login' || currentRoute == '/register') {
+      return;
+    }
+    final response = await userRespositories.profile();
+    if (response.expiryDate != null) {
+      final DateTime expiryDate = DateTime.parse(response.expiryDate!);
+      final DateTime dateNow = DateTime.now();
+      if (expiryDate.isAfter(dateNow)) {
+        return;
       }
     }
+    Get.offAllNamed('/login');
   }
 }

@@ -1,6 +1,7 @@
 import 'package:chamcongspit_flutter/data/models/user/UserMeResponse.dart';
 import 'package:chamcongspit_flutter/data/repositories/AuthRespositories.dart';
 import 'package:chamcongspit_flutter/data/repositories/UserRespositories.dart';
+import 'package:chamcongspit_flutter/routers/app_router.dart';
 import 'package:chamcongspit_flutter/widgets/slide_alert.dart';
 import 'package:flutter/material.dart';
 
@@ -51,6 +52,18 @@ class AppDrawer extends StatelessWidget {
             title: Text('Trang chủ'),
             onTap: () {
               Navigator.pop(context);
+              // Add navigation logic here
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.list_rounded),
+            title: Text('Danh sách chấm công'),
+            onTap: () {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                AppRoutes.timesheet,
+                (Route<dynamic> route) => false, // Remove all previous routes
+              );
               // Add navigation logic here
             },
           ),

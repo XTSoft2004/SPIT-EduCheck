@@ -59,7 +59,12 @@ class IndexResponse<T> extends BaseResponse {
       status: json['status'] as int?,
       message: json['message'] as String?,
       data: (json['data'] as List?)?.map(fromJsonT).toList(),
-      meta: json['meta'] != null ? Meta.fromJson(json['meta']) : null,
+      meta: Meta(
+        totalRecords: json['totalRecords'] as int?,
+        totalPages: json['totalPages'] as int?,
+        currentPage: json['currentPage'] as int?,
+        pageSize: json['pageSize'] as int?,
+      ),
     );
   }
 }
