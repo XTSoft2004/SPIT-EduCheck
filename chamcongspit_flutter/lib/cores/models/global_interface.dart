@@ -22,13 +22,20 @@ class BaseResponse {
   final String? message;
 
   BaseResponse({this.ok, this.status, this.message});
+
+  factory BaseResponse.fromJson(Map<String, dynamic> json) {
+    return BaseResponse(
+      ok: json['ok'] as bool?,
+      status: json['status'] as int?,
+      message: json['message'] as String?,
+    );
+  }
 }
 
 class ShowResponse<T> extends BaseResponse {
   final T? data;
 
-  ShowResponse({bool? ok, int? status, String? message, this.data})
-    : super(ok: ok, status: status, message: message);
+  ShowResponse({super.ok, super.status, super.message, this.data});
 
   factory ShowResponse.fromJson(
     Map<String, dynamic> json,

@@ -175,7 +175,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   'Thời gian: ${appointment.startTime.hour}:${appointment.startTime.minute.toString().padLeft(2, '0')} - '
                                   '${appointment.endTime.hour}:${appointment.endTime.minute.toString().padLeft(2, '0')}',
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 8,
                                     fontStyle: FontStyle.italic,
                                     color: Colors.grey[600],
                                   ),

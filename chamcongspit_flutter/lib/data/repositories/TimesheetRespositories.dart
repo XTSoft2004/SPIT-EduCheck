@@ -1,6 +1,7 @@
 import 'package:chamcongspit_flutter/cores/models/global_interface.dart';
 import 'package:chamcongspit_flutter/data/models/class/ClassResponse.dart';
 import 'package:chamcongspit_flutter/data/models/student/StudentResponse.dart';
+import 'package:chamcongspit_flutter/data/models/timesheet/TimesheetRequest.dart';
 import 'package:chamcongspit_flutter/data/models/timesheet/TimesheetResponse.dart';
 import 'package:chamcongspit_flutter/data/models/timesheet/TimesheetView.dart';
 import 'package:chamcongspit_flutter/data/repositories/ClassRespositories.dart';
@@ -74,5 +75,11 @@ class TimesheetRespositories {
     }
 
     return timesheetViews;
+  }
+
+  Future<BaseResponse> createTimesheet(
+    TimesheetRequest timesheetRequest,
+  ) async {
+    return await timesheetService.createTimesheet(timesheetRequest);
   }
 }

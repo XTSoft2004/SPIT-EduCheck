@@ -50,4 +50,9 @@ class StudentResponse {
     data['userName'] = userName;
     return data;
   }
+
+  @override
+  String toString() {
+    return '${lastName ?? ''} ${firstName ?? ''} (${maSinhVien ?? 'N/A'})'; // Handle null values explicitly
+  }
 }
