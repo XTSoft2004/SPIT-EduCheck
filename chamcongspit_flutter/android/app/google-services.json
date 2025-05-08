@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1021660422413",
+    "project_id": "chamcongclb-spit",
+    "storage_bucket": "chamcongclb-spit.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1021660422413:android:52fb81fe2f48491fb29044",
+        "android_client_info": {
+          "package_name": "com.example.chamcongspit_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7uywu5hpe0_8l5TFvpbXQFxjSiSi8DEw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1021660422413:android:353d39b851c797eeb29044",
+        "android_client_info": {
+          "package_name": "com.spit_husc.chamcong"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7uywu5hpe0_8l5TFvpbXQFxjSiSi8DEw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
