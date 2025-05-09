@@ -3,6 +3,7 @@ import 'package:chamcongspit_flutter/data/repositories/AuthRespositories.dart';
 import 'package:chamcongspit_flutter/data/repositories/UserRespositories.dart';
 import 'package:chamcongspit_flutter/routers/app_router.dart';
 import 'package:chamcongspit_flutter/widgets/slide_alert.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -77,20 +78,21 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.logout),
-            title: Text('Đăng xuất'),
-            onTap: () {
+            onTap: () async {
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 '/login',
                 (Route<dynamic> route) => false, // Remove all previous routes
               );
-
-              SlideAlert.show(
-                context,
-                message: 'Đăng xuất thành công',
-                type: SlideAlertType.success,
-                duration: Duration(seconds: 2),
-              );
+              await FirebaseMessaging.instance.deleteToken();
+              if (context.mounted) {
+                SlideAlert.show(
+                  context,
+                  message: 'Đăng xuất thành công',
+                  type: SlideAlertType.success,
+                  duration: Duration(seconds: 2),
+                );
+              }
               authRespositories.logout(); // Call logout method from repository
             },
           ),
