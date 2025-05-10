@@ -147,7 +147,7 @@ namespace Domain.Services
             {
                 if (timesheetRequest.ImageBase64.Contains("data:image"))
                 {
-                    string filePath = Path.Combine(pathSave, $"{_class.Name.Replace(" ", "_")}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{(_student.UserId == null ? "Unknow" : _student.UserId)}.png");
+                    string filePath = $"{_class.Name.Replace(" ", "_")}_{DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss_tt")}_{(_student.UserId == null ? "Unknow" : _student.UserId)}.png";
                     byte[] imageBytes = Convert.FromBase64String(timesheetRequest.ImageBase64.Contains("data:image") ? timesheetRequest.ImageBase64.Split(',')[1] : timesheetRequest.ImageBase64);
                     var urlImage = await _GoogleDriverServices.UploadImage(new UploadFileRequest()
                     {

@@ -5,14 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Model.Request.Student
+namespace Domain.Model.Request.User
 {
-    public class StudentRequest
+    public class ChangeInfoRequest
     {
-        public long Id { get; set; }
-        [StringLength(10), Required]
-        public string MaSinhVien { get; set; }
-        [StringLength(250), Required]
         public string FirstName { get; set; }
         [StringLength(250), Required]
         public string LastName { get; set; }

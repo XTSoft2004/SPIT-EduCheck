@@ -1,5 +1,6 @@
 ﻿using Domain.Common.Http;
 using Domain.Model.DTOs;
+using Domain.Model.Request.Student;
 using Domain.Model.Request.User;
 using Domain.Model.Response.Auth;
 using Domain.Model.Response.User;
@@ -13,6 +14,23 @@ namespace Domain.Interfaces.Services
 {
     public interface IUserServices
     {
+        /// <summary>
+        /// Thay đổi avatar của cá nhân
+        /// </summary>
+        /// <param name="imageBase64"></param>
+        /// <returns></returns>
+        Task<HttpResponse> ChangeAvatarMe(UploadAvatar uploadAvatar);
+        /// <summary>
+        /// Lấy thông tin cá nhân
+        /// </summary>
+        /// <returns></returns>
+        Task<HttpResponse> GetInfoStudentMe();
+        /// <summary>
+        /// Thay đổi thông tin cá nhân
+        /// </summary>
+        /// <param name="studentRequest"></param>
+        /// <returns></returns>
+        Task<HttpResponse> ChangeInfoMe(ChangeInfoRequest studentRequest);
         /// <summary>
         /// Lấy thông tin của cá nhân
         /// </summary>

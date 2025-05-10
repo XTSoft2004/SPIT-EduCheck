@@ -29,7 +29,7 @@ namespace Domain.Services
         public async Task<string> GetAccessTokenAsync()
         {
             var credential = await GoogleCredential
-                .FromFileAsync("C:\\Users\\Administrator\\Desktop\\SPIT-EduCheck\\Server_Manager\\Domain\\chamcongclb-service-account.json", CancellationToken.None);
+                .FromFileAsync("D:\\Learn_HUSC\\C#\\SPIT-EduCheck\\Server_Manager\\Domain\\chamcongclb-service-account.json", CancellationToken.None);
 
             var scoped = credential.CreateScoped("https://www.googleapis.com/auth/firebase.messaging");
 

@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DotNetEnv;
 
 namespace Infrastructure.ContextDB
 {
@@ -12,8 +9,22 @@ namespace Infrastructure.ContextDB
     {
         public AppDbContext CreateDbContext(string[] args)
         {
+            // Tải các biến môi trường từ file .env
+            DotNetEnv.Env.Load();
+
+            // Lấy các thông tin kết nối từ biến môi trường
+            string dbServer = Environment.GetEnvironmentVariable("DB_SERVER");
+            string dbDatabase = Environment.GetEnvironmentVariable("DB_DATABASE");
+            string dbUser = Environment.GetEnvironmentVariable("DB_USER");
+            string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+            // Xây dựng chuỗi kết nối
+            string connectionString = $"Data Source={dbServer};Initial Catalog={dbDatabase};User ID={dbUser};Password={dbPassword};TrustServerCertificate=True;MultipleActiveResultSets=True";
+
+            // Tạo và trả về AppDbContext
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseSqlServer("Data Source=192.168.1.50;Initial Catalog=SPIT_EduCheck;User ID=sa;Password=Xuantruong22122k4*;TrustServerCertificate=True;MultipleActiveResultSets=True");
+            optionsBuilder.UseSqlServer(connectionString);
+
             return new AppDbContext(optionsBuilder.Options);
         }
     }

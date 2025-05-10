@@ -37,12 +37,12 @@ namespace Domain.Entities
         /// <summary>
         /// Số điện thoại
         /// </summary>
-        [Required, StringLength(10)]
+        [StringLength(10)]
         public string PhoneNumber { get; set; }
         /// <summary>
         /// Email sinh viên
         /// </summary>
-        [Required, StringLength(100)]
+        [StringLength(100)]
         public string Email { get; set; }
         /// <summary>
         /// Giới tính
@@ -54,6 +54,10 @@ namespace Domain.Entities
         /// </summary>
         [Required]
         public DateOnly? Dob { get; set; }
+        /// <summary>
+        /// Đường dẫn avatar
+        /// </summary>
+        public string? UrlAvatar { get; set; }
 
         public long? UserId { get; set; }
         [ForeignKey(nameof(UserId))]

@@ -1,13 +1,18 @@
 ﻿using Domain.Base.Services;
 using Domain.Common;
+using Domain.Common.GoogleDriver.Model.Request;
+using Domain.Common.GoogleDriver.Services;
 using Domain.Common.Http;
 using Domain.Entities;
 using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.DTOs;
+using Domain.Model.Request.Student;
+using Domain.Model.Request.Timesheet;
 using Domain.Model.Request.User;
 using Domain.Model.Response.Auth;
+using Domain.Model.Response.Student;
 using Domain.Model.Response.User;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -30,6 +35,8 @@ namespace Domain.Services
         private readonly ITokenServices _jwtHelper;
         private readonly ITokenServices _Token;
         private readonly IHttpContextHelper _HttpContextHelper;
+        private readonly IGoogleDriverServices _GoogleDriverServices;
+        private AuthToken? _AuthToken;
         private long UserId { set; get; }
         public UserServices(
             IRepositoryBase<User> user,
@@ -38,7 +45,8 @@ namespace Domain.Services
             IRepositoryBase<Student> student,
             ITokenServices jwtHelper,
             ITokenServices token,
-            IHttpContextHelper httpContextHelper)
+            IHttpContextHelper httpContextHelper,
+            IGoogleDriverServices googleDriverServices)
         {
             _User = user;
             _Role = role;
@@ -46,10 +54,84 @@ namespace Domain.Services
             _Student = student;
             _jwtHelper = jwtHelper;
             _Token = token;
+            _GoogleDriverServices = googleDriverServices;
             _HttpContextHelper = httpContextHelper;
-            UserId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("UserId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("UserId"));
+            var authHeader = _HttpContextHelper.GetHeader("Authorization");
+            _AuthToken = !string.IsNullOrEmpty(authHeader) ? _Token.GetInfoFromToken(authHeader) : null;
         }
 
+        public async Task<HttpResponse> GetInfoStudentMe()
+        {
+            if(_AuthToken == null)
+                return HttpResponse.Error("Không tìm thấy thông tin người dùng.", System.Net.HttpStatusCode.Unauthorized);
+
+            var student = _Student.Find(f => f.MaSinhVien == _AuthToken!.Username);
+            if(student != null)
+            {
+                StudentResponse studentResponse = new StudentResponse()
+                {
+                    Id = student.Id,
+                    MaSinhVien = student.MaSinhVien,
+                    FirstName = student.FirstName,
+                    LastName = student.LastName,
+                    Class = student.Class,
+                    PhoneNumber = student.PhoneNumber,
+                    Email = student.Email,
+                    Dob = student.Dob,
+                    UrlAvatar = student.UrlAvatar,
+                    UserName = student.User?.Username
+                };
+                return HttpResponse.OK(data: studentResponse, message: "Lấy thông tin thành công!");
+            }
+            else
+            {
+                return HttpResponse.Error("Không tìm thấy thông tin sinh viên.", System.Net.HttpStatusCode.NotFound);
+            }
+        }
+        public async Task<HttpResponse> ChangeAvatarMe(UploadAvatar uploadAvatar)
+        {
+            if (_AuthToken == null)
+                return HttpResponse.Error("Không tìm thấy thông tin người dùng.", System.Net.HttpStatusCode.Unauthorized);
+
+            var student = _Student.Find(x => x.MaSinhVien == _AuthToken.Username.Trim());
+            if (student == null)
+                return HttpResponse.Error("Sinh viên không tồn tại.", System.Net.HttpStatusCode.BadRequest);
+
+            string filePath = $"{_AuthToken?.Username}_{Guid.NewGuid().ToString()}.png";
+            byte[] imageBytes = Convert.FromBase64String(uploadAvatar.imageBase64.Contains("data:image") ? uploadAvatar.imageBase64.Split(',')[1] : uploadAvatar.imageBase64);
+            var urlImage = await _GoogleDriverServices.UploadImage(new UploadFileRequest()
+            {
+                FileName = filePath,
+                imageBytes = imageBytes,
+            });
+
+            student.UrlAvatar = urlImage.Trim();
+            student.ModifiedDate = DateTime.Now;
+            _Student.Update(student);
+            await UnitOfWork.CommitAsync();
+            return HttpResponse.OK(message: "Cập nhật avatar thành công.");
+        }
+        public async Task<HttpResponse> ChangeInfoMe(ChangeInfoRequest changeInfoRequest)
+        {
+            if (_AuthToken == null)
+                return HttpResponse.Error("Không tìm thấy thông tin người dùng.", System.Net.HttpStatusCode.Unauthorized);
+
+            var student = _Student.Find(x => x.MaSinhVien == _AuthToken!.Username);
+            if (student == null)
+                return HttpResponse.Error("Sinh viên không tồn tại.", System.Net.HttpStatusCode.BadRequest);
+
+            student.FirstName = changeInfoRequest.FirstName.Trim();
+            student.LastName = changeInfoRequest.LastName.Trim();
+            student.Class = changeInfoRequest.Class.Trim();
+            student.PhoneNumber = changeInfoRequest.PhoneNumber.Trim();
+            student.Email = changeInfoRequest.Email.Trim();
+            student.Gender = changeInfoRequest.Gender;
+            student.Dob = changeInfoRequest.Dob;
+            student.ModifiedDate = DateTime.Now;
+
+            await UnitOfWork.CommitAsync();
+            return HttpResponse.OK(message: "Cập nhật thông tin sinh viên thành công.");
+        }
         public async Task<HttpResponse> ChangePassword(ChangePwRequest changePwRequest)
         {
             if (changePwRequest == null)

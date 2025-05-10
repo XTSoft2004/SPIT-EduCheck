@@ -21,10 +21,10 @@
 
   <ItemGroup>
     <Reference Include="HelperHttpClient">
-      <HintPath>..\..\..\..\Pictures\HelperHttpClient.dll</HintPath>
+      <HintPath>..\..\DLL_Extension\HelperHttpClient.dll</HintPath>
     </Reference>
     <Reference Include="ModelsHelper">
-      <HintPath>..\..\..\..\Pictures\ModelsHelper.dll</HintPath>
+      <HintPath>..\..\DLL_Extension\ModelsHelper.dll</HintPath>
     </Reference>
   </ItemGroup>
 

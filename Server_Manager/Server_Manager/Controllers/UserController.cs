@@ -1,5 +1,7 @@
-﻿using Domain.Common.Http;
+﻿using Azure;
+using Domain.Common.Http;
 using Domain.Interfaces.Services;
+using Domain.Model.Request.Student;
 using Domain.Model.Request.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +18,31 @@ namespace Server_Manager.Controllers
         {   
             _services = services;
         }
+        [HttpPost("change-info")]
+        public async Task<IActionResult> ChangeInfoMe([FromBody] ChangeInfoRequest changeInfoRequest)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
+            var response = await _services.ChangeInfoMe(changeInfoRequest);
+            return response.ToActionResult();
+        }
+
+        [HttpGet("info-me")]
+        public async Task<IActionResult> GetInfoMe()
+        {
+            var userResponse = await _services.GetInfoStudentMe();
+            return userResponse.ToActionResult();
+        }
+
+        [HttpPost("change-avatar")]
+        public async Task<IActionResult> ChangeAvatarMe([FromBody] UploadAvatar uploadAvatar)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
+            var response = await _services.ChangeAvatarMe(uploadAvatar);
+            return response.ToActionResult();
+        }
+
         [HttpGet("me")]
         public async Task<IActionResult> GetMe()
         {

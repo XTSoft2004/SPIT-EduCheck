@@ -19,6 +19,7 @@ namespace Domain.Model.Response.Student
         public string? Email { get; set; }
         public bool? Gender { get; set; }
         public DateOnly? Dob { get; set; }
+        public string? UrlAvatar { get; set; }
         public string? UserName { get; set; }
     }
 }
