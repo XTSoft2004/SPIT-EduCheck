@@ -231,7 +231,7 @@ namespace Domain.Services
             totalRecords = query.Count();
 
             // Sắp xếp theo ID và áp dụng phân trang nếu cần
-            query = query.OrderBy(u => u.Id);
+            query = query.OrderByDescending(u => u.Date);
             if (pageNumber != -1 && pageSize != -1)
             {
                 query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);

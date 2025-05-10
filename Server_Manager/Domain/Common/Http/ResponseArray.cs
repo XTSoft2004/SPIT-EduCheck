@@ -13,11 +13,8 @@ namespace Domain.Common.Http
         public class ResponseArrayModel()
         {
             public int? TotalRecords { get; set; }
-            [JsonIgnore]
             public int? TotalPages { get; set; }
-            [JsonIgnore]
             public int? CurrentPage { get; set; }
-            [JsonIgnore]
             public int? PageSize { get; set; }
             public object Data { get; set; }
         }

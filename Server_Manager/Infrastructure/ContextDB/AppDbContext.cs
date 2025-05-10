@@ -21,7 +21,7 @@ namespace Infrastructure.ContextDB
         public DbSet<User> Users { get; set; }
         public DbSet<Timesheet> Timesheets { get; set; }
         public DbSet<Time> Times { get; set; }
-
+        public DbSet<FCMToken> FCMTokens { get; set; } 
         // DbSet cho các mối quan hệ
         public DbSet<Class_Student> ClassStudents { get; set; }
         public DbSet<Timesheet_Students> TimesheetStudents { get; set; }

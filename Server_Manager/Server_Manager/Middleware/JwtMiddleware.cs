@@ -59,6 +59,12 @@ namespace Server_Manager.Middleware
             try
             {
                 AuthToken AuthInfo = _tokenServices.GetInfoFromToken(token);
+                if(AuthInfo == null)
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await context.Response.WriteAsJsonAsync(new { Message = "Token không hợp lệ hoặc đã hết hạn" });
+                    return;
+                }
                 var refresh_token_old = _tokenServices.GetRefreshToken(AuthInfo.Id);
                 AuthToken AuthRefreshToken = _tokenServices.GetInfoFromToken(refresh_token_old);
                 var dateTimeNow = DateTime.Now;
@@ -98,8 +104,8 @@ namespace Server_Manager.Middleware
                 UserResponse _user = _tokenServices.GetUserFromToken(token);
                 if (_user?.Id != null)
                 {
-                    //UserResponse userResponse = _userServices.GetUserById(_user.Id);
-                    if (_user?.IsLocked == true)
+                    UserResponse userResponse = _userServices.GetUserById(_user.Id);
+                    if (userResponse?.IsLocked == true)
                     {
                         context.Response.StatusCode = StatusCodes.Status423Locked;
                         await context.Response.WriteAsJsonAsync(new { Message = "Tài khoản đã bị khóa" });

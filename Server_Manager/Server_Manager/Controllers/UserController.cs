@@ -85,7 +85,6 @@ namespace Server_Manager.Controllers
             var response = await _services.ChangePasswordAdmin(changePwAdminRequest);
             return response.ToActionResult();
         }
-        [Authorize(Roles = "Admin")]
         [HttpGet("set-semester/{Id}")]
         public async Task<IActionResult> SetSemesterUser(long Id)
         {
