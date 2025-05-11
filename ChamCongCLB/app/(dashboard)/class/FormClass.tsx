@@ -60,6 +60,7 @@ export default function FormClass({ form, students, lecturers, courses }: FormCl
                 name="timeStart"
                 rules={[{ required: true, message: 'Vui lòng nhập thời gian bắt đầu!' }]}
                 getValueProps={(value) => ({ value: value ? dayjs(value, 'HH:mm') : null })}
+                getValueFromEvent={(time) => time ? time.format('HH:mm:00') : null}
             >
                 <TimePicker format="HH:mm" />
             </Form.Item>
@@ -68,6 +69,7 @@ export default function FormClass({ form, students, lecturers, courses }: FormCl
                 name="timeEnd"
                 rules={[{ required: true, message: 'Vui lòng nhập thời gian kết thúc!' }]}
                 getValueProps={(value) => ({ value: value ? dayjs(value, 'HH:mm') : null })}
+                getValueFromEvent={(time) => time ? time.format('HH:mm:00') : null}
             >
                 <TimePicker format="HH:mm" />
             </Form.Item>

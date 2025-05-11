@@ -89,7 +89,7 @@ export default function FormTimesheetUpdate({ form, classes, students }: FormCla
 
                 {form.getFieldValue('imageBase64')?.length > 0 && (
                     <img
-                        src={`http://xtcoder2004.io.vn:5000/extension/image?nameFile=${form.getFieldValue('imageBase64')}`}
+                        src={form.getFieldValue('imageBase64')}
                         alt="Hình ảnh điểm danh"
                         style={{ width: "200px", height: "auto", marginBottom: "10px" }}
                         loading="lazy"

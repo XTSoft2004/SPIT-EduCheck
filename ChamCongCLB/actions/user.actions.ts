@@ -3,6 +3,9 @@ import { cookies, headers } from 'next/headers'
 import globalConfig from '@/app.config'
 
 import {
+  IAvatarUpdate,
+  IInfoUpdate,
+  IInfoUser,
   IUser,
   IUserChangePassword,
   IUserProfile,
@@ -230,4 +233,75 @@ export const changePasswordByAdmin = async (formData: IUserChangePassword) => {
       ...data,
     },
   } as IShowResponse<IUserProfile>
+}
+
+export const getInfoUser = async () => {
+  const response = await fetch(`${baseUrl}/user/info-me`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+  })
+
+  const data = await response.json()
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    message: data.message,
+    data: {
+      ...data.data,
+    }
+  } as IShowResponse<IInfoUser>
+}
+
+export const updateInfoUser = async (formData: IInfoUpdate) => {
+  const response = await fetch(`${baseUrl}/user/change-info`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+    body: JSON.stringify(formData),
+  })
+
+  const data = await response.json()
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    message: data.message,
+    data: {
+      ...data,
+    },
+  } as IShowResponse<IInfoUser>
+}
+
+export const updateAvatar = async (formData: IAvatarUpdate) => {
+  const response = await fetch(`${baseUrl}/user/change-avatar`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization:
+        headers().get('Authorization') ||
+        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
+    },
+    body: JSON.stringify(formData),
+  })
+
+  const data = await response.json()
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    message: data.message,
+    data: {
+      ...data,
+    },
+  } as IShowResponse<IInfoUser>
 }

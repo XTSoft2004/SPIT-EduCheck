@@ -41,3 +41,31 @@ export interface IUserChangePassword {
   userId: number
   passwordNew: string
 }
+
+interface IInfoUser {
+  id: number
+  maSinhVien: string
+  firstName: string
+  lastName: string
+  class: string
+  phoneNumber: string
+  email: string
+  gender: null
+  dob: string
+  urlAvatar: null
+  userName: null
+}
+
+interface IInfoUpdate {
+  firstName: string
+  lastName: string
+  class: string
+  phoneNumber: string
+  email: string
+  gender: boolean
+  dob: string
+}
+
+interface IAvatarUpdate {
+  imageBase64: string;
+}

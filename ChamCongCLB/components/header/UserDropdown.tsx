@@ -11,13 +11,14 @@ import {
   LockOutlined,
 } from '@ant-design/icons'
 
-import { getMe } from '@/actions/user.actions'
+import { getInfoUser, getMe } from '@/actions/user.actions'
 
-import { IUser } from '@/types/user'
+import { IInfoUser, IUser } from '@/types/user'
 import { useRouter } from 'next/navigation'
 
 export default function UserDropdown() {
   const [user, setUser] = useState<IUser | null>(null)
+  const [info, setInfo] = useState<IInfoUser | null>(null)
   const router = useRouter()
 
   const handleLogout = async () => {
@@ -38,7 +39,13 @@ export default function UserDropdown() {
       const user = await getMe()
       setUser(user.data)
     }
+
+    const fetchInfo = async () => {
+      const info = await getInfoUser()
+      setInfo(info.data)
+    }
     fetchUser()
+    fetchInfo()
   }, [])
 
   // Menu Dropdown
@@ -46,13 +53,23 @@ export default function UserDropdown() {
     <Menu className="pt-5">
       {user?.studentName !== '' ? (
         <>
-          <Menu.Item
-            key="profile"
-            icon={<UserOutlined />}
-            onClick={handleProfile}
-          >
-            <span className="font-bold">{user?.studentName}</span>{' '}
-            {/* username */}
+          <Menu.Item key="profile" onClick={handleProfile}>
+            <div className="flex items-center">
+              {info?.urlAvatar ? (
+                <Avatar
+                  src={info?.urlAvatar}
+                  size="large"
+                  className="mr-3"
+                  alt="avatar"
+                />
+              ) : (
+                <Avatar icon={<UserOutlined />} size="large" className="mr-3" />
+              )}
+              <div>
+                <div className="font-bold">{user?.studentName}</div>
+                <div className="text-gray-500 text-sm">{info?.email}</div>
+              </div>
+            </div>
           </Menu.Item>
           <Menu.Divider />
         </>
@@ -81,8 +98,21 @@ export default function UserDropdown() {
     <Dropdown overlay={menu} placement="bottomRight">
       <Space className="cursor-pointer">
         <div className="mr-5 flex items-center">
-          <Avatar className="mr-2" size="large" icon={<UserOutlined />} />
-          <span className="sm:block hidden font-bold">
+          {info?.urlAvatar ? (
+            <Avatar
+              src={info?.urlAvatar}
+              alt="avatar"
+              size={40}
+              className="!border-2 !border-white dark:!border-gray-800"
+            />
+          ) : (
+            <Avatar
+              icon={<UserOutlined />}
+              size={40}
+              className="!border-2 !border-white dark:!border-gray-800"
+            />
+          )}
+          <span className="ml-2 sm:block hidden font-bold">
             {user?.username?.toUpperCase()}
           </span>{' '}
           {/* fullName */}

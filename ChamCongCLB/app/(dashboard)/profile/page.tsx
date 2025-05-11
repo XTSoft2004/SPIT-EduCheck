@@ -1,134 +1,137 @@
 'use client'
-import React, { useEffect, useState } from 'react'
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons'
-import { Button, Form, Input, message, Upload } from 'antd'
-import type { GetProp, UploadProps } from 'antd'
 
-import { IUser, IUserUpdate } from '@/types/user'
-import { changePassword, getMe } from '@/actions/user.actions'
-
-type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0]
-
-const getBase64 = (img: FileType, callback: (url: string) => void) => {
-  const reader = new FileReader()
-  reader.addEventListener('load', () => callback(reader.result as string))
-  reader.readAsDataURL(img)
-}
-
-const beforeUpload = (file: FileType) => {
-  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
-  if (!isJpgOrPng) {
-    message.error('Bạn chỉ có thể tải lên ảnh!')
-  }
-  const isLt2M = file.size / 1024 / 1024 < 2
-  if (!isLt2M) {
-    message.error('Kích thước ảnh không quá 2MB!')
-  }
-  return isJpgOrPng && isLt2M
-}
+import { useEffect, useState } from 'react'
+import {
+  getInfoUser,
+  updateInfoUser,
+  updateAvatar,
+} from '@/actions/user.actions'
+import { IInfoUser, IInfoUpdate } from '@/types/user'
+import { Button, Form, Upload, message, Card, Avatar } from 'antd'
+import { CameraOutlined, UserOutlined } from '@ant-design/icons'
+import FormProfile from './FormProfile'
+import dayjs from 'dayjs'
+import SpinLoading from '@/components/ui/Loading/SpinLoading'
 
 export default function ProfilePage() {
-  const [loading, setLoading] = useState(false)
-  const [imageUrl, setImageUrl] = useState<string>()
-  const [profile, setProfile] = useState<IUser>()
   const [form] = Form.useForm()
+  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<IInfoUser | null>(null)
+  const [updating, setUpdating] = useState(false)
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const response = await getMe()
-      if (response.ok) setProfile(response.data)
-    }
-    fetchProfile()
+    fetchUserInfo()
   }, [])
 
-  const handleChange: UploadProps['onChange'] = (info) => {
-    if (info.file.status === 'uploading') {
-      setLoading(true)
-      return
-    }
-    if (info.file.status === 'done') {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj as FileType, (url) => {
-        setLoading(false)
-        setImageUrl(url)
+  const fetchUserInfo = async () => {
+    setLoading(true)
+    const res = await getInfoUser()
+    if (res.ok) {
+      const data = res.data
+      setUser(data)
+      form.setFieldsValue({
+        maSinhVien: data.maSinhVien,
+        lastName: data.lastName,
+        firstName: data.firstName,
+        class: data.class,
+        phoneNumber: data.phoneNumber,
+        email: data.email,
+        gender: data.gender === true ? 'Nam' : 'Nữ',
+        dob: dayjs(data.dob),
       })
+    } else {
+      message.error(res.message || 'Lấy thông tin thất bại')
     }
+    setLoading(false)
   }
 
-  const handleUpdate = async () => {
-    try {
-      const values = await form.validateFields()
-      const formUpdate: IUserUpdate = {
-        oldPassword: values.oldPassword,
-        password: values.password,
-        confirmPassword: values.confirmPassword,
-      }
-      const response = await changePassword(formUpdate)
-      if (response.ok) {
-        message.success('Cập nhật mật khẩu thành công!')
-        form.resetFields()
-      }
-    } catch (error) {
-      console.error('Failed to update password:', error)
+  const handleUpdate = async (values: any) => {
+    setUpdating(true)
+    const formData: IInfoUpdate = {
+      lastName: values.lastName,
+      firstName: values.firstName,
+      class: values.class,
+      phoneNumber: values.phoneNumber,
+      email: values.email,
+      gender: values.gender === 'Nam' ? true : false,
+      dob: values.dob ? values.dob.format('YYYY-MM-DD') : null,
     }
+
+    const res = await updateInfoUser(formData)
+    if (res.ok) {
+      message.success('Cập nhật thông tin thành công')
+      fetchUserInfo()
+    } else {
+      message.error(res.message || 'Cập nhật thất bại')
+    }
+    setUpdating(false)
   }
 
-  const uploadButton = (
-    <button style={{ border: 0, background: 'none' }} type="button">
-      {loading ? <LoadingOutlined /> : <PlusOutlined />}
-      <div style={{ marginTop: 8 }}>Upload</div>
-    </button>
-  )
+  const handleAvatarUpload = async (file: File) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = async () => {
+      const formData = {
+        imageBase64: reader.result as string,
+      }
+      const res = await updateAvatar(formData)
+      if (res.ok) {
+        message.success('Cập nhật avatar thành công')
+        fetchUserInfo()
+      } else {
+        message.error(res.message || 'Cập nhật avatar thất bại')
+      }
+    }
+    return false
+  }
+
+  if (loading) {
+    return <SpinLoading />
+  }
 
   return (
-    <div className="flex flex-col justify-center items-center">
-      <Upload
-        name="avatar"
-        listType="picture-circle"
-        className="avatar-uploader"
-        showUploadList={false}
-        action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
-        beforeUpload={beforeUpload}
-        onChange={handleChange}
-      >
-        {imageUrl ? (
-          <img src={imageUrl} alt="avatar" style={{ width: '100%' }} />
-        ) : (
-          uploadButton
-        )}
-      </Upload>
+    <div className="max-w-4xl mx-auto p-4">
+      <Card>
+        <div className="flex flex-col sm:flex-row gap-6 mb-6 items-center sm:items-start">
+          <Upload showUploadList={false} beforeUpload={handleAvatarUpload}>
+            <div className="group cursor-pointer relative w-fit">
+              <Avatar
+                size={128}
+                src={user?.urlAvatar ? user.urlAvatar : undefined}
+                icon={!user?.urlAvatar && <UserOutlined />}
+                className="border border-gray-300 rounded-full"
+              />
+              <div className="absolute bottom-1 right-1 bg-black bg-opacity-50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition">
+                <CameraOutlined />
+              </div>
+            </div>
+          </Upload>
 
-    <div
-      className={`mt-1 w-20 px-4 py-2 rounded-full text-center text-white opacity-80 ${
-        profile?.roleName === 'Admin'
-          ? 'bg-red-500 dark:bg-red-700'
-          : 'bg-green-500 dark:bg-green-700'
-      }`}
-    >
-      {profile?.roleName}
-    </div>
+          <div className="flex flex-col justify-center h-[128px]">
+            <div className="text-xl font-semibold">
+              {user?.lastName} {user?.firstName}
+            </div>
+            <div className="text-gray-600">{user?.email}</div>
+          </div>
+        </div>
 
-      <Form className="w-full max-w-sm" layout="vertical">
-        <Form.Item label="Mã sinh viên" name="username">
-          <Input
-            placeholder={profile?.username}
-            readOnly
-            className="uppercase"
-          />
-        </Form.Item>
-        <Form.Item label="Họ và tên" name="studentName">
-          <Input placeholder={profile?.studentName} />
-        </Form.Item>
-        <Form.Item className="flex justify-center">
-          <Button
-            type="primary"
-            onClick={handleUpdate}
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-          >
-            Cập nhật
-          </Button>
-        </Form.Item>
-      </Form>
+        <Form
+          form={form}
+          layout="horizontal"
+          labelCol={{ span: 6 }}
+          wrapperCol={{ span: 18 }}
+          labelAlign="left"
+          className="flex-1"
+          onFinish={handleUpdate}
+        >
+          <FormProfile disabledFields={['maSinhVien']} />
+          <Form.Item className="flex justify-center">
+            <Button type="primary" htmlType="submit" loading={updating}>
+              Cập nhật thông tin
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   )
 }
