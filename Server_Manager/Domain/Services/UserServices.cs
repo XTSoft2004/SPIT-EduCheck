@@ -79,7 +79,6 @@ namespace Domain.Services
                     Gender = student.Gender,    
                     Dob = student.Dob,
                     UrlAvatar = student.UrlAvatar,
-                    //UserName = student.User?.Username
                 };
                 return HttpResponse.OK(data: studentResponse, message: "Lấy thông tin thành công!");
             }
