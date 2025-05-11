@@ -39,7 +39,19 @@ export default function FormTimesheetAdd({ form, classes, students }: FormClassP
                 name="date"
                 rules={[{ required: true, message: 'Vui lòng chọn ngày điểm danh' }]}
             >
-                <Input type="date" />
+                <Form.Item noStyle name="date">
+                    <Input
+                        type="date"
+                        onChange={(e) => {
+                            const selectedDate = new Date(e.target.value);
+                            const today = new Date();
+                            if (selectedDate > today) {
+                                form.setFieldsValue({ date: today.toISOString().split('T')[0] });
+                            }
+                        }}
+                        max={new Date().toISOString().split('T')[0]}
+                    />
+                </Form.Item>
             </Form.Item>
             <Form.Item
                 label="Buổi"

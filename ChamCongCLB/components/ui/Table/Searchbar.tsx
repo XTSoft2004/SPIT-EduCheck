@@ -35,6 +35,7 @@ export default function Searchbar({ setSearchText }: SearchBarProps) {
                     style={{ height: "100%" }}
                     prefix={<SearchOutlined />}
                     onPressEnter={handleSearch}
+                    id="search-input"
                 />
             </Form.Item>
             <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
@@ -43,6 +44,7 @@ export default function Searchbar({ setSearchText }: SearchBarProps) {
                     type="primary"
                     htmlType="submit"
                     icon={<SearchOutlined />}
+                    id="btn-search"
                 >
                     Tìm kiếm
                 </Button>
@@ -54,6 +56,7 @@ export default function Searchbar({ setSearchText }: SearchBarProps) {
                         setSearchText(""); // Reset kết quả tìm kiếm
                     }}
                     icon={<ReloadOutlined />}
+                    id="btn-reset"
                 >
                     Reset
                 </Button>
