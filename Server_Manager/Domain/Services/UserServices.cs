@@ -37,7 +37,6 @@ namespace Domain.Services
         private readonly IHttpContextHelper _HttpContextHelper;
         private readonly IGoogleDriverServices _GoogleDriverServices;
         private AuthToken? _AuthToken;
-        private long UserId { set; get; }
         public UserServices(
             IRepositoryBase<User> user,
             IRepositoryBase<Role> role,
@@ -145,7 +144,7 @@ namespace Domain.Services
                 return HttpResponse.Error("Vui lòng không đổi mật khẩu giống mật khẩu cũ !!", System.Net.HttpStatusCode.BadRequest);
 
 
-            var user = _User.Find(x => x.Id == UserId);
+            var user = _User.Find(x => x.Id == _AuthToken!.Id);
             if (user != null)
             {
                 if (user.Password != changePwRequest.OldPassword)
@@ -230,7 +229,7 @@ namespace Domain.Services
 
         public UserResponse GetMe()
         {
-            var user = _User.Find(f => f.Id == UserId);
+            var user = _User.Find(f => f.Id == _AuthToken!.Id);
             if (user != null)
             {
                 var StudentName = _Student.Find(f => f.Id == user.StudentId);
@@ -283,7 +282,7 @@ namespace Domain.Services
 
         public async Task<HttpResponse> SetSemesterUser(long IdSemester)
         {
-            var User = _User.Find(f => f.Id == UserId);
+            var User = _User.Find(f => f.Id == _AuthToken!.Id);
             if (User == null)
                 return HttpResponse.Error("Không tìm thấy user !!.");
 

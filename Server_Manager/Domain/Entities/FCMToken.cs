@@ -12,7 +12,7 @@ namespace Domain.Entities
     {
 
         [StringLength(50), Required]
-        public string Username { get; set; }
+        public long StudentId { get; set; }
 
         [StringLength(500), Required]
         public string AccessToken { get; set; }

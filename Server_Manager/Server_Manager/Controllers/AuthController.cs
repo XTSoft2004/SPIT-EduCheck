@@ -28,9 +28,6 @@ namespace Server_Manager.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginDTO loginDTO)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(DefaultString.INVALID_MODEL);
-
             var response = await _services.LoginAsync(loginDTO);
             return response.ToActionResult();
         }

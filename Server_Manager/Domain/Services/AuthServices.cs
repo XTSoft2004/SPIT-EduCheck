@@ -6,6 +6,7 @@ using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.DTOs;
+using Domain.Model.Request.FCMToken;
 using Domain.Model.Request.User;
 using Domain.Model.Response.Auth;
 using Domain.Model.Response.User;
@@ -24,15 +25,17 @@ namespace Domain.Services
         private readonly IRepositoryBase<User> _User;
         private readonly IRepositoryBase<Role> _Role;
         private readonly IRepositoryBase<Semester> _Semester;
+        private readonly IFCMTokenServices _FCMTokenServices;
         private readonly ITokenServices _tokenServices;
         private readonly IHttpContextHelper _HttpContextHelper;
         private long UserId { set; get; }
-        public AuthServices(IRepositoryBase<RefreshToken> refreshToken, IRepositoryBase<User> user, IRepositoryBase<Semester> semester, IRepositoryBase<Role> role, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
+        public AuthServices(IRepositoryBase<RefreshToken> refreshToken, IRepositoryBase<User> user, IRepositoryBase<Semester> semester, IFCMTokenServices fCMTokenServices, IRepositoryBase<Role> role, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
         {
             _RefreshToken = refreshToken;
             _User = user;
             _Role = role;
             _Semester = semester;
+            _FCMTokenServices = fCMTokenServices;
             _tokenServices = tokenServices;
             _HttpContextHelper = httpContextHelper;
             UserId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("UserId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("UserId"));
@@ -124,6 +127,15 @@ namespace Domain.Services
                     ExpiryDate = TokenServices.GetDateTimeFormToken(user.RefreshToken),
                     SemesterId = _user.SemesterId
                 });
+
+                //if(!string.IsNullOrEmpty(loginDTO.Token))
+                //{
+                //    await _FCMTokenServices.RegisterFCMToken(new FCMTokenAddRequest()
+                //    {
+                //        Username = loginDTO.Username,
+                //        AccessToken = loginDTO.Token,
+                //    });
+                //}
 
                 return HttpResponse.OK(user, "Đăng nhập thành công.");
             }

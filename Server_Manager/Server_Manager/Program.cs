@@ -1,4 +1,5 @@
-﻿using Domain.Common.GoogleDriver.Services;
+﻿using Domain.Common.BackgroudServices;
+using Domain.Common.GoogleDriver.Services;
 using Domain.Common.Http;
 using Domain.Entities;
 using Domain.Interfaces.Repositories;
@@ -25,6 +26,7 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     Args = args,
     WebRootPath = "wwwroot" // ✅ Thiết lập WebRootPath đúng cách
 });
+Console.OutputEncoding = Encoding.UTF8;
 
 // Đảm bảo bạn đã đăng ký DbContext với DI container
 
@@ -136,6 +138,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IGoogleDriverServices, GoogleDriverSevices>();
 builder.Services.AddScoped(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
 
+builder.Services.AddHostedService<CronBackgroundService>();
+
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
@@ -143,19 +147,13 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    //app.UseSwagger();
-    //app.UseSwaggerUI(options =>
-    //{
-    //    options.SwaggerEndpoint("/swagger/v1/swagger.json", "SPIT-EduCheck API v1");
-    //    options.RoutePrefix = string.Empty; // Truy cập trực tiếp tại root "/"
-    //});
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 app.UseStaticFiles();
 
-//rescueContext.Database.Migrate();
-HttpAppContext.Configure(app.Services.GetRequiredService<IHttpContextAccessor>());
+var httpContextAccessor = app.Services.GetRequiredService<IHttpContextAccessor>();
+HttpAppContext.Configure(httpContextAccessor);
 
 //app.UseHttpsRedirection();
 
@@ -167,7 +165,9 @@ app.Use(async (context, next) =>
         await middleware.Invoke(context);
     }
 });
+
 //app.UseMiddleware<JwtMiddleware>();
+
 app.Use(async (context, next) =>
 {
     var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();

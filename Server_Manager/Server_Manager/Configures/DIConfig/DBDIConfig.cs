@@ -8,6 +8,7 @@ using Domain.Interfaces.Services;
 using Domain.Services;
 using Domain.Common.Extensions;
 using System.Reflection;
+using Domain.Common.BackgroudServices;
 
 namespace WebApp.Configures.DIConfig
 {

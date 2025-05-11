@@ -27,9 +27,9 @@ namespace Domain.Services
         private readonly IRepositoryBase<Class> _Class;
         private readonly IRepositoryBase<Time> _Time;
         private readonly IClassServices _ClassServices;
+        private readonly IGoogleDriverServices _GoogleDriverServices;
         private readonly ITokenServices _TokenServices;
         private readonly IHttpContextHelper _HttpContextHelper;
-        private readonly IGoogleDriverServices _GoogleDriverServices;
         private AuthToken? _AuthToken;
 
 

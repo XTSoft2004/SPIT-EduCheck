@@ -1,5 +1,6 @@
 ﻿using Domain.Interfaces.Services;
 using Domain.Model.Request.FCMToken;
+using Domain.Model.Request.Notification;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Server_Manager.Controllers
@@ -24,10 +25,10 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
 
-        [HttpDelete("remove/{username}")]
-        public async Task<IActionResult> RemoveFCMToken(string username)
+        [HttpPost("remove")]
+        public async Task<IActionResult> RemoveFCMToken(FCMTokenRequest fCMTokenRemoveRequest)
         {
-            var response = await _services.RemoveFCMToken(username);
+            var response = await _services.RemoveFCMToken(fCMTokenRemoveRequest);
             return response.ToActionResult();
         }
 

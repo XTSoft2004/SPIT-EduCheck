@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Domain.Model.Request.FCMToken
 {
-    public class FCMTokenRequest
+    public class FCMTokenAddRequest
     {
+        public string Username { get; set; }
         public string AccessToken { get; set; }
     }
 }

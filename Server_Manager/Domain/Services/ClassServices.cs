@@ -304,6 +304,32 @@ namespace Domain.Services
             // ...
             return HttpResponse.OK(message: "Import lớp học thành công.");
         }
+
+        public async Task<HttpResponse> AddNotificationStudent(long ClassId, long StudentId)
+        {
+            var _class = _Class.Find(f => f.Id == ClassId);
+            if (_class == null)
+                return HttpResponse.Error("Không tìm thấy lớp học.", System.Net.HttpStatusCode.NotFound);
+
+            var _student = _Student.Find(f => f.Id == StudentId);
+            if (_student == null)
+                return HttpResponse.Error("Không tìm thấy sinh viên.", System.Net.HttpStatusCode.NotFound);
+
+            var _class_student = _Class_Student.Find(f => f.ClassId == ClassId && f.StudentId == StudentId);
+            if (_class_student != null)
+                return HttpResponse.Error("Đã bật thông báo cho sinh viên trong lớp này!", System.Net.HttpStatusCode.BadRequest);
+            else
+            {
+                _Class_Student.Insert(new Class_Student()
+                {
+                    ClassId = ClassId,
+                    StudentId = StudentId,
+                    CreatedDate = DateTime.Now
+                });
+                await UnitOfWork.CommitAsync();
+                return HttpResponse.OK(message: "Bật thông báo cho sinh viên trong lớp này thành công.");
+            }
+        }
     }
 }
 

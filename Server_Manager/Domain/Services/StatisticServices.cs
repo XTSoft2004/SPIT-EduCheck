@@ -19,10 +19,10 @@ namespace Domain.Services
     {
         private readonly IRepositoryBase<User> _User;
         private readonly IRepositoryBase<Student> _Student;
-        private readonly IHttpContextHelper _HttpContextHelper;
         private readonly ITokenServices _TokenServices;
         private readonly ITimesheetServices _TimesheetServices;
         private readonly IClassServices _ClassServices;
+        private readonly IHttpContextHelper _HttpContextHelper;
         private AuthToken? _AuthToken;
         public StatisticServices(IRepositoryBase<User> user, IRepositoryBase<Student> student, IHttpContextHelper httpContextHelper, ITokenServices tokenServices, ITimesheetServices timesheetServices, IClassServices classServices)
         {
