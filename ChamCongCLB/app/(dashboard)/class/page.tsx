@@ -206,8 +206,6 @@ export default function ClassPage() {
         studentsId: values?.studentsId || [],
       }
 
-      console.log(formUpdate)
-
       const response = await updateClass(formUpdate)
       if (response.ok) {
         setIsModalOpen(false)
