@@ -5,8 +5,8 @@ class LoginRequest {
   LoginRequest({this.username, this.password});
 
   LoginRequest.fromJson(Map<String, dynamic> json) {
-    username = json['username'];
-    password = json['password'];
+    username = json['username'] as String?;
+    password = json['password'] as String?;
   }
 
   Map<String, dynamic> toJson() {

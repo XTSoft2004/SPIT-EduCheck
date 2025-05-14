@@ -14,21 +14,26 @@ class StudentServices {
     int pageSize = 5,
   }) async {
     String? token = await storage.getValue('accessToken');
-    final response = await dio.get(
-      '$baseUrl/student?pageNumber=$currentPage&pageSize=$pageSize',
-      options: Options(
-        headers: {'Authorization': 'Bearer $token'},
-        validateStatus: (_) => true,
-      ),
-    );
 
-    var students = IndexResponse<StudentResponse>.fromJson(
-      response.data is Map<String, dynamic>
-          ? response.data
-          : Map<String, dynamic>.from(response.data),
-      (json) => StudentResponse.fromJson(json as Map<String, dynamic>),
-    );
+    try {
+      final response = await dio.get(
+        '$baseUrl/student?pageNumber=$currentPage&pageSize=$pageSize',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+          validateStatus: (_) => true,
+        ),
+      );
 
-    return students;
+      var students = IndexResponse<StudentResponse>.fromJson(
+        response.data is Map<String, dynamic>
+            ? response.data
+            : Map<String, dynamic>.from(response.data),
+        (json) => StudentResponse.fromJson(json as Map<String, dynamic>),
+      );
+
+      return students;
+    } catch (e) {
+      return IndexResponse<StudentResponse>();
+    }
   }
 }

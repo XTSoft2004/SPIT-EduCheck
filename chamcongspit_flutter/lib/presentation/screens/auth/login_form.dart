@@ -1,3 +1,6 @@
+import 'package:chamcongspit_flutter/config/firebase_api.dart';
+import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
+import 'package:chamcongspit_flutter/data/repositories/FCMTokenRepositories.dart';
 import 'package:flutter/material.dart';
 import 'package:chamcongspit_flutter/data/repositories/AuthRespositories.dart';
 import 'package:chamcongspit_flutter/data/services/AuthServices.dart';
@@ -16,11 +19,15 @@ class _LoginFormState extends State<LoginForm> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final AuthRespositories _authRespositories = AuthRespositories();
+  final FcmTokenRepositories _fcmTokenRepositories = FcmTokenRepositories();
+  SecureStorageService storage = SecureStorageService();
 
   String? _usernameError;
   String? _passwordError;
 
   Future<void> _handleLogin() async {
+    // await FirebaseAPI().initNotification();
+
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -45,6 +52,8 @@ class _LoginFormState extends State<LoginForm> {
           '/home',
           (Route<dynamic> route) => false,
         );
+
+        await _fcmTokenRepositories.addFCMToken();
       } else if (response.message != null) {
         if (!mounted) return;
         SlideAlert.show(

@@ -12,45 +12,64 @@ class UserServices {
   Future<UserMeResponse> me() async {
     String? token = await storage.getValue('accessToken');
 
-    final response = await dio.get(
-      '$baseUrl/user/me',
-      options: Options(
-        headers: {'Authorization': 'Bearer $token'},
-        validateStatus: (_) => true,
-      ),
-    );
+    try {
+      final response = await dio.get(
+        '$baseUrl/user/me',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+          validateStatus: (_) => true,
+        ),
+      );
 
-    var user = UserMeResponse.fromJson(response.data as Map<String, dynamic>);
-
-    return user;
+      return UserMeResponse.fromJson(response.data as Map<String, dynamic>);
+    } catch (e) {
+      return UserMeResponse();
+    }
   }
 
   Future<UserProfileResponse> profile() async {
-    String? token = await storage.getValue('accessToken');
-    final response = await dio.get(
-      '$baseUrl/user/profile',
-      options: Options(
-        headers: {'Authorization': 'Bearer $token'},
-        validateStatus: (_) => true,
-      ),
-    );
+    try {
+      String? token = await storage.getValue('accessToken');
+      final response = await dio
+          .get(
+            '$baseUrl/user/profile',
+            options: Options(
+              headers: {'Authorization': 'Bearer $token'},
+              validateStatus: (_) => true,
+            ),
+          )
+          .timeout(
+            const Duration(seconds: 5),
+            onTimeout: () {
+              return Response(
+                requestOptions: RequestOptions(path: ''),
+                statusCode: 408,
+                data: {'message': 'Request timed out'},
+              );
+            },
+          );
 
-    var user = UserProfileResponse.fromJson(
-      response.data as Map<String, dynamic>,
-    );
-
-    return user;
+      return UserProfileResponse.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+    } catch (e) {
+      return UserProfileResponse();
+    }
   }
 
   Future<bool> setSemester(String semesterId) async {
-    String? token = await storage.getValue('accessToken');
-    final response = await dio.get(
-      '$baseUrl/user/set-semester/$semesterId',
-      options: Options(
-        headers: {'Authorization': 'Bearer $token'},
-        validateStatus: (_) => true,
-      ),
-    );
-    return response.statusCode == 200;
+    try {
+      String? token = await storage.getValue('accessToken');
+      final response = await dio.get(
+        '$baseUrl/user/set-semester/$semesterId',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+          validateStatus: (_) => true,
+        ),
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 }

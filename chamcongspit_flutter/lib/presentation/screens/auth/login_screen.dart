@@ -1,5 +1,6 @@
 import 'package:chamcongspit_flutter/presentation/screens/auth/login_form.dart';
 import 'package:chamcongspit_flutter/widgets/slide_alert.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,14 +14,17 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Trì hoãn lâu hơn một chút, ví dụ 1 giây
-    Future.delayed(Duration(seconds: 1), () {
-      SlideAlert.show(
-        context,
-        message: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
-        type: SlideAlertType.warning,
-      );
-    });
+    _handleInit();
+  }
+
+  Future<void> _handleInit() async {
+    await Future.delayed(Duration(seconds: 1));
+    if (!mounted) return;
+    SlideAlert.show(
+      context,
+      message: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+      type: SlideAlertType.warning,
+    );
   }
 
   @override

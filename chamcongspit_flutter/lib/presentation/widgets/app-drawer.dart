@@ -44,6 +44,12 @@ class AppDrawer extends StatelessWidget {
                     userMeResponse?.studentName ?? 'Không xác định',
                     style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
+                  // LoadingDotsText(
+                  //   prefixText: 'Đang tải username',
+                  //   isLoading:
+                  //       userMeResponse?.studentName == null ||
+                  //       (userMeResponse?.studentName?.isEmpty ?? true),
+                  // ),
                 ],
               ),
             ),
@@ -78,13 +84,13 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.logout),
+            title: Text('Đăng xuất'),
             onTap: () async {
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 '/login',
                 (Route<dynamic> route) => false, // Remove all previous routes
               );
-              await FirebaseMessaging.instance.deleteToken();
               if (context.mounted) {
                 SlideAlert.show(
                   context,

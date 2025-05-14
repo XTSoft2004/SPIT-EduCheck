@@ -1,4 +1,6 @@
+import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -45,11 +47,14 @@ Future<void> handlerBackgroundMessage(RemoteMessage message) {
 
 class FirebaseAPI {
   final _firebaseMessaging = FirebaseMessaging.instance;
-
+  SecureStorageService storage = SecureStorageService();
   Future<void> initNotification() async {
+    await dotenv.load();
     await _firebaseMessaging.requestPermission();
-    String? token = await _firebaseMessaging.getToken();
-    print("Firebase Token: $token");
+    // String? token = await _firebaseMessaging.getToken(
+    //   vapidKey:
+    //       "BOW3SQQoyWcSTIHAaEpSsuP0DWLrdSSFZs9OiCBg2nlPHXvDYOP2X_wYS-LtsHN4rzjZoPTRSbcB8hwgtEHT2fY",
+    // );
 
     FirebaseMessaging.onBackgroundMessage(handlerBackgroundMessage);
 

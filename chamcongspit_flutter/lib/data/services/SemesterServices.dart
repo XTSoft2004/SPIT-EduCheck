@@ -10,20 +10,24 @@ class SemesterServices {
   final SecureStorageService storage = SecureStorageService();
 
   Future<IndexResponse<SemesterResponse>> AllSemester() async {
-    String? token = await storage.getValue('accessToken');
-    final response = await dio.get(
-      '$baseUrl/semester',
-      options: Options(
-        headers: {'Authorization': 'Bearer $token'},
-        validateStatus: (_) => true,
-      ),
-    );
+    try {
+      String? token = await storage.getValue('accessToken');
+      final response = await dio.get(
+        '$baseUrl/semester',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+          validateStatus: (_) => true,
+        ),
+      );
 
-    var semester = IndexResponse<SemesterResponse>.fromJson(
-      response.data as Map<String, dynamic>,
-      (json) => SemesterResponse.fromJson(json as Map<String, dynamic>),
-    );
+      var semester = IndexResponse<SemesterResponse>.fromJson(
+        response.data as Map<String, dynamic>,
+        (json) => SemesterResponse.fromJson(json as Map<String, dynamic>),
+      );
 
-    return semester;
+      return semester;
+    } catch (e) {
+      return IndexResponse<SemesterResponse>();
+    }
   }
 }

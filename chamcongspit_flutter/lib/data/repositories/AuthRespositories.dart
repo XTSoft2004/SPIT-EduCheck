@@ -1,15 +1,17 @@
 import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
 import 'package:chamcongspit_flutter/data/models/auth/RefreshTokenResponse.dart';
+import 'package:chamcongspit_flutter/data/repositories/FCMTokenRepositories.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:chamcongspit_flutter/cores/models/global_interface.dart';
-import 'package:chamcongspit_flutter/data/models/auth/Login/LoginRequest.dart';
-import 'package:chamcongspit_flutter/data/models/auth/Login/LoginResponse.dart';
+import 'package:chamcongspit_flutter/data/models/auth/LoginRequest.dart';
+import 'package:chamcongspit_flutter/data/models/auth/LoginResponse.dart';
 import 'package:chamcongspit_flutter/data/services/AuthServices.dart';
 
 class AuthRespositories {
   late AuthServices loginServices = AuthServices();
   final SecureStorageService storage = SecureStorageService();
-
+  FcmTokenRepositories fcmTokenRepositories = FcmTokenRepositories();
   // Simulate a login API call
   Future<ShowResponse<LoginResponse>> loginAccount(
     String username,
@@ -39,8 +41,8 @@ class AuthRespositories {
 
   Future<void> logout() async {
     // Gọi API Đăng xuất
+    await fcmTokenRepositories.removeFCMToken();
     await loginServices.logout();
-
     // Xóa token khỏi Secure Storage
     final storage = const FlutterSecureStorage();
     await storage.delete(key: 'accessToken');

@@ -1,11 +1,15 @@
+import 'package:chamcongspit_flutter/data/models/notification/NotificationResponse.dart';
 import 'package:chamcongspit_flutter/data/models/user/UserMeResponse.dart';
+import 'package:chamcongspit_flutter/data/repositories/NotificationRespositories.dart';
 import 'package:chamcongspit_flutter/data/repositories/UserRespositories.dart';
 import 'package:chamcongspit_flutter/presentation/screens/calendar/calendar_screen.dart';
+import 'package:chamcongspit_flutter/presentation/screens/dashboard/DashboardPage.dart';
 import 'package:chamcongspit_flutter/presentation/screens/eKyc/kyc_personal_details.dart';
 import 'package:chamcongspit_flutter/presentation/screens/timesheet/Form/timesheet_form.dart';
 import 'package:chamcongspit_flutter/presentation/screens/timesheet/timesheet_screen.dart';
 import 'package:chamcongspit_flutter/presentation/widgets/app-drawer.dart';
 import 'package:chamcongspit_flutter/presentation/widgets/app-header.dart';
+import 'package:chamcongspit_flutter/presentation/widgets/app-notification.dart';
 import 'package:circle_nav_bar/circle_nav_bar.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
@@ -23,10 +27,22 @@ class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
   final UserRespositories userRespositories = UserRespositories();
   UserMeResponse? userProfileResponse; // Dùng nullable
 
+  NotificationRespositories notificationRespositories =
+      NotificationRespositories();
+  List<NotificationResponse>? notificationsResponse;
+
   @override
   void initState() {
     super.initState();
     loadUserProfile();
+    loadNotification();
+  }
+
+  void loadNotification() async {
+    final response = await notificationRespositories.getNotification();
+    setState(() {
+      notificationsResponse = response.data;
+    });
   }
 
   void loadUserProfile() async {
@@ -45,7 +61,9 @@ class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final int notificationCount = 3; // giả lập số thông báo
+    final int notificationCount =
+        notificationsResponse?.where((s) => s.isRead == false).length ??
+        0; // giả lập số thông báo
 
     return Scaffold(
       appBar: AppBar(
@@ -56,8 +74,9 @@ class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
               IconButton(
                 icon: Icon(Icons.notifications),
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Bạn đã nhấn vào thông báo!')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AppNotification()),
                   );
                 },
               ),
@@ -109,7 +128,7 @@ class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => HomeScreen(screen: CalendarScreen()),
+                builder: (context) => HomeScreen(screen: DashboardPage()),
               ),
             );
           } else if (index == 1) {

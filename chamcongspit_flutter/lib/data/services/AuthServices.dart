@@ -2,8 +2,8 @@ import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
 import 'package:chamcongspit_flutter/data/models/auth/RefreshTokenResponse.dart';
 import 'package:dio/dio.dart';
 import 'package:chamcongspit_flutter/cores/models/global_interface.dart';
-import 'package:chamcongspit_flutter/data/models/auth/Login/LoginRequest.dart';
-import 'package:chamcongspit_flutter/data/models/auth/Login/LoginResponse.dart';
+import 'package:chamcongspit_flutter/data/models/auth/LoginRequest.dart';
+import 'package:chamcongspit_flutter/data/models/auth/LoginResponse.dart';
 import 'package:chamcongspit_flutter/config/app_config.dart';
 
 class AuthServices {
@@ -14,22 +14,26 @@ class AuthServices {
   Future<ShowResponse<LoginResponse>> LoginAccount(
     LoginRequest loginRequest,
   ) async {
-    final response = await dio.post(
-      '$baseUrl/auth/login',
-      data: loginRequest.toJson(),
-      options: Options(
-        validateStatus: (status) {
-          return true; // Cho phép tất cả status codes, kể cả lỗi
-        },
-      ),
-    );
+    try {
+      final response = await dio.post(
+        '$baseUrl/auth/login',
+        data: loginRequest.toJson(),
+        options: Options(
+          validateStatus: (status) {
+            return true; // Cho phép tất cả status codes, kể cả lỗi
+          },
+        ),
+      );
 
-    var login = ShowResponse<LoginResponse>.fromJson(
-      response.data,
-      (json) => LoginResponse.fromJson(json as Map<String, dynamic>),
-    );
+      var login = ShowResponse<LoginResponse>.fromJson(
+        response.data,
+        (json) => LoginResponse.fromJson(json as Map<String, dynamic>),
+      );
 
-    return login;
+      return login;
+    } catch (e) {
+      return ShowResponse<LoginResponse>();
+    }
   }
 
   Future<bool> logout() async {

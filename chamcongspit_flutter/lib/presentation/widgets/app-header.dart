@@ -1,11 +1,12 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
+
 import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
 import 'package:chamcongspit_flutter/data/models/semester/SemesterResponse.dart';
 import 'package:chamcongspit_flutter/data/repositories/SemesterRepositories.dart';
 import 'package:chamcongspit_flutter/data/repositories/UserRespositories.dart';
 import 'package:chamcongspit_flutter/widgets/slide_alert.dart';
-import 'package:flutter/material.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:get/get.dart';
 
 class AppHeader extends StatefulWidget {
   const AppHeader({super.key});
@@ -16,12 +17,11 @@ class AppHeader extends StatefulWidget {
 
 class _AppHeaderState extends State<AppHeader> {
   String selectedSemester = '-1';
-
   final SemesterRepositories semesterRepositories = SemesterRepositories();
   final UserRespositories userRespositories = UserRespositories();
   final SecureStorageService storage = SecureStorageService();
 
-  List<SemesterResponse>? semesterList = [];
+  List<SemesterResponse>? semesterList;
 
   @override
   void initState() {
@@ -107,7 +107,6 @@ class _AppHeaderState extends State<AppHeader> {
                           duration: const Duration(seconds: 2),
                         );
 
-                        // Reload the app by navigating to the initial route
                         Navigator.of(context).pushNamedAndRemoveUntil(
                           currentRoute,
                           (Route<dynamic> route) => false,
@@ -134,10 +133,7 @@ class _AppHeaderState extends State<AppHeader> {
                     iconStyleData: const IconStyleData(icon: SizedBox.shrink()),
                   ),
                 )
-                : const Text(
-                  'Không có học kỳ nào',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
+                : Text('Không có học kỳ nào'),
       ),
     );
   }
