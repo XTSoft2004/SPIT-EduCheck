@@ -12,10 +12,13 @@ namespace Server_Manager.Controllers
     public class NotificationController : Controller
     {
         private readonly INotificationServices _services;
-        public NotificationController(INotificationServices services)
+        private readonly IFCMTokenServices _FCMTokenServices;
+        public NotificationController(INotificationServices services, IFCMTokenServices fCMTokenServices)
         {
             _services = services;
+            _FCMTokenServices = fCMTokenServices;
         }
+
         [HttpPost("create")]
         public async Task<IActionResult> CreateNotification([FromBody] NotificationRequest notificationRequest)
         {
@@ -23,6 +26,9 @@ namespace Server_Manager.Controllers
                 return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
 
             var response = await _services.CreateNotification(notificationRequest);
+
+            if(response.StatusCode == 200)
+                await _FCMTokenServices.SendNotification(notificationRequest);
             return response.ToActionResult();
         }
 
@@ -53,5 +59,13 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
 
+        [HttpGet("read")]
+        public async Task<IActionResult> ReadNotification([FromQuery] long NotificationId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
+            var response = await _services.ReadNotification(NotificationId);
+            return response.ToActionResult();
+        }
     }
 }

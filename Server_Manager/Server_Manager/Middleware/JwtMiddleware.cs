@@ -37,6 +37,7 @@ namespace Server_Manager.Middleware
                 "/extension/base64",
                 "/driver/upload",
                 "/driver/preview",
+                "/server",
             };
 
             if (bypassRoutes.Contains(context.Request.Path.Value.ToLower()))

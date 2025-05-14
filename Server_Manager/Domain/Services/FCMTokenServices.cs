@@ -17,6 +17,7 @@ using Domain.Interfaces.Common;
 using Domain.Model.Response.Auth;
 using static Google.Apis.Requests.BatchRequest;
 using Domain.Model.Request.Notification;
+using System.Net.WebSockets;
 
 namespace Domain.Services
 {
@@ -24,13 +25,15 @@ namespace Domain.Services
     {
         private readonly IRepositoryBase<FCMToken> _repository;
         private readonly IRepositoryBase<User> _user;
+        private readonly IRepositoryBase<Student> _student;
         private readonly ITokenServices _TokenServices;
         private readonly IHttpContextHelper _HttpContextHelper;
         private AuthToken? _AuthToken;
-        public FCMTokenServices(IRepositoryBase<FCMToken> repository, IRepositoryBase<User> user, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
+        public FCMTokenServices(IRepositoryBase<FCMToken> repository, IRepositoryBase<User> user, IRepositoryBase<Student> student, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
         {
             _repository = repository;
             _user = user;
+            _student = student;
             _TokenServices = tokenServices;
             _HttpContextHelper = httpContextHelper;
             var authHeader = _HttpContextHelper.GetHeader("Authorization");
@@ -60,7 +63,7 @@ namespace Domain.Services
                 var newFCMToken = new FCMToken()
                 {
                     AccessToken = fcmTokenRequest.AccessToken,
-                    StudentId = _AuthToken!.Id,
+                    StudentId = user.StudentId ?? -100,
                     CreatedDate = DateTime.Now
                 };
                 _repository.Insert(newFCMToken);
@@ -89,15 +92,18 @@ namespace Domain.Services
 
         public async Task<HttpResponse> SendNotification(NotificationRequest notificationRequest)
         {
-            var fcmTokens = _repository.ListBy(f => f.Id == notificationRequest.StudentId).ToList();
+            var students = _student.Find(f => f.Id == notificationRequest.StudentId);
+            if(students == null) 
+                return HttpResponse.Error("Không tìm thấy sinh viên.", System.Net.HttpStatusCode.NotFound);
+
+            var fcmTokens = _repository.ListBy(f => f.StudentId == notificationRequest.StudentId).ToList();
             if (fcmTokens == null)
                 return HttpResponse.Error("Không tìm thấy FCM Token.", System.Net.HttpStatusCode.NotFound);
 
             int numberNoti = 0;
-            foreach(var fcmToken in fcmTokens)
+            var token = await GetAccessTokenAsync();
+            foreach (var fcmToken in fcmTokens)
             {
-                var token = await GetAccessTokenAsync();
-
                 var message = new
                 {
                     message = new

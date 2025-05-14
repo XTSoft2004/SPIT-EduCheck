@@ -10,12 +10,14 @@ namespace Server_Manager.Controllers
     public class FCMTokenController : Controller
     {
         private readonly IFCMTokenServices _services;
+        private readonly INotificationServices _notificationServices;
 
-        public FCMTokenController(IFCMTokenServices services)
+        public FCMTokenController(IFCMTokenServices services, INotificationServices notificationServices)
         {
             _services = services;
+            _notificationServices = notificationServices;
         }
-       
+
         [HttpPost("register")]
         public async Task<IActionResult> RegisterFCMToken([FromBody] FCMTokenRequest fcmTokenRequest)
         {
@@ -38,6 +40,9 @@ namespace Server_Manager.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
             var response = await _services.SendNotification(notificationRequest);
+
+            if(response.StatusCode == 200)
+                await _notificationServices.CreateNotification(notificationRequest);
             return response.ToActionResult();
         }
     }

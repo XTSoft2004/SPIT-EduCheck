@@ -82,8 +82,11 @@ namespace Domain.Services
                 .OrderByDescending(n => n.CreatedDate)
                 .Select(n => new NotificationResponse()
                 {
+                    Id = n.Id,
                     Title = n.Title,
                     Body = n.Body,
+                    isRead = n.isRead,
+                    DateTimeCreate = n.CreatedDate
                 })
                 .ToList();
 
@@ -117,6 +120,19 @@ namespace Domain.Services
             await UnitOfWork.CommitAsync();
 
             return HttpResponse.OK(message: $"Bật thông báo cho lớp {@class.Name} thành công!");
+        }
+
+        public async Task<HttpResponse> ReadNotification(long NotificationId)
+        {
+            var notification = _repository.Find(f => f.Id == NotificationId);
+            if (notification == null)
+                return HttpResponse.Error(message: "Không tồn tại thông báo này!");
+
+            notification.isRead = true;
+            _repository.Update(notification);
+            await UnitOfWork.CommitAsync();
+
+            return HttpResponse.OK(message: "Đọc thông báo thành công!");
         }
     }
 }

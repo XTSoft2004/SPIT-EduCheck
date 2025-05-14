@@ -8,7 +8,10 @@ namespace Domain.Model.Response.Notification
 {
     public class NotificationResponse
     {
+        public long Id { get; set; }
         public string Title { get; set; }
         public string Body { get; set; }
+        public bool isRead { get; set; }
+        public DateTime DateTimeCreate { get; set; }
     }
 }
