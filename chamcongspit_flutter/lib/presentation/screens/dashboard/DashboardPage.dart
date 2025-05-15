@@ -2,6 +2,7 @@ import 'package:chamcongspit_flutter/data/models/statistic/InfoStatisticResponse
 import 'package:chamcongspit_flutter/data/models/statistic/SalaryInfoResponse.dart';
 import 'package:chamcongspit_flutter/data/repositories/StatisticRespositories.dart';
 import 'package:flutter/material.dart';
+import 'package:skeleton_loader/skeleton_loader.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -11,155 +12,233 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  StatisticRespositories statisticRespositories = StatisticRespositories();
+  final StatisticRespositories statisticRespositories =
+      StatisticRespositories();
   SalaryInfoResponse? salaryInfoResponse;
-  List<InfoStatisticResponse>? infoStatisticResponse;
+  bool isLoading = true;
+
   @override
   void initState() {
     super.initState();
-    loadSalaryInfo();
+    _fetchSalaryInfo();
   }
 
-  void loadSalaryInfo() async {
-    final response = await statisticRespositories.SalaryInfo();
-    if (response != null) {
+  void _fetchSalaryInfo() async {
+    try {
+      final response = await statisticRespositories.SalaryInfo();
       setState(() {
         salaryInfoResponse = response;
+        isLoading = salaryInfoResponse?.salaryInfoStudents == null;
       });
+    } catch (e) {
+      Future.delayed(const Duration(seconds: 2), _fetchSalaryInfo);
     }
+  }
+
+  Widget buildLoadCardSalary() {
+    return SkeletonLoader(
+      builder: Container(
+        height: 180,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+      items: 1,
+      period: const Duration(seconds: 2),
+      highlightColor: Colors.grey[100]!,
+      direction: SkeletonDirection.ltr,
+    );
+  }
+
+  Widget buildCardClassStudent() {
+    return SizedBox(
+      height: 70,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: 10,
+        separatorBuilder: (context, index) => const SizedBox(width: 10),
+        itemBuilder:
+            (context, index) => SizedBox(
+              width: 150,
+              child: SkeletonLoader(
+                builder: Container(
+                  width: double.infinity,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                items: 1,
+                period: const Duration(seconds: 2),
+                highlightColor: Colors.grey[100]!,
+                direction: SkeletonDirection.ltr,
+              ),
+            ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // Balance Header
-        Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF2B7EF7), Color(0xFF32A8F3)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
-                    'SPIT HUSC | Đại học Khoa học Huế',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5,
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            isLoading
+                ? buildLoadCardSalary()
+                : Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF2B7EF7), Color(0xFF32A8F3)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Tổng lương của sinh viên',
-                style: TextStyle(color: Colors.white70, fontSize: 14),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                salaryInfoResponse?.toltalSalary != null
-                    ? "${salaryInfoResponse!.toltalSalary!.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')} VNĐ"
-                    : '',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'SPIT HUSC | Đại học Khoa học Huế',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Tổng lương của sinh viên',
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        "${(salaryInfoResponse?.toltalSalary ?? 0).toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')} VNĐ",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: const [
+                          _ActionButton(title: "10", label: "Sinh\nviên"),
+                          _ActionButton(
+                            title: "10",
+                            label: "Số lượt\nchấm công",
+                          ),
+                          _ActionButton(title: "10", label: "Số\nlớp"),
+                          _ActionButton(
+                            title: "10",
+                            label: "Sinh viên đi\nnhiều nhất",
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
+            const SizedBox(height: 20),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Số buổi sinh viên đã đi",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _ActionButton(icon: Icons.send, label: "Send\nMoney"),
-                  _ActionButton(
-                    icon: Icons.compare_arrows,
-                    label: "Card to Card\nTransfer",
-                  ),
-                  _ActionButton(
-                    icon: Icons.schedule,
-                    label: "Manage\nSchedule",
-                  ),
-                  _ActionButton(icon: Icons.smartphone, label: "Mobile\nTopup"),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
-
-        // Send Again
-        const Text(
-          "Send Again",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: const [
-            _SendAgainCard(name: "Jack Hann", amount: "\$4,500"),
-            SizedBox(width: 10),
-            _SendAgainCard(name: "Jack Smith", amount: "\$4,500"),
-          ],
-        ),
-        const SizedBox(height: 20),
-
-        // Recent Transactions
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text(
-              "Recent Transaction",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-            Text("See More", style: TextStyle(color: Colors.blue)),
+            const SizedBox(height: 10),
+            isLoading
+                ? buildCardClassStudent()
+                : SizedBox(
+                  height: 70,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount:
+                        salaryInfoResponse?.salaryInfoStudents?.length ?? 0,
+                    separatorBuilder:
+                        (context, index) => const SizedBox(width: 30),
+                    itemBuilder: (context, index) {
+                      final student =
+                          salaryInfoResponse!.salaryInfoStudents![index];
+                      return _SendAgainCard(
+                        name: student.studentName ?? 'Không có tên',
+                        amount: "Số buổi: ${student.day ?? 0}",
+                        salary: student.salary ?? 0,
+                      );
+                    },
+                  ),
+                ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Text(
+                  "Danh sách chấm công gần đây",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Text("Xem thêm", style: TextStyle(color: Colors.blue)),
+              ],
+            ),
+            const SizedBox(height: 10),
+            const _TransactionItem(
+              name: "John Danny",
+              date: "12 Jul . Amount Debited",
+              amount: "- \$16,984",
+            ),
+            const _TransactionItem(
+              name: "Mark Daniel",
+              date: "17 Jul . Payment Received",
+              amount: "\$38.02",
+            ),
+            const _TransactionItem(
+              name: "Peterson",
+              date: "17 Jul . Amount Debited",
+              amount: "- \$4,276.02",
+            ),
           ],
         ),
-        const SizedBox(height: 10),
-        const _TransactionItem(
-          name: "John Danny",
-          date: "12 Jul . Amount Debited",
-          amount: "- \$16,984",
-        ),
-        const _TransactionItem(
-          name: "Mark Daniel",
-          date: "17 Jul . Payment Received",
-          amount: "\$38.02",
-        ),
-        const _TransactionItem(
-          name: "Peterson",
-          date: "17 Jul . Amount Debited",
-          amount: "- \$4,276.02",
-        ),
-      ],
+      ),
     );
   }
 }
 
 class _ActionButton extends StatelessWidget {
-  final IconData icon;
+  final String title;
   final String label;
 
-  const _ActionButton({required this.icon, required this.label});
+  const _ActionButton({required this.title, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CircleAvatar(
-          backgroundColor: Colors.white24,
-          radius: 25,
-          child: Icon(icon, color: Colors.white),
+        Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            color: Colors.white24,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
         ),
         const SizedBox(height: 5),
         Text(
@@ -175,41 +254,65 @@ class _ActionButton extends StatelessWidget {
 class _SendAgainCard extends StatelessWidget {
   final String name;
   final String amount;
+  final int salary;
 
-  const _SendAgainCard({required this.name, required this.amount});
+  const _SendAgainCard({
+    required this.name,
+    required this.amount,
+    required this.salary,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Color(0xFFF5F5F5),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            const CircleAvatar(
-              backgroundColor: Colors.grey,
-              radius: 18,
-              child: Icon(Icons.account_circle, color: Colors.white),
-            ),
-            const SizedBox(width: 10),
-            Column(
+    return Container(
+      width: 220,
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const CircleAvatar(
+            backgroundColor: Colors.grey,
+            radius: 22,
+            child: Icon(Icons.account_circle, color: Colors.white, size: 28),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   name,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: 16,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                Text(amount, style: const TextStyle(color: Colors.grey)),
+                Text(
+                  amount,
+                  style: const TextStyle(color: Colors.grey, fontSize: 13),
+                ),
+                Text(
+                  'Lương: ${salary.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')} VNĐ',
+                  style: const TextStyle(color: Colors.grey, fontSize: 11),
+                ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

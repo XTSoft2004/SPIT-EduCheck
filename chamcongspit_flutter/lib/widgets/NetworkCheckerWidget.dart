@@ -11,6 +11,13 @@ class NetworkStatusComponent extends StatefulWidget {
 
   @override
   _NetworkStatusComponentState createState() => _NetworkStatusComponentState();
+
+  static Future<bool> checkConnection() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    return connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi ||
+        connectivityResult == ConnectivityResult.ethernet;
+  }
 }
 
 class _NetworkStatusComponentState extends State<NetworkStatusComponent> {
