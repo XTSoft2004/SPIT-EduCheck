@@ -4,10 +4,12 @@ import 'package:chamcongspit_flutter/presentation/screens/dashboard/DashboardPag
 import 'package:chamcongspit_flutter/presentation/screens/home/home_screen.dart';
 import 'package:chamcongspit_flutter/presentation/screens/timesheet/Form/timesheet_form.dart';
 import 'package:chamcongspit_flutter/presentation/screens/timesheet/timesheet_screen.dart';
+import 'package:chamcongspit_flutter/presentation/widgets/app-loading.dart';
 import 'package:chamcongspit_flutter/routers/app_binding.dart';
 import 'package:get/get.dart';
 
 class AppRoutes {
+  static const loading = '/loading';
   static const login = '/login';
   static const home = '/home';
   static const timesheet = '/timesheet';
@@ -16,6 +18,7 @@ class AppRoutes {
 
 class AppPages {
   static final routes = [
+    GetPage(name: AppRoutes.loading, page: () => const SplashScreen()),
     GetPage(name: AppRoutes.login, page: () => const LoginScreen()),
     GetPage(
       name: AppRoutes.home,

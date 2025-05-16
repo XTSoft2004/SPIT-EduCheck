@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:chamcongspit_flutter/config/app_config.dart';
 import 'package:chamcongspit_flutter/config/firebase_api.dart';
+import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
+import 'package:chamcongspit_flutter/data/repositories/NotificationRespositories.dart';
 import 'package:chamcongspit_flutter/routers/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -37,6 +39,9 @@ class _NetworkStatusComponentState extends State<NetworkStatusComponent> {
   Timer? _serverCheckTimer;
   late Dio _dio;
   bool _isCheckingServer = false; // Tránh kiểm tra trùng lặp
+  final NotificationRespositories notificationRespositories =
+      NotificationRespositories();
+  SecureStorageService storage = SecureStorageService();
 
   @override
   void initState() {
@@ -49,6 +54,12 @@ class _NetworkStatusComponentState extends State<NetworkStatusComponent> {
     _checkInitialConnection();
     _subscribeToConnectivityChanges();
     _startServerConnectionCheck();
+  }
+
+  void _loadNotification() async {
+    final response = await notificationRespositories.getNotification();
+    final lenNoti = response.data!.where((w) => w.isRead == false).length;
+    await storage.setValue('lenNotification', lenNoti.toString());
   }
 
   // Kiểm tra trạng thái kết nối mạng ban đầu
@@ -107,8 +118,18 @@ class _NetworkStatusComponentState extends State<NetworkStatusComponent> {
     if (_isCheckingServer) return; // Tránh kiểm tra trùng lặp
     _isCheckingServer = true;
 
+    // Đảm bảo baseUrl có dấu '/' ở cuối
+    String urlServer = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
     try {
-      final response = await _dio.get('$baseUrl/server');
+      final response = await _dio.get(
+        '${urlServer}server',
+        options: Options(
+          validateStatus: (status) {
+            return true; // Cho phép tất cả status codes, kể cả lỗi
+          },
+        ),
+      );
+      // Xử lý response như cũ
       bool wasServerConnected = _isServerConnected;
       bool isServerConnected =
           response.statusCode != null &&
@@ -135,6 +156,7 @@ class _NetworkStatusComponentState extends State<NetworkStatusComponent> {
             await _checkServerConnection();
           }
         } else {
+          _loadNotification();
           Fluttertoast.showToast(
             msg: 'Đã kết nối lại server!',
             toastLength: Toast.LENGTH_SHORT,
@@ -145,7 +167,8 @@ class _NetworkStatusComponentState extends State<NetworkStatusComponent> {
           );
         }
       }
-    } catch (e) {
+    } on DioError catch (dioError) {
+      // Xử lý lỗi kết nối mạng hoặc server không phản hồi
       if (_isServerConnected) {
         setState(() {
           _isServerConnected = false;
@@ -158,14 +181,11 @@ class _NetworkStatusComponentState extends State<NetworkStatusComponent> {
           textColor: Colors.white,
           fontSize: 16.0,
         );
-        // Thử kiểm tra lại ngay lập tức nếu mất kết nối server
         if (_isNetworkConnected) {
           await Future.delayed(const Duration(seconds: 2));
           await _checkServerConnection();
         }
       }
-    } finally {
-      _isCheckingServer = false;
     }
   }
 
@@ -248,7 +268,7 @@ class MainApp extends StatelessWidget {
     return NetworkStatusComponent(
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        initialRoute: '/home',
+        initialRoute: '/loading',
         getPages: AppPages.routes,
       ),
     );

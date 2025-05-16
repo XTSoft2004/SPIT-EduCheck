@@ -102,7 +102,24 @@ class _TimesheetScreenState extends State<TimesheetScreen> {
                                       );
                                     },
                                     errorBuilder: (context, error, stackTrace) {
-                                      return const Text('Error loading image');
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child:
+                                            (e.imageUrl != null &&
+                                                    e.imageUrl!.isNotEmpty)
+                                                ? Image.network(
+                                                  e.imageUrl!,
+                                                  fit: BoxFit.cover,
+                                                  width: 100,
+                                                  height: 100,
+                                                )
+                                                : Image.asset(
+                                                  'assets/images/error/error_404.png',
+                                                  fit: BoxFit.cover,
+                                                  width: 100,
+                                                  height: 100,
+                                                ),
+                                      );
                                     },
                                   )
                                   : const Text('No Image'),

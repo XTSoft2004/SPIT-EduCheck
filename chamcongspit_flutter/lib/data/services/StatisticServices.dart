@@ -32,7 +32,7 @@ class StatisticServices {
     }
   }
 
-  Future<IndexResponse<InfoStatisticResponse>> InfoStatistic() async {
+  Future<InfoStatisticResponse> InfoStatistic() async {
     try {
       String? token = await storage.getValue('accessToken');
       final response = await dio.get(
@@ -43,14 +43,13 @@ class StatisticServices {
         ),
       );
 
-      var infoStatistic = IndexResponse<InfoStatisticResponse>.fromJson(
+      var infoStatistic = InfoStatisticResponse.fromJson(
         response.data as Map<String, dynamic>,
-        (json) => InfoStatisticResponse.fromJson(json as Map<String, dynamic>),
       );
 
       return infoStatistic;
     } catch (e) {
-      return IndexResponse<InfoStatisticResponse>();
+      return InfoStatisticResponse();
     }
   }
 }

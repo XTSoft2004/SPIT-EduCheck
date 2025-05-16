@@ -26,6 +26,7 @@ class SalaryInfoResponse {
 }
 
 class SalaryInfoStudents {
+  int? idName;
   String? codeName;
   String? studentName;
   int? day;
@@ -34,6 +35,7 @@ class SalaryInfoStudents {
   SalaryInfoStudents({this.codeName, this.studentName, this.day, this.salary});
 
   SalaryInfoStudents.fromJson(Map<String, dynamic> json) {
+    idName = json['idName'];
     codeName = json['codeName'];
     studentName = json['studentName'];
     day = json['day'];
@@ -42,6 +44,7 @@ class SalaryInfoStudents {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['idName'] = idName;
     data['codeName'] = codeName;
     data['studentName'] = studentName;
     data['day'] = day;

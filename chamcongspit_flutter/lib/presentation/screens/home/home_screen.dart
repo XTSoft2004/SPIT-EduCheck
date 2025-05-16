@@ -1,6 +1,10 @@
+import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
 import 'package:chamcongspit_flutter/data/models/notification/NotificationResponse.dart';
+import 'package:chamcongspit_flutter/data/models/timesheet/TimesheetResponse.dart';
+import 'package:chamcongspit_flutter/data/models/timesheet/TimesheetView.dart';
 import 'package:chamcongspit_flutter/data/models/user/UserMeResponse.dart';
 import 'package:chamcongspit_flutter/data/repositories/NotificationRespositories.dart';
+import 'package:chamcongspit_flutter/data/repositories/TimesheetRespositories.dart';
 import 'package:chamcongspit_flutter/data/repositories/UserRespositories.dart';
 import 'package:chamcongspit_flutter/presentation/screens/calendar/calendar_screen.dart';
 import 'package:chamcongspit_flutter/presentation/screens/dashboard/DashboardPage.dart';
@@ -9,6 +13,7 @@ import 'package:chamcongspit_flutter/presentation/screens/timesheet/Form/timeshe
 import 'package:chamcongspit_flutter/presentation/screens/timesheet/timesheet_screen.dart';
 import 'package:chamcongspit_flutter/presentation/widgets/app-drawer.dart';
 import 'package:chamcongspit_flutter/presentation/widgets/app-header.dart';
+import 'package:chamcongspit_flutter/presentation/widgets/app-loading.dart';
 import 'package:chamcongspit_flutter/presentation/widgets/app-notification.dart';
 import 'package:circle_nav_bar/circle_nav_bar.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -25,23 +30,23 @@ class HomeScreen<T extends Widget> extends StatefulWidget {
 
 class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
   final UserRespositories userRespositories = UserRespositories();
+  SecureStorageService storage = SecureStorageService();
   UserMeResponse? userProfileResponse; // Dùng nullable
 
   NotificationRespositories notificationRespositories =
       NotificationRespositories();
-  List<NotificationResponse>? notificationsResponse;
 
   @override
   void initState() {
     super.initState();
     loadUserProfile();
-    loadNotification();
+    loadNotificationCount();
   }
 
-  void loadNotification() async {
-    final response = await notificationRespositories.getNotification();
+  void loadNotificationCount() async {
+    final value = await storage.getValue('lenNotification');
     setState(() {
-      notificationsResponse = response.data;
+      notificationCount = int.tryParse(value ?? '0') ?? 0;
     });
   }
 
@@ -52,6 +57,8 @@ class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
     });
   }
 
+  int notificationCount = 0;
+
   int _tabIndex = 1;
   int get tabIndex => _tabIndex;
   set tabIndex(int v) {
@@ -61,10 +68,6 @@ class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final int notificationCount =
-        notificationsResponse?.where((s) => s.isRead == false).length ??
-        0; // giả lập số thông báo
-
     return Scaffold(
       appBar: AppBar(
         title: AppHeader(),
@@ -77,7 +80,11 @@ class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => AppNotification()),
-                  );
+                  ).then((_) {
+                    // Reload notification count and user profile when returning
+                    loadNotificationCount();
+                    loadUserProfile();
+                  });
                 },
               ),
               if (notificationCount > 0)
@@ -104,6 +111,7 @@ class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
         //   child: widget.screen,
         // ),
         child: widget.screen,
+        // child: const SplashScreen(),
       ),
       bottomNavigationBar: CircleNavBar(
         activeIcons: const [

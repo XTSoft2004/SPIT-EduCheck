@@ -1,4 +1,5 @@
 import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
+import 'package:chamcongspit_flutter/data/models/fcmtoken/fcmTokenMeResponse.dart';
 import 'package:chamcongspit_flutter/data/models/user/UserMeResponse.dart';
 import 'package:chamcongspit_flutter/data/models/user/UserProfileResponse.dart';
 import 'package:dio/dio.dart';
@@ -70,6 +71,25 @@ class UserServices {
       return response.statusCode == 200;
     } catch (e) {
       return false;
+    }
+  }
+
+  Future<List<FCMTokenMeResponse>> getFCMMeToken() async {
+    String? token = await storage.getValue('accessToken');
+    try {
+      final response = await dio.get(
+        '$baseUrl/user/fcm-token-me',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+          validateStatus: (_) => true,
+        ),
+      );
+
+      return (response.data as List)
+          .map((item) => FCMTokenMeResponse.fromJson(item))
+          .toList();
+    } catch (e) {
+      return [];
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
 import 'package:chamcongspit_flutter/cores/models/global_interface.dart';
+import 'package:chamcongspit_flutter/data/models/fcmtoken/fcmTokenMeResponse.dart';
 import 'package:chamcongspit_flutter/data/models/user/UserMeResponse.dart';
 import 'package:chamcongspit_flutter/data/models/user/UserProfileResponse.dart';
 import 'package:chamcongspit_flutter/data/repositories/AuthRespositories.dart';
@@ -30,5 +31,11 @@ class UserRespositories {
       await authRespositories.refreshToken();
     }
     return result;
+  }
+
+  Future<List<FCMTokenMeResponse>> getFCMMeToken() async {
+    List<FCMTokenMeResponse> fcmTokenResponse =
+        await userServices.getFCMMeToken();
+    return fcmTokenResponse;
   }
 }

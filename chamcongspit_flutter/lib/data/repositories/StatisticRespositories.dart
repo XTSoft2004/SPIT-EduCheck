@@ -10,7 +10,7 @@ class StatisticRespositories {
     return await statisticServices.SalaryInfo();
   }
 
-  Future<IndexResponse<InfoStatisticResponse>> InfoStatistic() async {
+  Future<InfoStatisticResponse> InfoStatistic() async {
     return await statisticServices.InfoStatistic();
   }
 }

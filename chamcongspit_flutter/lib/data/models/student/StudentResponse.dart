@@ -9,6 +9,7 @@ class StudentResponse {
   bool? gender;
   String? dob;
   String? userName;
+  String? urlAvatar;
 
   StudentResponse({
     this.id,
@@ -21,6 +22,7 @@ class StudentResponse {
     this.gender,
     this.dob,
     this.userName,
+    this.urlAvatar,
   });
 
   StudentResponse.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class StudentResponse {
     gender = json['gender'];
     dob = json['dob'];
     userName = json['userName'];
+    urlAvatar = json['urlAvatar'];
   }
 
   Map<String, dynamic> toJson() {
@@ -48,6 +51,7 @@ class StudentResponse {
     data['gender'] = gender;
     data['dob'] = dob;
     data['userName'] = userName;
+    data['urlAvatar'] = urlAvatar;
     return data;
   }
 
