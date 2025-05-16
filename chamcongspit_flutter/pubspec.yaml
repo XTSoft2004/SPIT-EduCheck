@@ -31,6 +31,7 @@ dependencies:
   connectivity_plus: ^6.0.5
   fluttertoast: ^8.2.8 # Để hiển thị thông báo
   skeleton_loader: ^2.0.0+4
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:
@@ -64,3 +65,11 @@ flutter:
     - assets/images/error/
     - assets/fonts/
     - .env
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/icons/spit_icon.png
+  android_gravity: center
+  fullscreen: true
+  android: true
+  ios: true

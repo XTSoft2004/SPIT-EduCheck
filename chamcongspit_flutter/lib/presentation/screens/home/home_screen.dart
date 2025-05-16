@@ -1,22 +1,14 @@
 import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
-import 'package:chamcongspit_flutter/data/models/notification/NotificationResponse.dart';
-import 'package:chamcongspit_flutter/data/models/timesheet/TimesheetResponse.dart';
-import 'package:chamcongspit_flutter/data/models/timesheet/TimesheetView.dart';
 import 'package:chamcongspit_flutter/data/models/user/UserMeResponse.dart';
 import 'package:chamcongspit_flutter/data/repositories/NotificationRespositories.dart';
-import 'package:chamcongspit_flutter/data/repositories/TimesheetRespositories.dart';
 import 'package:chamcongspit_flutter/data/repositories/UserRespositories.dart';
 import 'package:chamcongspit_flutter/presentation/screens/calendar/calendar_screen.dart';
 import 'package:chamcongspit_flutter/presentation/screens/dashboard/DashboardPage.dart';
-import 'package:chamcongspit_flutter/presentation/screens/eKyc/kyc_personal_details.dart';
 import 'package:chamcongspit_flutter/presentation/screens/timesheet/Form/timesheet_form.dart';
-import 'package:chamcongspit_flutter/presentation/screens/timesheet/timesheet_screen.dart';
 import 'package:chamcongspit_flutter/presentation/widgets/app-drawer.dart';
 import 'package:chamcongspit_flutter/presentation/widgets/app-header.dart';
-import 'package:chamcongspit_flutter/presentation/widgets/app-loading.dart';
 import 'package:chamcongspit_flutter/presentation/widgets/app-notification.dart';
 import 'package:circle_nav_bar/circle_nav_bar.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen<T extends Widget> extends StatefulWidget {
