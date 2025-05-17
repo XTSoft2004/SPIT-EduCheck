@@ -1,3 +1,4 @@
+import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
 import 'package:chamcongspit_flutter/presentation/screens/auth/login_form.dart';
 import 'package:chamcongspit_flutter/widgets/slide_alert.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -11,6 +12,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  SecureStorageService storage = SecureStorageService();
+
   @override
   void initState() {
     super.initState();
@@ -18,13 +21,15 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleInit() async {
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(Duration(seconds: 3));
     if (!mounted) return;
     SlideAlert.show(
       context,
       message: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
       type: SlideAlertType.warning,
     );
+    await FirebaseMessaging.instance.deleteToken();
+    await storage.deleteValue('firebaseToken');
   }
 
   @override

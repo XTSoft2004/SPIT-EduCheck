@@ -58,7 +58,11 @@ class AppDrawer extends StatelessWidget {
             leading: Icon(Icons.home),
             title: Text('Trang chủ'),
             onTap: () {
-              Navigator.pop(context);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                AppRoutes.home,
+                (Route<dynamic> route) => false, // Remove all previous routes
+              );
               // Add navigation logic here
             },
           ),

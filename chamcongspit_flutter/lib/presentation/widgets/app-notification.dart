@@ -1,4 +1,5 @@
 import 'package:chamcongspit_flutter/cores/models/global_interface.dart';
+import 'package:chamcongspit_flutter/widgets/slide_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:chamcongspit_flutter/data/models/notification/NotificationResponse.dart';
 import 'package:chamcongspit_flutter/data/repositories/NotificationRespositories.dart';
@@ -29,6 +30,9 @@ class _AppNotificationState extends State<AppNotification> {
       isLoading = true;
     });
 
+    // Thêm độ trễ giả lập vài giây trước khi tải dữ liệu
+    await Future.delayed(const Duration(seconds: 2));
+
     try {
       IndexResponse<NotificationResponse> result =
           await notificationRespositories.getNotification();
@@ -38,9 +42,11 @@ class _AppNotificationState extends State<AppNotification> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
+        SlideAlert.show(
           context,
-        ).showSnackBar(SnackBar(content: Text('Lỗi tải thông báo: $e')));
+          message: 'Lỗi tải thông báo: $e',
+          type: SlideAlertType.error,
+        );
       }
       debugPrint('Error loading notifications: $e');
     } finally {

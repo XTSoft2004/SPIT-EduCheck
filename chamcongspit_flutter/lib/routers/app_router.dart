@@ -18,7 +18,11 @@ class AppRoutes {
 
 class AppPages {
   static final routes = [
-    GetPage(name: AppRoutes.loading, page: () => const SplashScreen()),
+    GetPage(
+      name: AppRoutes.loading,
+      page: () => const SplashScreen(),
+      // binding: AppBinding(),
+    ),
     GetPage(name: AppRoutes.login, page: () => const LoginScreen()),
     GetPage(
       name: AppRoutes.home,

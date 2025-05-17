@@ -9,7 +9,6 @@ class FcmTokenRepositories {
   final _firebaseMessaging = FirebaseMessaging.instance;
 
   Future<bool> addFCMToken() async {
-    await FirebaseMessaging.instance.deleteToken();
     String? token = await _firebaseMessaging.getToken(
       vapidKey:
           "BOW3SQQoyWcSTIHAaEpSsuP0DWLrdSSFZs9OiCBg2nlPHXvDYOP2X_wYS-LtsHN4rzjZoPTRSbcB8hwgtEHT2fY",

@@ -3,15 +3,21 @@ import 'package:flutter/material.dart';
 enum SlideAlertType { success, error, warning, info }
 
 class SlideAlert {
-  static void show(
+  static Future<void> show(
     BuildContext context, {
     required String message,
     required SlideAlertType type,
     Duration duration = const Duration(seconds: 3),
-  }) {
-    final overlay = Overlay.of(context);
+  }) async {
+    final overlay = Navigator.of(context, rootNavigator: true).overlay;
+    if (overlay == null) {
+      throw FlutterError(
+        'No Overlay widget found. Make sure the context provided is below a MaterialApp or Navigator.',
+      );
+    }
+    await Future.delayed(const Duration(seconds: 2));
 
-    late OverlayEntry overlayEntry; // ✅ late để khai báo trước
+    late OverlayEntry overlayEntry;
 
     overlayEntry = OverlayEntry(
       builder:
@@ -19,7 +25,7 @@ class SlideAlert {
             message: message,
             type: type,
             duration: duration,
-            onDismiss: () => overlayEntry.remove(), // giờ thì hợp lệ
+            onDismiss: () => overlayEntry.remove(),
           ),
     );
 

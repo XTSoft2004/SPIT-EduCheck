@@ -1,6 +1,8 @@
 import 'package:chamcongspit_flutter/presentation/screens/dashboard/DashboardPage.dart';
 import 'package:chamcongspit_flutter/presentation/screens/home/home_screen.dart';
+import 'package:chamcongspit_flutter/routers/app_router.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -76,12 +78,7 @@ class _SplashScreenState extends State<SplashScreen>
       const Duration(seconds: 1),
     ); // Delay trước khi chuyển trang
     if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const HomeScreen(screen: DashboardPage()),
-      ),
-    );
+    Get.offAllNamed(AppRoutes.home);
   }
 
   @override
