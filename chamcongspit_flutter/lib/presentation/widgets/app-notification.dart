@@ -26,6 +26,7 @@ class _AppNotificationState extends State<AppNotification> {
   }
 
   Future<void> fetchNotifications() async {
+    if (!mounted) return;
     setState(() {
       isLoading = true;
     });
@@ -37,22 +38,26 @@ class _AppNotificationState extends State<AppNotification> {
       IndexResponse<NotificationResponse> result =
           await notificationRespositories.getNotification();
 
-      setState(() {
-        notifications = result.data ?? [];
-      });
+      if (mounted) {
+        setState(() {
+          notifications = result.data ?? [];
+        });
+      }
     } catch (e) {
       if (mounted) {
-        SlideAlert.show(
-          context,
-          message: 'Lỗi tải thông báo: $e',
-          type: SlideAlertType.error,
-        );
+        // SlideAlert.show(
+        //   context,
+        //   message: 'Lỗi tải thông báo: $e',
+        //   type: SlideAlertType.error,
+        // );
       }
       debugPrint('Error loading notifications: $e');
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

@@ -22,12 +22,28 @@ class NetworkStatusComponent extends StatefulWidget {
   @override
   _NetworkStatusComponentState createState() => _NetworkStatusComponentState();
 
-  // Hàm tĩnh để kiểm tra có kết nối mạng hay không
-  static Future<bool> checkConnection() async {
-    final connectivityResult = await Connectivity().checkConnectivity();
-    return connectivityResult == ConnectivityResult.mobile ||
-        connectivityResult == ConnectivityResult.wifi ||
-        connectivityResult == ConnectivityResult.ethernet;
+  // Hàm tĩnh để kiểm tra server có đang hoạt động hay không
+  static Future<bool> checkServerConnection() async {
+    String baseUrl = AppConfig.baseUrl;
+    final Dio dio = Dio();
+    dio.options = BaseOptions(
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 5),
+    );
+    String urlServer = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
+    try {
+      final response = await dio.get(
+        '${urlServer}server',
+        options: Options(validateStatus: (status) => true),
+      );
+      return response.statusCode != null &&
+          response.statusCode! >= 200 &&
+          response.statusCode! < 400;
+    } catch (_) {
+      return false;
+    } finally {
+      dio.close();
+    }
   }
 }
 
@@ -217,7 +233,7 @@ class _NetworkStatusComponentState extends State<NetworkStatusComponent> {
           widget.child,
           if (!_isNetworkConnected)
             Positioned(
-              top: 0,
+              bottom: 0,
               left: 0,
               right: 0,
               child: Container(
@@ -230,14 +246,14 @@ class _NetworkStatusComponentState extends State<NetworkStatusComponent> {
                 ),
               ),
             ),
-          if (_isNetworkConnected && !_isServerConnected)
+          if (_isNetworkConnected && !_isServerConnected) ...[
             Positioned(
-              top: 0,
+              bottom: 0,
               left: 0,
               right: 0,
               child: Container(
                 color: Colors.orange,
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                padding: const EdgeInsets.symmetric(vertical: 3.0),
                 child: const Text(
                   'Không thể kết nối tới server. Vui lòng thử lại sau!',
                   textAlign: TextAlign.center,
@@ -245,6 +261,7 @@ class _NetworkStatusComponentState extends State<NetworkStatusComponent> {
                 ),
               ),
             ),
+          ],
         ],
       ),
     );

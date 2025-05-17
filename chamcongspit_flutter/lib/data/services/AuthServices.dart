@@ -53,7 +53,7 @@ class AuthServices {
   }
 
   Future<ShowResponse<RefreshTokenResponse>> refreshToken() async {
-    String? token = await storage.getValue('accessToken');
+    String? token = await storage.getValue('refreshToken');
 
     final response = await dio.get(
       '$baseUrl/auth/refresh-token',

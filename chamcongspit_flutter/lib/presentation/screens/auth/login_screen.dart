@@ -28,8 +28,6 @@ class _LoginScreenState extends State<LoginScreen> {
       message: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
       type: SlideAlertType.warning,
     );
-    await FirebaseMessaging.instance.deleteToken();
-    await storage.deleteValue('firebaseToken');
   }
 
   @override

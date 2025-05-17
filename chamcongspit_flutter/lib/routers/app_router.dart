@@ -5,15 +5,19 @@ import 'package:chamcongspit_flutter/presentation/screens/home/home_screen.dart'
 import 'package:chamcongspit_flutter/presentation/screens/timesheet/Form/timesheet_form.dart';
 import 'package:chamcongspit_flutter/presentation/screens/timesheet/timesheet_screen.dart';
 import 'package:chamcongspit_flutter/presentation/widgets/app-loading.dart';
+import 'package:chamcongspit_flutter/presentation/widgets/app-notification.dart';
 import 'package:chamcongspit_flutter/routers/app_binding.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AppRoutes {
+  static const checkin = '/checkin';
   static const loading = '/loading';
   static const login = '/login';
   static const home = '/home';
   static const timesheet = '/timesheet';
   static const calendar = '/calendar';
+  static const notification = '/notification';
 }
 
 class AppPages {
@@ -30,8 +34,18 @@ class AppPages {
       binding: AppBinding(),
     ),
     GetPage(
+      name: AppRoutes.checkin,
+      page: () => HomeScreen(screen: TimesheetForm()),
+      binding: AppBinding(),
+    ),
+    GetPage(
       name: AppRoutes.timesheet,
       page: () => HomeScreen(screen: TimesheetScreen()),
+      binding: AppBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.notification,
+      page: () => AppNotification(),
       binding: AppBinding(),
     ),
     GetPage(

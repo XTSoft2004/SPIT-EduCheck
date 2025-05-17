@@ -15,7 +15,7 @@ class SlideAlert {
         'No Overlay widget found. Make sure the context provided is below a MaterialApp or Navigator.',
       );
     }
-    await Future.delayed(const Duration(seconds: 2));
+    // await Future.delayed(const Duration(seconds: 2));
 
     late OverlayEntry overlayEntry;
 

@@ -1,6 +1,7 @@
 import 'package:chamcongspit_flutter/config/firebase_api.dart';
 import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
 import 'package:chamcongspit_flutter/data/repositories/FCMTokenRepositories.dart';
+import 'package:chamcongspit_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:chamcongspit_flutter/data/repositories/AuthRespositories.dart';
 import 'package:chamcongspit_flutter/data/services/AuthServices.dart';
@@ -27,6 +28,15 @@ class _LoginFormState extends State<LoginForm> {
 
   Future<void> _handleLogin() async {
     // await FirebaseAPI().initNotification();
+    bool isConnected = await NetworkStatusComponent.checkServerConnection();
+    if (!isConnected) {
+      SlideAlert.show(
+        context,
+        message: 'Vui lòng kiểm tra kết nối mạng, vui lòng thử lại!',
+        type: SlideAlertType.error,
+      );
+      return;
+    }
 
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();

@@ -8,8 +8,10 @@ import 'package:chamcongspit_flutter/presentation/screens/timesheet/Form/timeshe
 import 'package:chamcongspit_flutter/presentation/widgets/app-drawer.dart';
 import 'package:chamcongspit_flutter/presentation/widgets/app-header.dart';
 import 'package:chamcongspit_flutter/presentation/widgets/app-notification.dart';
+import 'package:chamcongspit_flutter/routers/app_router.dart';
 import 'package:circle_nav_bar/circle_nav_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class HomeScreen<T extends Widget> extends StatefulWidget {
   final T screen;
@@ -37,6 +39,7 @@ class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
 
   void loadNotificationCount() async {
     final value = await storage.getValue('lenNotification');
+    if (!mounted) return;
     setState(() {
       notificationCount = int.tryParse(value ?? '0') ?? 0;
     });
@@ -44,9 +47,11 @@ class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
 
   void loadUserProfile() async {
     final response = await userRespositories.me();
-    setState(() {
-      userProfileResponse = response;
-    });
+    if (response.id != null) {
+      setState(() {
+        userProfileResponse = response;
+      });
+    }
   }
 
   int notificationCount = 0;
@@ -69,11 +74,7 @@ class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
               IconButton(
                 icon: Icon(Icons.notifications),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AppNotification()),
-                  ).then((_) {
-                    // Reload notification count and user profile when returning
+                  Get.toNamed(AppRoutes.notification)?.then((_) {
                     loadNotificationCount();
                     loadUserProfile();
                   });
@@ -125,26 +126,29 @@ class _HomeScreenState<T extends Widget> extends State<HomeScreen<T>> {
             _tabIndex = index;
           });
           if (index == 0) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomeScreen(screen: DashboardPage()),
-              ),
-            );
+            Get.offAllNamed(AppRoutes.home);
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => HomeScreen(screen: DashboardPage()),
+            //   ),
+            // );
           } else if (index == 1) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomeScreen(screen: TimesheetForm()),
-              ),
-            );
+            Get.offAllNamed(AppRoutes.checkin);
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => HomeScreen(screen: TimesheetForm()),
+            //   ),
+            // );
           } else if (index == 2) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomeScreen(screen: CalendarScreen()),
-              ),
-            );
+            Get.offAllNamed(AppRoutes.calendar);
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => HomeScreen(screen: CalendarScreen()),
+            //   ),
+            // );
           }
         },
         // padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20),

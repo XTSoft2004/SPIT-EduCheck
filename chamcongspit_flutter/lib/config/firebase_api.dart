@@ -11,8 +11,15 @@ void initLocalNotification() {
   const AndroidInitializationSettings androidSettings =
       AndroidInitializationSettings('@mipmap/ic_launcher');
 
+  const DarwinInitializationSettings iosSettings = DarwinInitializationSettings(
+    requestAlertPermission: true,
+    requestBadgePermission: true,
+    requestSoundPermission: true,
+  );
+
   const InitializationSettings initSettings = InitializationSettings(
     android: androidSettings,
+    iOS: iosSettings,
   );
 
   flutterLocalNotificationsPlugin.initialize(initSettings);

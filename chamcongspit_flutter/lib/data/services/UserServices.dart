@@ -31,24 +31,13 @@ class UserServices {
   Future<UserProfileResponse> profile() async {
     try {
       String? token = await storage.getValue('accessToken');
-      final response = await dio
-          .get(
-            '$baseUrl/user/profile',
-            options: Options(
-              headers: {'Authorization': 'Bearer $token'},
-              validateStatus: (_) => true,
-            ),
-          )
-          .timeout(
-            const Duration(seconds: 5),
-            onTimeout: () {
-              return Response(
-                requestOptions: RequestOptions(path: ''),
-                statusCode: 408,
-                data: {'message': 'Request timed out'},
-              );
-            },
-          );
+      final response = await dio.get(
+        '$baseUrl/user/profile',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+          validateStatus: (_) => true,
+        ),
+      );
 
       return UserProfileResponse.fromJson(
         response.data as Map<String, dynamic>,
