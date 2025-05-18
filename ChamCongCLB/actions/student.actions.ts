@@ -4,7 +4,6 @@ import globalConfig from '@/app.config'
 
 import {
   IStudent,
-  IStudentData,
   IStudentCreate,
   IStudentUpdate,
   IStudentAdd,
@@ -71,29 +70,6 @@ export const getAllStudents = async () => {
     status: response.status,
     ...data,
   } as IIndexResponse<IStudent>
-}
-
-export const getStudents123 = async () => {
-  const response = await fetch(`${baseUrl}/student`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization:
-        headers().get('Authorization') ||
-        `Bearer ${cookies().get('accessToken')?.value || ' '}`,
-    },
-    next: {
-      tags: ['student.index'],
-    },
-  })
-
-  const data = await response.json()
-
-  return {
-    ok: response.ok,
-    status: response.status,
-    ...data,
-  } as IIndexResponse<IStudentData>
 }
 
 /**

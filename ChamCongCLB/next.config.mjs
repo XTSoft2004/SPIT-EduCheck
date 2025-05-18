@@ -7,7 +7,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: 'xtcoder2004.io.vn',
+        hostname: 'chamcong.spit-husc.io.vn',
         port: '5000',
         pathname: '/extension/image/**',
       },

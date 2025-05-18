@@ -2,6 +2,7 @@ export interface IStatisticInfo {
   numberStudent: number
   numberTimesheet: number
   topTimesheetStudentName: string
+  numberTimesheetDay: number
 }
 
 export interface IStatisticClass {
@@ -18,6 +19,7 @@ interface IStatisticSalary {
 }
 
 interface SalaryInfoStudent {
+  idName: number
   codeName: string
   studentName: string
   day: number

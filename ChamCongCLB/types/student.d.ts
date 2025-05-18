@@ -8,18 +8,7 @@ export interface IStudent {
   email: string
   gender: boolean
   dob: Date
-  userName: string
-}
-export interface IStudentData {
-  id: number
-  maSinhVien: string
-  firstName: string
-  lastName: string
-  class: string
-  phoneNumber: string
-  email: string
-  gender: string
-  dob: Date
+  urlAvatar: string
   userName: string
 }
 
