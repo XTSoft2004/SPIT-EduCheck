@@ -19,17 +19,19 @@ namespace Domain.Services
     {
         private readonly IRepositoryBase<User> _User;
         private readonly IRepositoryBase<Student> _Student;
+        private readonly IRepositoryBase<Timesheet> _Timesheet;
         private readonly ITokenServices _TokenServices;
         private readonly ITimesheetServices _TimesheetServices;
         private readonly IClassServices _ClassServices;
         private readonly IHttpContextHelper _HttpContextHelper;
         private AuthToken? _AuthToken;
-        public StatisticServices(IRepositoryBase<User> user, IRepositoryBase<Student> student, IHttpContextHelper httpContextHelper, ITokenServices tokenServices, ITimesheetServices timesheetServices, IClassServices classServices)
+        public StatisticServices(IRepositoryBase<User> user, IRepositoryBase<Student> student, IRepositoryBase<Timesheet> timesheet, IHttpContextHelper httpContextHelper, ITokenServices tokenServices, ITimesheetServices timesheetServices, IClassServices classServices)
         {
             _User = user;
             _Student = student;
             _HttpContextHelper = httpContextHelper;
             _TokenServices = tokenServices;
+            _Timesheet = timesheet;
             _TimesheetServices = timesheetServices;
             _ClassServices = classServices;
             var authHeader = _HttpContextHelper.GetHeader("Authorization");
@@ -96,11 +98,16 @@ namespace Domain.Services
 
             var topStudent = _Student.Find(f => f.Id == topStudentId);
 
+            // Lấy các timesheet được tạo trong ngày hiện tại
+            var today = DateTime.Today;
+            var studentDay = _Timesheet.ListBy(l => l.CreatedDate.Date == today);
+
             return new StatisticStudentTimesheet
             {
                 NumberStudent = _User.All().Count(),
                 NumberTimesheet = TimeSheetSemester.Count(),
                 TopTimesheetStudentName = topStudent != null ? $"{topStudent.LastName} {topStudent.FirstName}" : string.Empty,
+                NumberTimesheetDay = studentDay.Count(),
             };
         }
         public StatisticClassSalary GetStatisticInfoSalary()
@@ -141,6 +148,7 @@ namespace Domain.Services
                         {
                             SalaryInfoStudent.Add(new SalaryInfoStudent
                             {
+                                IdName = student.Id,
                                 CodeName = student.MaSinhVien,
                                 StudentName = $"{student.LastName} {student.FirstName}",
                                 Day = 1,

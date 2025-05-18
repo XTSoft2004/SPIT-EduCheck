@@ -121,5 +121,15 @@ namespace Server_Manager.Controllers
             var response = await _services.SetSemesterUser(Id);
             return response.ToActionResult();
         }
+
+        [HttpGet("fcm-token-me")]
+        public async Task<IActionResult> GetFCMTokenMe()
+        {
+            var userResponse = _services.GetFCMTokenMe();
+            if (userResponse == null)
+                return BadRequest(new { Message = "Người dùng không tồn tại !!!" });
+            else
+                return Ok(userResponse);
+        }
     }
 }

@@ -12,6 +12,7 @@ using Domain.Model.Request.Student;
 using Domain.Model.Request.Timesheet;
 using Domain.Model.Request.User;
 using Domain.Model.Response.Auth;
+using Domain.Model.Response.FCMToken;
 using Domain.Model.Response.Student;
 using Domain.Model.Response.User;
 using Microsoft.IdentityModel.Tokens;
@@ -32,6 +33,7 @@ namespace Domain.Services
         private readonly IRepositoryBase<Student> _Student;
         private readonly IRepositoryBase<Semester> _Semester;
         private readonly IRepositoryBase<Timesheet_Students> _TimeSheetStudets;
+        private readonly IRepositoryBase<FCMToken> _FCMToken;
         private readonly ITokenServices _jwtHelper;
         private readonly ITokenServices _Token;
         private readonly IHttpContextHelper _HttpContextHelper;
@@ -42,6 +44,7 @@ namespace Domain.Services
             IRepositoryBase<Role> role,
             IRepositoryBase<Semester> semester,
             IRepositoryBase<Student> student,
+            IRepositoryBase<FCMToken> fcmToken,
             ITokenServices jwtHelper,
             ITokenServices token,
             IHttpContextHelper httpContextHelper,
@@ -52,6 +55,7 @@ namespace Domain.Services
             _Semester = semester;
             _Student = student;
             _jwtHelper = jwtHelper;
+            _FCMToken = fcmToken;
             _Token = token;
             _GoogleDriverServices = googleDriverServices;
             _HttpContextHelper = httpContextHelper;
@@ -245,6 +249,19 @@ namespace Domain.Services
                 return userResponse;
             }
             return null;
+        }
+
+        public List<FCMTokenMeResponse> GetFCMTokenMe()
+        {
+            var user = _User.Find(f => f.Id == _AuthToken!.Id);
+            var fcmTokensMe = _FCMToken.ListBy(f => f.StudentId == user.StudentId)
+                .Select(s => new FCMTokenMeResponse()
+                {
+                    AccessToken = s.AccessToken,
+                })
+                .ToList();
+
+            return fcmTokensMe;
         }
         public AuthToken GetProfile()
         {

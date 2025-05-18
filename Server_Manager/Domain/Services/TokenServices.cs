@@ -45,6 +45,7 @@ namespace Domain.Services
                 Audience = _config["JwtSettings:Audience"],
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.Now.AddDays(Convert.ToInt32(_config["JwtSettings:ExpireToken"])),
+                //Expires = DateTime.Now.AddMinutes(1),
                 //Expires = DateTime.Now.AddSeconds(20),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };

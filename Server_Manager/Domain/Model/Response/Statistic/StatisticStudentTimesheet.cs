@@ -12,5 +12,6 @@ namespace Domain.Model.Response.Statistic
         public int NumberStudent { get; set; }
         public int NumberTimesheet { get; set; }    
         public string TopTimesheetStudentName { get; set; }
+        public int NumberTimesheetDay { get; set; }
     }
 }

@@ -136,6 +136,7 @@ namespace Domain.Services
                 Dob = s.Dob,
                 Gender = s.Gender,
                 UserName = _User.All().Where(u => u.StudentId == s.Id).Select(u => u.Username).FirstOrDefault(),
+                UrlAvatar = s.UrlAvatar,
             }).ToList();
         }
         public async Task<HttpResponse> AddStudentInUser(long IdUser, long IdStudent)

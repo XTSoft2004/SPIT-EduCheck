@@ -3,6 +3,7 @@ using Domain.Model.DTOs;
 using Domain.Model.Request.Student;
 using Domain.Model.Request.User;
 using Domain.Model.Response.Auth;
+using Domain.Model.Response.FCMToken;
 using Domain.Model.Response.User;
 using System;
 using System.Collections.Generic;
@@ -63,5 +64,6 @@ namespace Domain.Interfaces.Services
         AuthToken GetProfile();
         Task<HttpResponse> BanAccount(long IdUser);
         Task<HttpResponse> ChangePasswordAdmin(ChangePwAdminRequest changePwAdminRequest);
+        List<FCMTokenMeResponse> GetFCMTokenMe();
     }
 }

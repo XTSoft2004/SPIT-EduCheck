@@ -73,7 +73,6 @@ namespace Domain.Services
             else
                 return HttpResponse.Error("Đã có đẵng kí FCM Token này rồi!", System.Net.HttpStatusCode.BadRequest);
         }
-
         public async Task<HttpResponse> RemoveFCMToken(FCMTokenRequest fCMTokenRemoveRequest)
         {
             var fcmToken = _repository.Find(f => f.Id == _AuthToken!.Id && f.AccessToken == fCMTokenRemoveRequest.AccessToken);

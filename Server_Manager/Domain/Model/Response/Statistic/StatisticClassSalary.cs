@@ -14,6 +14,7 @@ namespace Domain.Model.Response.Statistic
     }
     public class SalaryInfoStudent
     {
+        public long IdName { get; set; }
         public string CodeName { get; set; }
         public string StudentName { get; set; }
         public int Day { get; set; } = 0;
