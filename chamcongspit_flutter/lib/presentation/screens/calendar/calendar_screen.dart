@@ -35,6 +35,121 @@ class _CalendarScreenState extends State<CalendarScreen> {
         date1.day == date2.day;
   }
 
+  // Skeleton loader for agenda table
+  // Skeleton loader for calendar and agenda (event) table
+  Widget _buildSkeletonLoader() {
+    return Column(
+      children: [
+        // Calendar skeleton (month grid)
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: AspectRatio(
+            aspectRatio: 1.2,
+            child: GridView.builder(
+              physics: const BouncingScrollPhysics(), // Cho phép cuộn
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+                crossAxisSpacing: 4,
+                mainAxisSpacing: 4,
+              ),
+              itemCount: 42, // 6 weeks x 7 days
+              itemBuilder:
+                  (context, index) => Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+              shrinkWrap: true,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Event skeleton (agenda)
+        Expanded(
+          child: ListView.builder(
+            itemCount: 5,
+            itemBuilder:
+                (context, index) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 14,
+                              color: Colors.grey.shade300,
+                            ),
+                            const SizedBox(height: 6),
+                            Container(
+                              width: 100,
+                              height: 10,
+                              color: Colors.grey.shade300,
+                            ),
+                            const SizedBox(height: 6),
+                            Container(
+                              width: 60,
+                              height: 8,
+                              color: Colors.grey.shade300,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Event handler for calendar tap
+  void _onCalendarTapped(CalendarTapDetails details) {
+    if (details.targetElement == CalendarElement.appointment &&
+        details.appointments != null &&
+        details.appointments!.isNotEmpty) {
+      final Appointment appointment = details.appointments!.first;
+      showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: Text(appointment.subject),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Thời gian: ${appointment.startTime}'),
+                  if (appointment.notes != null)
+                    Text('Ghi chú: ${appointment.notes}'),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Đóng'),
+                ),
+              ],
+            ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +163,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       body:
           _calendarDataSource == null
-              ? const Center(child: CircularProgressIndicator())
+              ? _buildSkeletonLoader()
               : SfCalendar(
                 view: CalendarView.month,
                 initialSelectedDate: DateTime.now(),

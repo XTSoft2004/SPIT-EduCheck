@@ -33,10 +33,10 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
+    _fetchTimesheet();
     _fetchSalaryInfo();
     _fetchInfoStatistic();
     _fetchStudentInfo();
-    _fetchTimesheet();
   }
 
   void _fetchStudentInfo() async {
@@ -135,6 +135,62 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
       ),
+    );
+  }
+
+  // Skeleton loader for a vertical list (danh sách dọc xuống)
+  Widget buildVerticalSkeletonList({int itemCount = 6}) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: itemCount,
+      itemBuilder:
+          (context, index) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: SkeletonLoader(
+              builder: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: 14,
+                          color: Colors.grey.shade300,
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          width: 100,
+                          height: 10,
+                          color: Colors.grey.shade300,
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          width: 60,
+                          height: 8,
+                          color: Colors.grey.shade300,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              items: 1,
+              period: const Duration(seconds: 2),
+              highlightColor: Colors.grey[100]!,
+              direction: SkeletonDirection.ltr,
+            ),
+          ),
     );
   }
 
@@ -286,33 +342,38 @@ class _DashboardPageState extends State<DashboardPage> {
               // PHẦN CUỘN ĐƯỢC
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount:
-                            (timesheetResponse?.length ?? 0) > 10
-                                ? 10
-                                : (timesheetResponse?.length ?? 0),
-                        separatorBuilder: (_, __) => const SizedBox(height: 10),
-                        itemBuilder: (context, index) {
-                          final timesheet = timesheetResponse![index];
-                          return _TransactionItem(
-                            nameStudents:
-                                timesheet.studentsName?.join(', ') ??
-                                'Không rõ',
-                            nameClass: timesheet.className ?? 'Không rõ',
-                            date: timesheet.date ?? 'Không rõ',
-                            urlImage:
-                                timesheet.imageUrl ??
-                                'https://via.placeholder.com/150',
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                  child:
+                      isLoading
+                          ? buildVerticalSkeletonList(itemCount: 10)
+                          : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount:
+                                    (timesheetResponse?.length ?? 0) > 10
+                                        ? 10
+                                        : (timesheetResponse?.length ?? 0),
+                                separatorBuilder:
+                                    (_, __) => const SizedBox(height: 10),
+                                itemBuilder: (context, index) {
+                                  final timesheet = timesheetResponse![index];
+                                  return _TransactionItem(
+                                    nameStudents:
+                                        timesheet.studentsName?.join(', ') ??
+                                        'Không rõ',
+                                    nameClass:
+                                        timesheet.className ?? 'Không rõ',
+                                    date: timesheet.date ?? 'Không rõ',
+                                    urlImage:
+                                        timesheet.imageUrl ??
+                                        'https://via.placeholder.com/150',
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                 ),
               ),
             ],

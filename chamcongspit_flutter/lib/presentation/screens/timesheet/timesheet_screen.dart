@@ -42,6 +42,81 @@ class _TimesheetScreenState extends State<TimesheetScreen> {
     }
   }
 
+  Widget _buildSkeletonLoader() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: 60 + 100 + 200 + 150 + 100 + 100 + 100 + 220 + 120 + 80,
+        child: ListView.builder(
+          itemCount: 15, // Giảm số lượng item để tránh overfit
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 24,
+                    color: Colors.grey.shade300,
+                    margin: const EdgeInsets.only(right: 8),
+                  ),
+                  Container(
+                    width: 100,
+                    height: 60,
+                    color: Colors.grey.shade300,
+                    margin: const EdgeInsets.only(right: 8),
+                  ),
+                  Container(
+                    width: 200,
+                    height: 24,
+                    color: Colors.grey.shade300,
+                    margin: const EdgeInsets.only(right: 8),
+                  ),
+                  Container(
+                    width: 150,
+                    height: 24,
+                    color: Colors.grey.shade300,
+                    margin: const EdgeInsets.only(right: 8),
+                  ),
+                  Container(
+                    width: 100,
+                    height: 24,
+                    color: Colors.grey.shade300,
+                    margin: const EdgeInsets.only(right: 8),
+                  ),
+                  Container(
+                    width: 100,
+                    height: 24,
+                    color: Colors.grey.shade300,
+                    margin: const EdgeInsets.only(right: 8),
+                  ),
+                  Container(
+                    width: 100,
+                    height: 24,
+                    color: Colors.grey.shade300,
+                    margin: const EdgeInsets.only(right: 8),
+                  ),
+                  Container(
+                    width: 200,
+                    height: 24,
+                    color: Colors.grey.shade300,
+                    margin: const EdgeInsets.only(right: 8),
+                  ),
+                  Container(
+                    width: 120,
+                    height: 24,
+                    color: Colors.grey.shade300,
+                  ),
+                ],
+              ),
+            );
+          },
+          shrinkWrap: true,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +132,7 @@ class _TimesheetScreenState extends State<TimesheetScreen> {
       ),
       body:
           isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? _buildSkeletonLoader()
               : timesheetResponse.data == null ||
                   timesheetResponse.data!.isEmpty
               ? const Center(child: Text('Không có dữ liệu'))
