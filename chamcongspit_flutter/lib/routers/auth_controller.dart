@@ -1,14 +1,9 @@
 import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
-import 'package:chamcongspit_flutter/data/models/fcmtoken/fcmTokenMeResponse.dart';
 import 'package:chamcongspit_flutter/data/models/notification/NotificationResponse.dart';
 import 'package:chamcongspit_flutter/data/repositories/AuthRespositories.dart';
-import 'package:chamcongspit_flutter/data/repositories/NotificationRespositories.dart';
 import 'package:chamcongspit_flutter/data/repositories/UserRespositories.dart';
-import 'package:chamcongspit_flutter/main.dart';
+import 'package:chamcongspit_flutter/widgets/network_status_component.dart';
 import 'package:chamcongspit_flutter/widgets/slide_alert.dart';
-import 'package:firebase_messaging/firebase_messaging.dart'
-    show FirebaseMessaging;
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {

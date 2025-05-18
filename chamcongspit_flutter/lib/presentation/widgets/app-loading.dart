@@ -1,5 +1,3 @@
-import 'package:chamcongspit_flutter/presentation/screens/dashboard/DashboardPage.dart';
-import 'package:chamcongspit_flutter/presentation/screens/home/home_screen.dart';
 import 'package:chamcongspit_flutter/routers/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

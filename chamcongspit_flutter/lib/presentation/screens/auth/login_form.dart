@@ -1,10 +1,8 @@
-import 'package:chamcongspit_flutter/config/firebase_api.dart';
 import 'package:chamcongspit_flutter/cores/common/SecureStorageService.dart';
 import 'package:chamcongspit_flutter/data/repositories/FCMTokenRepositories.dart';
-import 'package:chamcongspit_flutter/main.dart';
+import 'package:chamcongspit_flutter/widgets/network_status_component.dart';
 import 'package:flutter/material.dart';
 import 'package:chamcongspit_flutter/data/repositories/AuthRespositories.dart';
-import 'package:chamcongspit_flutter/data/services/AuthServices.dart';
 import 'package:chamcongspit_flutter/widgets/input_custom_field.dart';
 import 'package:chamcongspit_flutter/widgets/slide_alert.dart';
 import 'package:chamcongspit_flutter/widgets/social_icon.dart';

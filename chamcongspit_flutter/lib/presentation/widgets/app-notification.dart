@@ -1,5 +1,4 @@
 import 'package:chamcongspit_flutter/cores/models/global_interface.dart';
-import 'package:chamcongspit_flutter/widgets/slide_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:chamcongspit_flutter/data/models/notification/NotificationResponse.dart';
 import 'package:chamcongspit_flutter/data/repositories/NotificationRespositories.dart';

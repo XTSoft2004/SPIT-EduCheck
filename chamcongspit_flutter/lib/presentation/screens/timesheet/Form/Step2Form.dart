@@ -58,21 +58,21 @@ class _Step2FormState extends State<Step2Form> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Tải lên hình ảnh hoặc chụp ảnh',
+          'Chụp ảnh trực tiếp',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
         Row(
           children: [
-            ElevatedButton.icon(
-              onPressed: _pickImage,
-              icon: const Icon(Icons.upload_file),
-              label: const Text(
-                "Chọn từ thư viện",
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-            ),
+            // ElevatedButton.icon(
+            //   onPressed: _pickImage,
+            //   icon: const Icon(Icons.upload_file),
+            //   label: const Text(
+            //     "Chọn từ thư viện",
+            //     style: TextStyle(color: Colors.white),
+            //   ),
+            //   style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+            // ),
             const SizedBox(width: 10),
             ElevatedButton.icon(
               onPressed: _takePhoto,

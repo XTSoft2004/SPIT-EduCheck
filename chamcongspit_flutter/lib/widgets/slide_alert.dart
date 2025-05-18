@@ -82,6 +82,8 @@ class _SlideAlertWidgetState extends State<_SlideAlertWidget>
     }
   }
 
+  late Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
@@ -94,6 +96,8 @@ class _SlideAlertWidgetState extends State<_SlideAlertWidget>
       begin: Offset(0, -1),
       end: Offset(0, 0),
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
     _controller.forward();
 
@@ -115,27 +119,40 @@ class _SlideAlertWidgetState extends State<_SlideAlertWidget>
       top: MediaQuery.of(context).padding.top + 16,
       left: 16,
       right: 16,
-      child: SlideTransition(
-        position: _offsetAnimation,
-        child: Material(
-          elevation: 8,
-          borderRadius: BorderRadius.circular(8),
-          color: _backgroundColor(),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(_iconData(), color: Colors.white),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    widget.message,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+      child: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SlideTransition(
+          position: _offsetAnimation,
+          child: GestureDetector(
+            // <- Thêm GestureDetector tại đây
+            onTap: () async {
+              await _controller.reverse();
+              widget.onDismiss();
+            },
+            child: Material(
+              elevation: 8,
+              borderRadius: BorderRadius.circular(8),
+              color: _backgroundColor(),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Icon(_iconData(), color: Colors.white),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        widget.message,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
