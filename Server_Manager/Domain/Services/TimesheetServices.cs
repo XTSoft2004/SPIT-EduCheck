@@ -84,7 +84,7 @@ namespace Domain.Services
                 {
                     FileName = filePath,
                     imageBytes = imageBytes,
-                });
+                }, GoogleDriverSevices.FolderIdDriver.ImageTimesheet);
 
                 var Timesheet = new Timesheet()
                 {
@@ -153,7 +153,7 @@ namespace Domain.Services
                     {
                         FileName = filePath,
                         imageBytes = imageBytes,
-                    });
+                    }, GoogleDriverSevices.FolderIdDriver.ImageTimesheet);
 
                     _timesheet.Image_Check = urlImage;
                 }

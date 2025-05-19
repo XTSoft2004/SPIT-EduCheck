@@ -1,6 +1,7 @@
 ﻿using Domain.Common.GoogleDriver.Model.Request;
 using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using static Domain.Common.GoogleDriver.Services.GoogleDriverSevices;
 
 namespace Server_Manager.Controllers
 {
@@ -19,7 +20,7 @@ namespace Server_Manager.Controllers
             if (uploadFileRequest.imageBytes == null || uploadFileRequest.imageBytes.Length == 0)
                 return BadRequest(new { Message = "File không hợp lệ !!!" });
 
-            var imageUrl = await googleDriver.UploadImage(uploadFileRequest);
+            var imageUrl = await googleDriver.UploadImage(uploadFileRequest, FolderIdDriver.Avatar);
 
             if (imageUrl == null)
                 return BadRequest(new { Message = "Lỗi khi upload file !!!" });

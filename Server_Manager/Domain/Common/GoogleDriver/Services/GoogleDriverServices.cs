@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
@@ -23,14 +24,22 @@ namespace Domain.Common.GoogleDriver.Services
     {
         private readonly RequestHttpClient? _request;
         private readonly IConfiguration _config;
+
+        public enum FolderIdDriver
+        {
+            [Display(Name = "1wgJUXMO3gX1iO1IP_agCteEoR82s1IZm")]
+            ImageTimesheet,
+            [Display(Name = "1V1UHQURrhqtXai8nAism7h84IXIX-7De")]
+            Avatar,
+        }
         public GoogleDriverSevices(IConfiguration configuration)
         {
             _request = new RequestHttpClient();
             _config = configuration;
         }
-        public async Task<string> UploadImage(UploadFileRequest uploadFileRequest)
+        public async Task<string> UploadImage(UploadFileRequest uploadFileRequest, FolderIdDriver typeFolder)
         {
-            var uploadResponse = await UploadFile(uploadFileRequest);
+            var uploadResponse = await UploadFile(uploadFileRequest, typeFolder);
             if (uploadResponse != null)
             {
                 //string thumbnailLink = await PreviewFile(uploadResponse);
@@ -39,10 +48,10 @@ namespace Domain.Common.GoogleDriver.Services
             }
             return string.Empty;
         }
-        private async Task<UploadFileResponse> UploadFile(UploadFileRequest uploadFileRequest)
+        private async Task<UploadFileResponse> UploadFile(UploadFileRequest uploadFileRequest, FolderIdDriver typeFolder)
         {
             string accessToken = await GetAccessToken();
-            string folderId = "1wgJUXMO3gX1iO1IP_agCteEoR82s1IZm";
+            string folderId = typeFolder.GetEnumDisplayName();
 
             string metadataJson = $@"{{
                 ""name"": ""{uploadFileRequest.FileName}"",

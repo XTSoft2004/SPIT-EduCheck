@@ -106,7 +106,7 @@ namespace Domain.Services
             {
                 FileName = filePath,
                 imageBytes = imageBytes,
-            });
+            }, GoogleDriverSevices.FolderIdDriver.Avatar);
 
             student.UrlAvatar = urlImage.Trim();
             student.ModifiedDate = DateTime.Now;

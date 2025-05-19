@@ -16,6 +16,7 @@ using Domain.Model.Request.Semester;
 using Domain.Model.Request.Timesheet;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Newtonsoft.Json;
+using static Domain.Common.GoogleDriver.Services.GoogleDriverSevices;
 
 namespace Domain.Services
 {
@@ -57,7 +58,7 @@ namespace Domain.Services
                     FileName = Path.GetFileName(timesheet.Image_Check),
                     imageBytes = imageBytes,
                 };
-                var urlImage = await googleDriverServices.UploadImage(uploadData);
+                var urlImage = await googleDriverServices.UploadImage(uploadData, FolderIdDriver.ImageTimesheet);
                 if (!string.IsNullOrEmpty(urlImage))
                 {
                     timesheet.Image_Check = urlImage;
