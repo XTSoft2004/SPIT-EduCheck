@@ -26,5 +26,6 @@ namespace Domain.Model.Response.User
 
         //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? StudentName { get; set; }
+        public string? AvatarUrl { get; set; }
     }
 }

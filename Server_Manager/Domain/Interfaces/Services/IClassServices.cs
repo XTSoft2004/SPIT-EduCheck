@@ -16,7 +16,7 @@ namespace Domain.Interfaces.Services
         Task<HttpResponse> CreateAsync(ClassRequest request);
         Task<HttpResponse> UpdateAsync(ClassRequest request);
         Task<HttpResponse> DeleteAsync(long Id);
-
         Task<HttpResponse> AddNotificationStudent(long ClassId, long StudentId);
+        Task<HttpResponse> GetClassNotificationMe();
     }
 }

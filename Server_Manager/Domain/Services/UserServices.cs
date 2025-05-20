@@ -226,7 +226,8 @@ namespace Domain.Services
                 IsVerify = s.IsVerify,
                 RoleName = s.Role.DisplayName,
                 StudentName = s.Student != null ? s.Student.LastName + " " + s.Student.FirstName : null,
-                SemesterId = s.SemesterId
+                SemesterId = s.SemesterId,
+                AvatarUrl = s.Student!.UrlAvatar
             }).ToList();
         }
 
@@ -244,7 +245,8 @@ namespace Domain.Services
                     IsVerify = user.IsVerify,
                     RoleName = _Role.Find(x => x.Id == user.RoleId)?.DisplayName,
                     StudentName = StudentName != null ? StudentName.LastName + " " + StudentName.FirstName : string.Empty,
-                    SemesterId = user.SemesterId
+                    SemesterId = user.SemesterId,
+                    AvatarUrl = user.Student?.UrlAvatar
                 };
                 return userResponse;
             }

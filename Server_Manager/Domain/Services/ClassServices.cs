@@ -330,6 +330,28 @@ namespace Domain.Services
                 return HttpResponse.OK(message: "Bật thông báo cho sinh viên trong lớp này thành công.");
             }
         }
+
+        public async Task<HttpResponse> GetClassNotificationMe()
+        {
+            var classes = GetClassInSemester(string.Empty, -1, -1, out int totalRecords);
+
+            var userId = _HttpContextHelper.GetItem("UserId");
+            //var user 
+
+            List<ClassNotification> classNotifications = new List<ClassNotification>();
+            foreach (var classNotification in classes)
+            {
+                //bool isNotification = classNotification.StudentsId.Contains(student!.Id);
+                classNotifications.Add(new ClassNotification()
+                {
+                    Id = classNotification.Id,
+                    Name = classNotification.Name,
+                    //isNotification = isNotification,
+                });
+            }
+
+            return HttpResponse.OK(message: "Lấy danh sách lớp học thành công.", data: classNotifications);
+        }
     }
 }
 

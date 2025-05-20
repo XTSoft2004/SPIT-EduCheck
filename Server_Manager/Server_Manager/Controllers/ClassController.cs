@@ -70,5 +70,11 @@ namespace Server_Manager.Controllers
 
             return Ok(ResponseArray.ResponseList(classResponses, totalRecords, totalPages, pageNumber, pageSize));
         }
+        [HttpGet("class-notification")]
+        public async Task<IActionResult> GetClassNotificationMe()
+        {
+            var response = await _services.GetClassNotificationMe();
+            return response.ToActionResult();
+        }
     }
 }
