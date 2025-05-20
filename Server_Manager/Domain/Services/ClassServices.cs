@@ -6,6 +6,7 @@ using Domain.Interfaces.Common;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Domain.Model.Request.Class;
+using Domain.Model.Response.Auth;
 using Domain.Model.Response.Class;
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +15,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -29,8 +31,9 @@ namespace Domain.Services
         private readonly IRepositoryBase<Lecturer_Class> _Lecturer_Class;
         private readonly IRepositoryBase<Student> _Student;
         private readonly IRepositoryBase<User> _User;
+        private readonly ITokenServices _TokenServices;
         private readonly IHttpContextHelper _HttpContextHelper;
-        private long SemesterId { set; get; }
+        private AuthToken? _AuthToken;
 
         public ClassServices(IRepositoryBase<Class> @class,
             IRepositoryBase<Lecturer> lecturer,
@@ -39,7 +42,8 @@ namespace Domain.Services
             IRepositoryBase<Class_Student> class_Student,
             IRepositoryBase<Student> student,
             IRepositoryBase<Lecturer_Class> lecturer_class,
-            IHttpContextHelper httpContextHelper)
+            IHttpContextHelper httpContextHelper,
+            ITokenServices tokenServices)
         {
             _Class = @class;
             _Lecturer = lecturer;
@@ -48,8 +52,10 @@ namespace Domain.Services
             _Class_Student = class_Student;
             _Student = student;
             _Lecturer_Class = lecturer_class;
+            _TokenServices = tokenServices;
             _HttpContextHelper = httpContextHelper;
-            SemesterId = string.IsNullOrEmpty(_HttpContextHelper.GetItem("SemesterId")) ? -100 : Convert.ToInt64(_HttpContextHelper.GetItem("SemesterId"));
+            var authHeader = _HttpContextHelper.GetHeader("Authorization");
+            _AuthToken = !string.IsNullOrEmpty(authHeader) ? _TokenServices.GetInfoFromToken(authHeader) : null;
         }
 
         public async Task<HttpResponse> CreateAsync(ClassRequest request)
@@ -261,7 +267,7 @@ namespace Domain.Services
                        s.ClassStudents.Any(lc => StudentName.Contains(lc.StudentId)));
             }
 
-            var c = _Course.ListBy(f => f.SemesterId == SemesterId).Select(s => s.Id).ToList();
+            var c = _Course.ListBy(f => f.SemesterId == _AuthToken!.SemesterId).Select(s => s.Id).ToList();
             query = query.Where(w => c.Contains(w.CourseId.Value));
 
             totalRecords = query.Count(); // Đếm tổng số bản ghi
@@ -335,18 +341,17 @@ namespace Domain.Services
         {
             var classes = GetClassInSemester(string.Empty, -1, -1, out int totalRecords);
 
-            var userId = _HttpContextHelper.GetItem("UserId");
-            //var user 
+            var student = _Student.Find(f => f.Id == _AuthToken!.StudentId);
 
             List<ClassNotification> classNotifications = new List<ClassNotification>();
             foreach (var classNotification in classes)
             {
-                //bool isNotification = classNotification.StudentsId.Contains(student!.Id);
+                bool isNotification = classNotification.StudentsId.Contains(student!.Id);
                 classNotifications.Add(new ClassNotification()
                 {
                     Id = classNotification.Id,
                     Name = classNotification.Name,
-                    //isNotification = isNotification,
+                    isNotification = isNotification,
                 });
             }
 

@@ -18,7 +18,6 @@ namespace Domain.Interfaces.Services
         AuthToken GetInfoFromToken(string token);
         ClaimsPrincipal? ValidateToken(string token);
         Task<HttpResponse> UpdateRefreshToken(RefreshToken info);
-        UserResponse GetUserFromToken(string token);
         string GetRefreshToken(long userId);
         //Task<HttpResponse> RefreshToken(string refreshToken);
     }

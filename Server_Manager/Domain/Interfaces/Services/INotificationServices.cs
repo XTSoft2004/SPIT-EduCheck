@@ -14,7 +14,7 @@ namespace Domain.Interfaces.Services
         Task<HttpResponse> CreateNotification(NotificationRequest notificationRequest);
         Task<HttpResponse> DeleteNotification(long id);
         Task<List<NotificationResponse>> GetNotificationByStudentId();
-        Task<HttpResponse> ActiveNotification(long ClassId, long StudentId);
+        Task<HttpResponse> ActiveNotification(long ClassId);
         Task<HttpResponse> ReadNotification(long NotificationId);
     }
 }

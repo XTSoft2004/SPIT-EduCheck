@@ -106,5 +106,12 @@ namespace Server_Manager.Controllers
             var response = await _services.UploadFile(uploadsFolder, uploadFileRequest);
             return response.ToActionResult();
         }
+
+        [HttpGet("linh-tinh")]
+        public async Task<IActionResult> LinhTinh()
+        {
+            var response = await _services.LinhTinh();
+            return response.ToActionResult();
+        }
     }
 }

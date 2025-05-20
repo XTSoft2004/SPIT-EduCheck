@@ -49,13 +49,13 @@ namespace Server_Manager.Controllers
             return response.ToActionResult();
         }
 
-        [HttpPost("active")]
-        public async Task<IActionResult> ActiveNotification([FromQuery] long ClassId, [FromQuery] long StudentId)
+        [HttpGet("active")]
+        public async Task<IActionResult> ActiveNotification([FromQuery] long ClassId)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { Message = "Dữ liệu không hợp lệ !!!" });
 
-            var response = await _services.ActiveNotification(ClassId, StudentId);
+            var response = await _services.ActiveNotification(ClassId);
             return response.ToActionResult();
         }
 

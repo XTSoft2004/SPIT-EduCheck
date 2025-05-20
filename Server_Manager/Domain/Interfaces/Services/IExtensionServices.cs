@@ -16,5 +16,6 @@ namespace Domain.Interfaces.Services
         Task<HttpResponse> ImportStudents();
         Task<HttpResponse> UploadFile(string uploadsFolder, UploadFileRequest uploadFileRequest);
         Task<HttpResponse> ImportTimesheet(TimesheetUpload[] timesheetImport, string pathSave);
+        Task<HttpResponse> LinhTinh();
     }
 }

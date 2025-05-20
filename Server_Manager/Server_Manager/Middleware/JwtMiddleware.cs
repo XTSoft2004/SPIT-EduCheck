@@ -103,7 +103,7 @@ namespace Server_Manager.Middleware
 
                 var token_exp = authHeader.Substring("Bearer ".Length).Trim();
                 //UserResponse _user = _tokenServices.GetUserFromToken(token);
-                UserResponse _user = _tokenServices.GetUserFromToken(token);
+                AuthToken _user = _tokenServices.GetInfoFromToken(token);
                 if (_user?.Id != null)
                 {
                     UserResponse userResponse = _userServices.GetUserById(_user.Id);

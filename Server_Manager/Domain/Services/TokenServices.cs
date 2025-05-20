@@ -21,10 +21,12 @@ namespace Domain.Services
     public class TokenServices : BaseService, ITokenServices
     {
         private readonly IConfiguration _config;
+        private readonly IRepositoryBase<Student> _student;
         private readonly IRepositoryBase<RefreshToken> _refreshToken;
-        public TokenServices(IConfiguration config, IRepositoryBase<RefreshToken> refreshToken)
+        public TokenServices(IConfiguration config, IRepositoryBase<Student> student, IRepositoryBase<RefreshToken> refreshToken)
         {
             _config = config;
+            _student = student;
             _refreshToken = refreshToken;
         }
 
@@ -34,7 +36,8 @@ namespace Domain.Services
             var claims = new[]
             {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Thêm ID vào token
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim("studentId", _student.Find(f => f.UserId == user.Id).Id.ToString()), 
                 new Claim(ClaimTypes.Role, user.RoleName),
                 new Claim(ClaimTypes.GroupSid, user.SemesterId.ToString()), // Thêm SemesterId vào token
             };
@@ -62,6 +65,7 @@ namespace Domain.Services
             {
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Thêm ID vào token
+                new Claim("studentId", _student.Find(f => f.UserId == user.Id).Id.ToString()),
                 new Claim(ClaimTypes.Role, user.RoleName),
                 new Claim(ClaimTypes.GroupSid, user.SemesterId.ToString()),
             };
@@ -88,22 +92,6 @@ namespace Domain.Services
             var claim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
             return claim != null ? int.Parse(claim.Value) : null;
         }
-        public UserResponse GetUserFromToken(string token)
-        {
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-            var claims = jwtToken.Claims;
-            var IdValue = claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
-            var username = claims.FirstOrDefault(c => c.Type == "unique_name")?.Value; // hoặc "unique_name"
-            var role = claims.FirstOrDefault(c => c.Type == "role")?.Value;
-            var semesterId = claims.FirstOrDefault(c => c.Type == "groupsid")?.Value;
-            return new UserResponse() {
-                Id = !string.IsNullOrEmpty(IdValue) ? long.Parse(IdValue) : -100,
-                Username = username,
-                RoleName = role,
-                SemesterId = !string.IsNullOrEmpty(semesterId) ? long.Parse(semesterId) : -100,
-            };
-        }
         public AuthToken GetInfoFromToken(string token)
         {
             if (String.IsNullOrEmpty(token))
@@ -121,6 +109,7 @@ namespace Domain.Services
 
             var IdValue = claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
             var username = claims.FirstOrDefault(c => c.Type == "unique_name")?.Value; // hoặc "unique_name"
+            var studentId = claims.FirstOrDefault(c => c.Type == "studentId")?.Value;
             var role = claims.FirstOrDefault(c => c.Type == "role")?.Value;
             var semesterId = claims.FirstOrDefault(c => c.Type == "groupsid")?.Value;
             var expiryDateUnix = claims.FirstOrDefault(c => c.Type == "exp")?.Value;
@@ -134,6 +123,7 @@ namespace Domain.Services
             {
                 Id = !string.IsNullOrEmpty(IdValue) ? long.Parse(IdValue) : -100,
                 Username = username,
+                StudentId = !string.IsNullOrEmpty(studentId) ? long.Parse(studentId) : -100,
                 RoleName = role,
                 SemesterId = !string.IsNullOrEmpty(semesterId) ? long.Parse(semesterId) : -100,
                 ExpiryDate = expiryDate,

@@ -97,11 +97,16 @@ namespace Domain.Services
                 var _user = _userAll.Where(f => f.Username == studentMSV).FirstOrDefault();
                 if (_user == null)
                     continue;
-                var student = _Student.Find(f => f.MaSinhVien == studentMSV);
-                if (student != null)
+                var _student = _Student.Find(f => f.MaSinhVien == studentMSV);
+                if (_student != null)
                 {
-                    student.User = _user;
-                    _Student.Update(student);
+                    _student.User = _user;
+                    _student.UserId = _user.Id;
+                    _Student.Update(_student);
+
+                    _user.Student = _student;
+                    _user.StudentId = _student.Id;
+                    _User.Update(_user);
                 }
             }
             await UnitOfWork.CommitAsync();
@@ -320,6 +325,28 @@ namespace Domain.Services
         public Task<HttpResponse> UploadFile(string uploadsFolder, Model.Request.Extension.UploadFileRequest uploadFileRequest)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<HttpResponse> LinhTinh()
+        {
+            var students = _Student.All().ToList();
+            foreach (var student in students)
+            {
+                var user = _User.Find(f => f.StudentId == student.Id);
+                if (user != null)
+                {
+                    student.User = user;
+                    student.UserId = user.Id;
+                    _Student.Update(student);
+
+                    user.Student = student;
+                    user.StudentId = student.Id;
+                    _User.Update(user);
+                }
+            }
+            await UnitOfWork.CommitAsync();
+
+            return HttpResponse.OK(message: "Cập nhật thành công.");
         }
     }
 }

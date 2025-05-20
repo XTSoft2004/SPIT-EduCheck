@@ -26,13 +26,14 @@ namespace Domain.Services
         private readonly ITokenServices _TokenServices;
         private readonly IHttpContextHelper _HttpContextHelper;
         private AuthToken? _AuthToken;
-        public NotificationServices(IRepositoryBase<Notification> repository, IRepositoryBase<User> userRepository, IRepositoryBase<Student> studentRepository, IRepositoryBase<Class> classRepository, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
+        public NotificationServices(IRepositoryBase<Notification> repository, IRepositoryBase<Class_Student> classStudentRepository, IRepositoryBase<User> userRepository, IRepositoryBase<Student> studentRepository, IRepositoryBase<Class> classRepository, ITokenServices tokenServices, IHttpContextHelper httpContextHelper)
         {
             _repository = repository;
             _studentRepository = studentRepository;
             _classRepository = classRepository;
             _userRepository = userRepository;
             _TokenServices = tokenServices;
+            _classStudentRepository = classStudentRepository;
             _HttpContextHelper = httpContextHelper;
             var authHeader = _HttpContextHelper.GetHeader("Authorization");
             _AuthToken = !string.IsNullOrEmpty(authHeader) ? _TokenServices.GetInfoFromToken(authHeader) : null;
@@ -96,30 +97,35 @@ namespace Domain.Services
             return notifications;
         }
 
-        public async Task<HttpResponse> ActiveNotification(long ClassId, long StudentId)
+        public async Task<HttpResponse> ActiveNotification(long ClassId)
         {
             var @class = _classRepository.Find(f => f.Id == ClassId);
             if (@class == null)
                 return HttpResponse.Error("Không tìm thấy lớp học.", System.Net.HttpStatusCode.NotFound);
 
-            var student = _studentRepository.Find(f => f.Id == StudentId);
+            var student = _studentRepository.Find(f => f.Id == _AuthToken!.StudentId);
             if (student == null)
                 return HttpResponse.Error("Không tìm thấy sinh viên.", System.Net.HttpStatusCode.NotFound);
 
-            var classStudent = _classStudentRepository.Find(f => f.ClassId == ClassId && f.StudentId == StudentId);
+            var classStudent = _classStudentRepository.Find(f => f.ClassId == ClassId && f.StudentId == _AuthToken!.StudentId);
             if (classStudent != null)
-                return HttpResponse.Error("Đã bật thông báo cho lớp này!", System.Net.HttpStatusCode.BadRequest);
-
-            Class_Student _classStudent = new Class_Student()
             {
-                ClassId = ClassId,
-                StudentId = StudentId,
-                CreatedDate = DateTime.Now
-            };
-            _classStudentRepository.Insert(_classStudent);
-            await UnitOfWork.CommitAsync();
-
-            return HttpResponse.OK(message: $"Bật thông báo cho lớp {@class.Name} thành công!");
+                _classStudentRepository.Delete(classStudent);
+                await UnitOfWork.CommitAsync();
+                return HttpResponse.Error("Tắt thông báo cho lớp này!", System.Net.HttpStatusCode.BadRequest);
+            }
+            else
+            {
+                Class_Student _classStudent = new Class_Student()
+                {
+                    ClassId = ClassId,
+                    StudentId = _AuthToken!.StudentId,
+                    CreatedDate = DateTime.Now
+                };
+                _classStudentRepository.Insert(_classStudent);
+                await UnitOfWork.CommitAsync();
+                return HttpResponse.OK(message: $"Bật thông báo cho lớp {@class.Name} thành công!");
+            }      
         }
 
         public async Task<HttpResponse> ReadNotification(long NotificationId)
