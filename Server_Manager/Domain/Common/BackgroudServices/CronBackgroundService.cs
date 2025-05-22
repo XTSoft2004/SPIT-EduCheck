@@ -111,6 +111,7 @@ namespace Domain.Common.BackgroudServices
                 foreach (var entry in classStudents)
                 {
                     // Kiểm tra xem lớp này đã thông báo trong hôm đó chưa
+                    bool isSendMessage = false;
                     var classRemove = ClassDayofWeek.Where(w => w.Id == entry.Class.Id).FirstOrDefault();
                     if (classRemove != null)
                     {
@@ -126,9 +127,10 @@ namespace Domain.Common.BackgroudServices
                             };
 
                             bool isSend = await SendNotification(token.AccessToken, notificationRequest);
-                            if(isSend)
+                            PrintWithRandomColor($"Gửi thông báo đến {entry.Student.MaSinhVien} về lớp học {entry.Class.Name}"); // In ra thông báo với màu ngẫu nhiên
+                            if (isSend && !isSendMessage)
                             {
-                                PrintWithRandomColor($"Gửi thông báo đến {entry.Student.MaSinhVien} về lớp học {entry.Class.Name}"); // In ra thông báo với màu ngẫu nhiên
+                                isSendMessage = true;
                                 notificationRepo.Insert(new Notification
                                 {
                                     Title = notificationRequest.Title,
@@ -140,9 +142,12 @@ namespace Domain.Common.BackgroudServices
                                 await unitOfWork.CommitAsync(); // Lưu thông báo vào cơ sở dữ liệu
                             }
                         }
-                        
-                        ClassDayofWeek.Remove(classRemove);
-                        PrintWithRandomColor($"Lớp học {entry.Class.Name} đã được xóa khỏi danh sách lớp học trong ngày {DayOfWeekNow}"); // In ra thông báo với màu ngẫu nhiên
+                        if(isSendMessage)
+                        {
+                            // Nếu đã gửi thông báo thì xóa lớp học khỏi danh sách lớp học trong ngày
+                            ClassDayofWeek.Remove(classRemove);
+                            PrintWithRandomColor($"Lớp học {entry.Class.Name} đã được xóa khỏi danh sách lớp học trong ngày {DayOfWeekNow}"); // In ra thông báo với màu ngẫu nhiên
+                        }
                     }
                     else
                         PrintWithRandomColor($"Không có lớp học nào hợp lệ");
