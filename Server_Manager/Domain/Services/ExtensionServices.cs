@@ -329,21 +329,29 @@ namespace Domain.Services
 
         public async Task<HttpResponse> LinhTinh()
         {
-            var students = _Student.All().ToList();
-            foreach (var student in students)
+            var classes = _Class.All().ToList();
+            foreach (var @class in classes)
             {
-                var user = _User.Find(f => f.StudentId == student.Id);
-                if (user != null)
-                {
-                    student.User = user;
-                    student.UserId = user.Id;
-                    _Student.Update(student);
+                var _couse = _Course.Find(f => f.Id == @class.CourseId);
+                if (_couse == null)
+                    continue;
 
-                    user.Student = student;
-                    user.StudentId = student.Id;
-                    _User.Update(user);
-                }
+                @class.Course = _couse;
+                @class.CourseId = _couse.Id;
+                _Class.Update(@class);
             }
+
+            var couse = _Course.All().ToList();
+            foreach (var course in couse)
+            {
+                var semester = _Semester.Find(f => f.Id == course.SemesterId);
+                if (semester == null)
+                    continue;
+                course.Semester = semester;
+                course.SemesterId = semester.Id;
+                _Course.Update(course);
+            }
+
             await UnitOfWork.CommitAsync();
 
             return HttpResponse.OK(message: "Cập nhật thành công.");

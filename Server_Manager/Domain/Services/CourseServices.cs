@@ -41,7 +41,7 @@ namespace Domain.Services
             var _semester = _Semester.Find(f => f.Id == courseRequest.SemesterId);
             if (_semester == null)
                 return HttpResponse.Error("Không tìm thấy học kỳ.", System.Net.HttpStatusCode.NotFound);
-       
+
             var Course = new Course()
             {
                 Code = courseRequest.Code,
@@ -49,6 +49,7 @@ namespace Domain.Services
                 Credits = courseRequest.Credits,
                 CreatedDate = DateTime.Now,
                 SemesterId = courseRequest.SemesterId,
+                Semester = _semester
             };
             _Course.Insert(Course);
             await UnitOfWork.CommitAsync();
@@ -72,6 +73,9 @@ namespace Domain.Services
             course.Name = courseRequest.Name;
             course.Credits = courseRequest.Credits;
             course.SemesterId = courseRequest.SemesterId;
+            course.Semester = _semester;
+            course.ModifiedDate = DateTime.Now;
+
             _Course.Update(course);
             await UnitOfWork.CommitAsync();
             return HttpResponse.OK(message: "Cập nhật môn học thành công.");

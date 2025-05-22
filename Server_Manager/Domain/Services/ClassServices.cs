@@ -89,6 +89,7 @@ namespace Domain.Services
                 TimeEnd = request.TimeEnd,
                 CreatedDate = DateTime.Now,
                 CourseId = request.CourseId,
+                Course = _course
             };
 
             _Class.Insert(Class);
@@ -152,6 +153,7 @@ namespace Domain.Services
                 _class.TimeStart = request.TimeStart;
                 _class.TimeEnd = request.TimeEnd;
                 _class.CourseId = request.CourseId;
+                _class.Course = _Course.Find(f => f.Id == request.CourseId);
 
                 var class_students = _Class_Student.ListBy(f => f.ClassId == request.Id);
                 var StudentNotClass = class_students.Where(f => !request.StudentsId.Contains(f.StudentId)).ToList();
