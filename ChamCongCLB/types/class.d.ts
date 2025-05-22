@@ -10,6 +10,12 @@ export interface IClass {
   studentsId: number[]
 }
 
+export interface IClassNotification {
+  id: number
+  name: number
+  isNotification: boolean
+}
+
 export interface IClassFilter {
   pageNumber: number
   pageSize: number

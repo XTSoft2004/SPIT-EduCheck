@@ -6,6 +6,7 @@ export interface IUser {
   roleName: string
   semesterId: number
   studentName: string
+  avatarUrl: string
 }
 
 interface IUserProfile {
@@ -67,5 +68,5 @@ interface IInfoUpdate {
 }
 
 interface IAvatarUpdate {
-  imageBase64: string;
+  imageBase64: string
 }

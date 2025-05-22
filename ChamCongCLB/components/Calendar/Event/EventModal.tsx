@@ -306,21 +306,45 @@ const EventModal: React.FC<EventModalProps> = ({
                         name="imageBase64"
                         label="Ảnh chấm công"
                         valuePropName="fileList"
-                        getValueFromEvent={(e) => Array.isArray(e) ? e : e?.fileList}
+                        getValueFromEvent={(e) => {
+                            if (Array.isArray(e)) return e;
+                            return e && e.fileList ? e.fileList : [];
+                        }}
                         rules={[{ required: !selectedEvent, message: "Chọn ảnh" }]}
                     >
+                        {/* Hiển thị ảnh điểm danh nếu đã có imageBase64 */}
+                        {(() => {
+                            // Nếu đã có file upload (trong form), ưu tiên hiển thị
+                            const fileList = form.getFieldValue('imageBase64') || [];
+                            const file = fileList[0];
+                            let previewUrl = '';
+                            let objectUrl: string | undefined;
+                            if (file) {
+                                previewUrl = form.getFieldValue('imageBase64');
+                            } else if (selectedEvent?.imageBase64) {
+                                // Nếu chưa có file upload, nhưng có imageBase64 từ selectedEvent
+                                previewUrl = selectedEvent.imageBase64;
+                            }
+                            return (
+                                previewUrl && (
+                                    <div style={{ position: 'relative', width: '350px', height: 'auto' }}>
+                                        <img
+                                            src={previewUrl}
+                                            alt="Hình ảnh điểm danh"
+                                            style={{ width: '350px', height: 'auto', marginBottom: '10px' }}
+                                            loading="lazy"
+                                            onLoad={() => {
+                                                if (objectUrl) {
+                                                    URL.revokeObjectURL(objectUrl);
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                )
+                            );
+                        })()}
 
-                        {form.getFieldValue('imageBase64')?.length > 0 && (
-                            <div style={{ position: 'relative', width: '350px', height: 'auto' }}>
-                                <img
-                                    src={`${form.getFieldValue('imageBase64')}`}
-                                    alt="Hình ảnh điểm danh"
-                                    style={{ width: '350px', height: 'auto', marginBottom: '10px' }}
-                                    loading="lazy"
-                                />
-                            </div>
-                        )}
-
+                        {/* Upload ảnh */}
                         <Upload
                             name="imageBase64"
                             listType="picture"
@@ -329,9 +353,19 @@ const EventModal: React.FC<EventModalProps> = ({
                             maxCount={1}
                             showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
                             onChange={(info) => {
-                                const fileList = Array.isArray(info.fileList) ? info.fileList : [];
+                                let fileList: any[] = [];
+                                try {
+                                    if (Array.isArray(info.fileList)) {
+                                        fileList = info.fileList;
+                                    } else if (info.fileList) {
+                                        fileList = [info.fileList];
+                                    }
+                                } catch (error) {
+                                    console.error("Lỗi khi xử lý fileList:", error);
+                                    fileList = [];
+                                }
+                                form.setFieldsValue({ imageBase64: fileList });
                                 if (fileList.length > 0) {
-                                    form.setFieldsValue({ imageBase64: fileList });
                                     message.success(`Tải lên hình ảnh thành công`);
                                 }
                             }}

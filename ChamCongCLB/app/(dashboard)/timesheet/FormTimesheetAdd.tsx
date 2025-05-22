@@ -89,13 +89,11 @@ export default function FormTimesheetAdd({ form, classes, students }: FormClassP
             <Form.Item
                 label="Hình ảnh điểm danh"
                 name="imageBase64"
-                valuePropName="fileList"
-                getValueFromEvent={(e) => Array.isArray(e?.fileList) ? e.fileList : []}
                 rules={[{ required: !form.getFieldValue('imageBase64'), message: 'Vui lòng chọn hình ảnh điểm danh' }]}>
 
-                {form.getFieldValue('imageBase64')?.length > 0 && (
+                {form.getFieldValue('imageBase64') && (
                     <img
-                        src={`http://xtcoder2004.io.vn:5000/extension/image?nameFile=${form.getFieldValue('imageBase64')}`}
+                        src={form.getFieldValue('imageBase64')}
                         alt="Hình ảnh điểm danh"
                         style={{ width: "200px", height: "auto", marginBottom: "10px" }}
                         loading="lazy"
@@ -106,20 +104,19 @@ export default function FormTimesheetAdd({ form, classes, students }: FormClassP
                     name="imageBase64"
                     listType="picture"
                     accept="image/*"
-                    beforeUpload={() => false} // Prevent auto upload
-                    maxCount={1}
-                    showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
-                    onChange={(info) => {
-                        if (info.file.status === 'done') {
-                            // Handle successful upload
-                        } else if (info.file.status === 'error') {
-                            // Handle upload failure
-                        }
+                    beforeUpload={async (file) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = () => {
+                            form.setFieldsValue({ imageBase64: reader.result });
+                        };
+                        // Prevent upload
+                        return false;
                     }}
+                    maxCount={1}
+                    showUploadList={false}
                 >
-                    <Button icon={<UploadOutlined />}>
-                        Tải lên hình ảnh điểm danh
-                    </Button>
+                    <Button icon={<UploadOutlined />}>Tải lên hình ảnh điểm danh</Button>
                 </Upload>
             </Form.Item>
             <Form.Item
@@ -134,6 +131,6 @@ export default function FormTimesheetAdd({ form, classes, students }: FormClassP
             >
                 <Input placeholder="VD: Đi hộ" />
             </Form.Item>
-        </Form>
+        </Form >
     );
 }

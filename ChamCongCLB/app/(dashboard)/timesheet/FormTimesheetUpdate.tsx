@@ -121,16 +121,17 @@ export default function FormTimesheetUpdate({
           name="imageBase64"
           listType="picture"
           accept="image/*"
-          beforeUpload={() => false} // Prevent auto upload
-          maxCount={1}
-          showUploadList={{ showPreviewIcon: true, showRemoveIcon: true }}
-          onChange={(info) => {
-            if (info.file.status === 'done') {
-              // Handle successful upload
-            } else if (info.file.status === 'error') {
-              // Handle upload failure
+          beforeUpload={async (file) => {
+            const reader = new FileReader()
+            reader.readAsDataURL(file)
+            reader.onload = () => {
+              form.setFieldsValue({ imageBase64: reader.result })
             }
+            // Prevent upload
+            return false
           }}
+          maxCount={1}
+          showUploadList={false}
         >
           <Button icon={<UploadOutlined />}>Tải lên hình ảnh điểm danh</Button>
         </Upload>
