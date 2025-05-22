@@ -160,8 +160,9 @@ namespace Domain.Common.BackgroudServices
 
         public async Task<string> GetAccessTokenAsync()
         {
+            string pathDomain = $"{AppContext.BaseDirectory}chamcongclb-service-account.json";
             var credential = await GoogleCredential
-                .FromFileAsync("D:\\Learn_HUSC\\C#\\SPIT-EduCheck\\Server_Manager\\Domain\\chamcongclb-service-account.json", CancellationToken.None);
+                .FromFileAsync(pathDomain, CancellationToken.None);
 
             var scoped = credential.CreateScoped("https://www.googleapis.com/auth/firebase.messaging");
 
