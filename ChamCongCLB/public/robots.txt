@@ -1,0 +1,14 @@
+# *
+User-agent: *
+Allow: /
+
+# *
+User-agent: *
+Disallow: /admin
+Disallow: /api
+
+# Host
+Host: https://chamcong.spit-husc.io.vn
+
+# Sitemaps
+Sitemap: https://chamcong.spit-husc.io.vn/sitemap.xml
